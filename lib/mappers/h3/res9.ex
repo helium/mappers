@@ -2,6 +2,7 @@ defmodule Mappers.H3.Res9 do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @primary_key {:id, :string, []}
   schema "h3_res9" do
     field :state, :string
     field :average_rssi, :integer

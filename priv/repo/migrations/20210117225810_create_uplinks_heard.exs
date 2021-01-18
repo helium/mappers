@@ -9,7 +9,7 @@ defmodule Mappers.Repo.Migrations.CreateUplinksHeard do
       add :rssi, :integer
       add :snr, :float
       add :timestamp, :utc_datetime_usec
-      add :uplink_id, references(:uplinks, on_delete: :delete_all)
+      add :uplink_id, references(:uplinks, type: :uuid, on_delete: :delete_all)
     end
 
     create index(:uplinks_heard, [:uplink_id])
