@@ -25,7 +25,7 @@ defmodule Mix.Tasks.H3Populate do
       cond do
         is_integer(index) -> IO.puts(index)
         is_list(index) -> printChildren(index)
-        true -> IO.puts("done")
+        true -> IO.puts("no integer or list")
       end
     end)
   end
@@ -35,7 +35,7 @@ defmodule Mix.Tasks.H3Populate do
       cond do
         is_integer(index) && index > 0 -> insertIndex(index)
         is_list(index) -> insertChildren(index)
-        true -> IO.puts("done")
+        true -> IO.puts("no integer or list")
       end
     end)
   end
@@ -48,61 +48,189 @@ defmodule Mix.Tasks.H3Populate do
     if :h3.is_valid(hex) do
       IO.puts(length(poly))
 
-      if length(poly) == 5 do
-        geom_v =
-          %{}
-          |> Map.put(:id, Kernel.inspect(hex))
-          |> Map.put(:state, "unmapped")
-          |> Map.put(:average_rssi, -100)
-          |> Map.put(:geom, %Geo.Polygon{
-            coordinates: [
-              [
-                {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
-              ]
-            ],
-            srid: 4326
-          })
+      cond do
+        length(poly) == 5 ->
+          geom_v =
+            %{}
+            |> Map.put(:id, Kernel.inspect(hex))
+            |> Map.put(:state, "unmapped")
+            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:geom, %Geo.Polygon{
+              coordinates: [
+                [
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                ]
+              ],
+              srid: 4326
+            })
 
-        %Mappers.H3.Res9{}
-        |> Mappers.H3.Res9.changeset(geom_v)
-        |> Mappers.Repo.insert()
-        |> case do
-          {:ok, struct} -> IO.puts("Insert Successful")
-          {:error, changeset} -> IO.puts("Insert Error #{changeset}")
-        end
-      else
-        geom_v =
-          %{}
-          |> Map.put(:id, Kernel.inspect(hex))
-          |> Map.put(:state, "unmapped")
-          |> Map.put(:average_rssi, -100)
-          |> Map.put(:geom, %Geo.Polygon{
-            coordinates: [
-              [
-                {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
-              ]
-            ],
-            srid: 4326
-          })
+          %Mappers.H3.Res9{}
+          |> Mappers.H3.Res9.changeset(geom_v)
+          |> Mappers.Repo.insert()
+          |> case do
+            {:ok, _} -> IO.puts("Insert Successful")
+            {:error, changeset} -> IO.puts("Insert Error #{changeset}")
+          end
 
-        %Mappers.H3.Res9{}
-        |> Mappers.H3.Res9.changeset(geom_v)
-        |> Mappers.Repo.insert()
-        |> case do
-          {:ok, struct} -> IO.puts("Insert Successful")
-          {:error, changeset} -> IO.puts("Insert Error #{changeset}")
-        end
+        length(poly) == 6 ->
+          geom_v =
+            %{}
+            |> Map.put(:id, Kernel.inspect(hex))
+            |> Map.put(:state, "unmapped")
+            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:geom, %Geo.Polygon{
+              coordinates: [
+                [
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                ]
+              ],
+              srid: 4326
+            })
+
+          %Mappers.H3.Res9{}
+          |> Mappers.H3.Res9.changeset(geom_v)
+          |> Mappers.Repo.insert()
+          |> case do
+            {:ok, _} -> IO.puts("Insert Successful")
+            {:error, changeset} -> IO.puts("Insert Error #{changeset}")
+          end
+
+        length(poly) == 7 ->
+          geom_v =
+            %{}
+            |> Map.put(:id, Kernel.inspect(hex))
+            |> Map.put(:state, "unmapped")
+            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:geom, %Geo.Polygon{
+              coordinates: [
+                [
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                  {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                ]
+              ],
+              srid: 4326
+            })
+
+          %Mappers.H3.Res9{}
+          |> Mappers.H3.Res9.changeset(geom_v)
+          |> Mappers.Repo.insert()
+          |> case do
+            {:ok, _} -> IO.puts("Insert Successful")
+            {:error, changeset} -> IO.puts("Insert Error #{changeset}")
+          end
+
+        length(poly) == 8 ->
+          geom_v =
+            %{}
+            |> Map.put(:id, Kernel.inspect(hex))
+            |> Map.put(:state, "unmapped")
+            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:geom, %Geo.Polygon{
+              coordinates: [
+                [
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                  {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
+                  {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                ]
+              ],
+              srid: 4326
+            })
+
+          %Mappers.H3.Res9{}
+          |> Mappers.H3.Res9.changeset(geom_v)
+          |> Mappers.Repo.insert()
+          |> case do
+            {:ok, _} -> IO.puts("Insert Successful")
+            {:error, changeset} -> IO.puts("Insert Error #{changeset}")
+          end
+
+        length(poly) == 9 ->
+          geom_v =
+            %{}
+            |> Map.put(:id, Kernel.inspect(hex))
+            |> Map.put(:state, "unmapped")
+            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:geom, %Geo.Polygon{
+              coordinates: [
+                [
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                  {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
+                  {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
+                  {elem(Enum.at(poly, 8), 1), elem(Enum.at(poly, 8), 0)},
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                ]
+              ],
+              srid: 4326
+            })
+
+          %Mappers.H3.Res9{}
+          |> Mappers.H3.Res9.changeset(geom_v)
+          |> Mappers.Repo.insert()
+          |> case do
+            {:ok, _} -> IO.puts("Insert Successful")
+            {:error, changeset} -> IO.puts("Insert Error #{changeset}")
+          end
+
+        length(poly) == 10 ->
+          geom_v =
+            %{}
+            |> Map.put(:id, Kernel.inspect(hex))
+            |> Map.put(:state, "unmapped")
+            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:geom, %Geo.Polygon{
+              coordinates: [
+                [
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                  {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
+                  {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
+                  {elem(Enum.at(poly, 8), 1), elem(Enum.at(poly, 8), 0)},
+                  {elem(Enum.at(poly, 9), 1), elem(Enum.at(poly, 9), 0)},
+                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                ]
+              ],
+              srid: 4326
+            })
+
+          %Mappers.H3.Res9{}
+          |> Mappers.H3.Res9.changeset(geom_v)
+          |> Mappers.Repo.insert()
+          |> case do
+            {:ok, _} -> IO.puts("Insert Successful")
+            {:error, changeset} -> IO.puts("Insert Error #{changeset}")
+          end
       end
     end
   end
@@ -111,15 +239,15 @@ defmodule Mix.Tasks.H3Populate do
   def run(_) do
     Mix.Task.run("app.start")
 
-    IO.puts("Start")
+    h3res = 2
+
+    IO.puts"Start"
+
     basecells = :h3.get_res0_indexes()
-    IO.puts(length(basecells))
-
-    h3res = 4
-
     indexes =
       Enum.reduce(basecells, [], fn index, acc -> [getChildrenAtRes(index, h3res, []) | acc] end)
-
     insertChildren(indexes)
+
+    IO.puts"Complete"
   end
 end
