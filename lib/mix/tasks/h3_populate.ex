@@ -43,13 +43,39 @@ defmodule Mix.Tasks.H3Populate do
   def insertIndex(hex) do
     poly = :h3.to_geo_boundary(hex)
 
-    IO.puts(hex)
+    IO.puts("Hex: #{hex}")
 
     if :h3.is_valid(hex) do
       IO.puts(length(poly))
 
       cond do
         length(poly) == 5 ->
+
+          IO.puts"Polygon Sides: #{length(poly)}"
+          lng_0 = elem(Enum.at(poly, 0), 1)
+          lng_l =
+            Enum.reduce(poly, [], fn coords, acc ->
+              lng_c = elem(coords, 1)
+              val = abs(lng_0 - lng_c)
+              IO.puts("\nArc Length: #{val}")
+              IO.puts("lng_c: #{lng_c}")
+
+              if val > 180 do
+                IO.puts("***********Is Transmeridian**********")
+                if lng_c < 0 do
+                  IO.puts("lng_c + 360: #{lng_c + 360}\n")
+                  [lng_c + 360 | acc]
+                else
+                  [lng_c * -1 | acc]
+                end
+
+              else
+                [lng_c | acc]
+              end
+            end)
+
+          lng_l = Enum.reverse(lng_l)
+
           geom_v =
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
@@ -58,12 +84,12 @@ defmodule Mix.Tasks.H3Populate do
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)},
+                  {Enum.at(lng_l, 1), elem(Enum.at(poly, 1), 0)},
+                  {Enum.at(lng_l, 2), elem(Enum.at(poly, 2), 0)},
+                  {Enum.at(lng_l, 3), elem(Enum.at(poly, 3), 0)},
+                  {Enum.at(lng_l, 4), elem(Enum.at(poly, 4), 0)},
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)}
                 ]
               ],
               srid: 4326
@@ -78,6 +104,32 @@ defmodule Mix.Tasks.H3Populate do
           end
 
         length(poly) == 6 ->
+
+        IO.puts"Polygon Sides: #{length(poly)}"
+          lng_0 = elem(Enum.at(poly, 0), 1)
+          lng_l =
+            Enum.reduce(poly, [], fn coords, acc ->
+              lng_c = elem(coords, 1)
+              val = abs(lng_0 - lng_c)
+              IO.puts("\nArc Length: #{val}")
+              IO.puts("lng_c: #{lng_c}")
+
+              if val > 180 do
+                IO.puts("***********Is Transmeridian**********")
+                if lng_c < 0 do
+                  IO.puts("lng_c + 360: #{lng_c + 360}\n")
+                  [lng_c + 360 | acc]
+                else
+                  [lng_c * -1 | acc]
+                end
+
+              else
+                [lng_c | acc]
+              end
+            end)
+
+          lng_l = Enum.reverse(lng_l)
+
           geom_v =
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
@@ -86,13 +138,13 @@ defmodule Mix.Tasks.H3Populate do
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)},
+                  {Enum.at(lng_l, 1), elem(Enum.at(poly, 1), 0)},
+                  {Enum.at(lng_l, 2), elem(Enum.at(poly, 2), 0)},
+                  {Enum.at(lng_l, 3), elem(Enum.at(poly, 3), 0)},
+                  {Enum.at(lng_l, 4), elem(Enum.at(poly, 4), 0)},
+                  {Enum.at(lng_l, 5), elem(Enum.at(poly, 5), 0)},
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)}
                 ]
               ],
               srid: 4326
@@ -107,6 +159,32 @@ defmodule Mix.Tasks.H3Populate do
           end
 
         length(poly) == 7 ->
+
+          IO.puts"Polygon Sides: #{length(poly)}"
+          lng_0 = elem(Enum.at(poly, 0), 1)
+          lng_l =
+            Enum.reduce(poly, [], fn coords, acc ->
+              lng_c = elem(coords, 1)
+              val = abs(lng_0 - lng_c)
+              IO.puts("\nArc Length: #{val}")
+              IO.puts("lng_c: #{lng_c}")
+
+              if val > 180 do
+                IO.puts("***********Is Transmeridian**********")
+                if lng_c < 0 do
+                  IO.puts("lng_c + 360: #{lng_c + 360}\n")
+                  [lng_c + 360 | acc]
+                else
+                  [lng_c * -1 | acc]
+                end
+
+              else
+                [lng_c | acc]
+              end
+            end)
+
+          lng_l = Enum.reverse(lng_l)
+
           geom_v =
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
@@ -115,14 +193,14 @@ defmodule Mix.Tasks.H3Populate do
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                  {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                 {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)},
+                  {Enum.at(lng_l, 1), elem(Enum.at(poly, 1), 0)},
+                  {Enum.at(lng_l, 2), elem(Enum.at(poly, 2), 0)},
+                  {Enum.at(lng_l, 3), elem(Enum.at(poly, 3), 0)},
+                  {Enum.at(lng_l, 4), elem(Enum.at(poly, 4), 0)},
+                  {Enum.at(lng_l, 5), elem(Enum.at(poly, 5), 0)},
+                  {Enum.at(lng_l, 6), elem(Enum.at(poly, 6), 0)},
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)}
                 ]
               ],
               srid: 4326
@@ -137,6 +215,32 @@ defmodule Mix.Tasks.H3Populate do
           end
 
         length(poly) == 8 ->
+
+        IO.puts"Polygon Sides: #{length(poly)}"
+          lng_0 = elem(Enum.at(poly, 0), 1)
+          lng_l =
+            Enum.reduce(poly, [], fn coords, acc ->
+              lng_c = elem(coords, 1)
+              val = abs(lng_0 - lng_c)
+              IO.puts("\nArc Length: #{val}")
+              IO.puts("lng_c: #{lng_c}")
+
+              if val > 180 do
+                IO.puts("***********Is Transmeridian**********")
+                if lng_c < 0 do
+                  IO.puts("lng_c + 360: #{lng_c + 360}\n")
+                  [lng_c + 360 | acc]
+                else
+                  [lng_c * -1 | acc]
+                end
+
+              else
+                [lng_c | acc]
+              end
+            end)
+
+          lng_l = Enum.reverse(lng_l)
+
           geom_v =
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
@@ -145,15 +249,15 @@ defmodule Mix.Tasks.H3Populate do
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                  {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
-                  {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)},
+                  {Enum.at(lng_l, 1), elem(Enum.at(poly, 1), 0)},
+                  {Enum.at(lng_l, 2), elem(Enum.at(poly, 2), 0)},
+                  {Enum.at(lng_l, 3), elem(Enum.at(poly, 3), 0)},
+                  {Enum.at(lng_l, 4), elem(Enum.at(poly, 4), 0)},
+                  {Enum.at(lng_l, 5), elem(Enum.at(poly, 5), 0)},
+                  {Enum.at(lng_l, 6), elem(Enum.at(poly, 6), 0)},
+                  {Enum.at(lng_l, 7), elem(Enum.at(poly, 7), 0)},
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)}
                 ]
               ],
               srid: 4326
@@ -168,6 +272,32 @@ defmodule Mix.Tasks.H3Populate do
           end
 
         length(poly) == 9 ->
+
+          IO.puts"Polygon Sides: #{length(poly)}"
+          lng_0 = elem(Enum.at(poly, 0), 1)
+          lng_l =
+            Enum.reduce(poly, [], fn coords, acc ->
+              lng_c = elem(coords, 1)
+              val = abs(lng_0 - lng_c)
+              IO.puts("\nArc Length: #{val}")
+              IO.puts("lng_c: #{lng_c}")
+
+              if val > 180 do
+                IO.puts("***********Is Transmeridian**********")
+                if lng_c < 0 do
+                  IO.puts("lng_c + 360: #{lng_c + 360}\n")
+                  [lng_c + 360 | acc]
+                else
+                  [lng_c * -1 | acc]
+                end
+
+              else
+                [lng_c | acc]
+              end
+            end)
+
+          lng_l = Enum.reverse(lng_l)
+
           geom_v =
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
@@ -176,16 +306,16 @@ defmodule Mix.Tasks.H3Populate do
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                  {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
-                  {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
-                  {elem(Enum.at(poly, 8), 1), elem(Enum.at(poly, 8), 0)},
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)},
+                  {Enum.at(lng_l, 1), elem(Enum.at(poly, 1), 0)},
+                  {Enum.at(lng_l, 2), elem(Enum.at(poly, 2), 0)},
+                  {Enum.at(lng_l, 3), elem(Enum.at(poly, 3), 0)},
+                  {Enum.at(lng_l, 4), elem(Enum.at(poly, 4), 0)},
+                  {Enum.at(lng_l, 5), elem(Enum.at(poly, 5), 0)},
+                  {Enum.at(lng_l, 6), elem(Enum.at(poly, 6), 0)},
+                  {Enum.at(lng_l, 7), elem(Enum.at(poly, 7), 0)},
+                  {Enum.at(lng_l, 8), elem(Enum.at(poly, 8), 0)},
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)}
                 ]
               ],
               srid: 4326
@@ -200,6 +330,32 @@ defmodule Mix.Tasks.H3Populate do
           end
 
         length(poly) == 10 ->
+
+          IO.puts"Polygon Sides: #{length(poly)}"
+          lng_0 = elem(Enum.at(poly, 0), 1)
+          lng_l =
+            Enum.reduce(poly, [], fn coords, acc ->
+              lng_c = elem(coords, 1)
+              val = abs(lng_0 - lng_c)
+              IO.puts("\nArc Length: #{val}")
+              IO.puts("lng_c: #{lng_c}")
+
+              if val > 180 do
+                IO.puts("***********Is Transmeridian**********")
+                if lng_c < 0 do
+                  IO.puts("lng_c + 360: #{lng_c + 360}\n")
+                  [lng_c + 360 | acc]
+                else
+                  [lng_c * -1 | acc]
+                end
+
+              else
+                [lng_c | acc]
+              end
+            end)
+
+          lng_l = Enum.reverse(lng_l)
+
           geom_v =
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
@@ -208,17 +364,17 @@ defmodule Mix.Tasks.H3Populate do
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                  {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                  {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                  {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                  {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                  {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                  {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
-                  {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
-                  {elem(Enum.at(poly, 8), 1), elem(Enum.at(poly, 8), 0)},
-                  {elem(Enum.at(poly, 9), 1), elem(Enum.at(poly, 9), 0)},
-                  {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                 {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)},
+                  {Enum.at(lng_l, 1), elem(Enum.at(poly, 1), 0)},
+                  {Enum.at(lng_l, 2), elem(Enum.at(poly, 2), 0)},
+                  {Enum.at(lng_l, 3), elem(Enum.at(poly, 3), 0)},
+                  {Enum.at(lng_l, 4), elem(Enum.at(poly, 4), 0)},
+                  {Enum.at(lng_l, 5), elem(Enum.at(poly, 5), 0)},
+                  {Enum.at(lng_l, 6), elem(Enum.at(poly, 6), 0)},
+                  {Enum.at(lng_l, 7), elem(Enum.at(poly, 7), 0)},
+                  {Enum.at(lng_l, 8), elem(Enum.at(poly, 8), 0)},
+                  {Enum.at(lng_l, 9), elem(Enum.at(poly, 9), 0)},
+                  {Enum.at(lng_l, 0), elem(Enum.at(poly, 0), 0)}
                 ]
               ],
               srid: 4326
@@ -239,15 +395,17 @@ defmodule Mix.Tasks.H3Populate do
   def run(_) do
     Mix.Task.run("app.start")
 
-    h3res = 2
+    h3res = 1
 
-    IO.puts"Start"
+    IO.puts("Start")
 
     basecells = :h3.get_res0_indexes()
+
     indexes =
       Enum.reduce(basecells, [], fn index, acc -> [getChildrenAtRes(index, h3res, []) | acc] end)
+
     insertChildren(indexes)
 
-    IO.puts"Complete"
+    IO.puts("Complete")
   end
 end
