@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.H3Populate do
+defmodule Mix.Tasks.H3PopulateFixPoly do
   use Mix.Task
   import Ecto.Repo
 
