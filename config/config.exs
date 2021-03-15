@@ -10,6 +10,9 @@ use Mix.Config
 config :mappers,
   ecto_repos: [Mappers.Repo]
 
+config :mappers, Mappers.Repo,
+  types: Mappers.PostgresTypes
+
 # Configures the endpoint
 config :mappers, MappersWeb.Endpoint,
   url: [host: "localhost"],
