@@ -6,6 +6,8 @@ defmodule Mappers.Repo.Migrations.CreateUplinksHeard do
       add :id, :uuid, primary_key: true
       add :hotspot_address, :string
       add :hotspot_name, :string
+      add :latitude, :float
+      add :longitude, :float
       add :rssi, :integer
       add :snr, :float
       add :timestamp, :utc_datetime_usec

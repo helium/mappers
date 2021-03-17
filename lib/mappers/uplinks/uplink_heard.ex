@@ -6,6 +6,8 @@ defmodule Mappers.Uplinks.UplinkHeard do
   schema "uplinks_heard" do
     field :hotspot_address, :string
     field :hotspot_name, :string
+    field :latitude, :float
+    field :longitude, :float
     field :rssi, :integer
     field :snr, :float
     field :timestamp, :utc_datetime_usec
