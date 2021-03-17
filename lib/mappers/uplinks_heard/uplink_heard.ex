@@ -1,4 +1,4 @@
-defmodule Mappers.Uplinks.UplinkHeard do
+defmodule Mappers.UplinksHeards.UplinkHeard do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -17,7 +17,7 @@ defmodule Mappers.Uplinks.UplinkHeard do
   @doc false
   def changeset(uplink_heard, attrs) do
     uplink_heard
-    |> cast(attrs, [:id, :hotspot_address, :hotspot_name, :rssi, :snr, :timestamp])
-    |> validate_required([:id, :hotspot_address, :hotspot_name, :rssi, :snr, :timestamp])
+    |> cast(attrs, [:id, :hotspot_address, :hotspot_name, :latitude, :longitude, :rssi, :snr, :timestamp])
+    |> validate_required([:id, :hotspot_address, :hotspot_name, :latitude, :longitude, :rssi, :snr, :timestamp])
   end
 end
