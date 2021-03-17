@@ -2,7 +2,7 @@ defmodule Mappers.UplinksHeards.UplinkHeard do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:id, Ecto.UUID, []}
+  @primary_key {:id, Ecto.UUID, autogenerate: true}
   schema "uplinks_heard" do
     field :hotspot_address, :string
     field :hotspot_name, :string
