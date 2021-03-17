@@ -20,9 +20,11 @@ defmodule MappersWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", MappersWeb do
-  #   pipe_through :api
-  # end
+  scope "/api/v1", MappersWeb do
+    pipe_through :api
+
+    post "/ingest/uplink", API.V1.IngestUplinkController, :create
+  end
 
   # Enables LiveDashboard only for development
   #
