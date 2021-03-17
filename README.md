@@ -9,9 +9,9 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Reset Database
+To Reset Database
 
-mix ecto.reset
+  * Run `mix ecto.reset`
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
