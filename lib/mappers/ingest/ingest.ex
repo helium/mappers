@@ -8,6 +8,9 @@ defmodule Mappers.Ingest do
 
     # create new h3_res9 record if it doesn't exist
     resp = H3.create(message)
+    {_ , h3_res9} = resp
+    h3_res9_id = h3_res9.id
+    IO.puts(h3_res9_id)
     # {_, h3_res9} = resp
     # h3_res9_id = h3_res9.id
     # create uplink record

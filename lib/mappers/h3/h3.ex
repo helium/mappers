@@ -33,10 +33,6 @@ defmodule Mappers.H3 do
       res9_temp
       |> Ecto.Changeset.change(%{average_rssi: Enum.at(message["hotspots"], 0)["rssi"]})
       |> Repo.update()
-      |> case do
-        {:ok, _} -> IO.puts("H3 Update Successful")
-        {:error, changeset} -> IO.puts("H3 Update Error #{changeset}")
-      end
     else
       if :h3.is_valid(h3_res9_id) do
         poly = :h3.to_geo_boundary(h3_res9_id)
