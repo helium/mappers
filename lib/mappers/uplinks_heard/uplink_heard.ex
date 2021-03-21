@@ -11,13 +11,13 @@ defmodule Mappers.UplinksHeards.UplinkHeard do
     field :rssi, :integer
     field :snr, :float
     field :timestamp, :utc_datetime_usec
-    field :uplink_id, :id
+    field :uplink_id, Ecto.UUID
   end
 
   @doc false
   def changeset(uplink_heard, attrs) do
     uplink_heard
-    |> cast(attrs, [:id, :hotspot_address, :hotspot_name, :latitude, :longitude, :rssi, :snr, :timestamp])
-    |> validate_required([:id, :hotspot_address, :hotspot_name, :latitude, :longitude, :rssi, :snr, :timestamp])
+    |> cast(attrs, [:hotspot_address, :hotspot_name, :latitude, :longitude, :rssi, :snr, :timestamp, :uplink_id])
+    |> validate_required([:hotspot_address, :hotspot_name, :latitude, :longitude, :rssi, :snr, :timestamp, :uplink_id])
   end
 end
