@@ -62,10 +62,10 @@ defmodule Mappers.H3 do
             %Res9{}
             |> Res9.changeset(res9)
             |> Repo.insert()
-            |> case do
-              {:ok, _} -> IO.puts("H3 Insert Successful")
-              {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
-            end
+            # |> case do
+            #   {:ok, _} -> IO.puts("H3 Insert Successful")
+            #   {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
+            # end
           poly_length == 6 ->
             res9 =
               %{}
@@ -90,10 +90,10 @@ defmodule Mappers.H3 do
             %Res9{}
             |> Res9.changeset(res9)
             |> Repo.insert()
-            |> case do
-              {:ok, _} -> IO.puts("H3 Insert Successful")
-              {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
-            end
+            # |> case do
+            #   {:ok, _} -> IO.puts("H3 Insert Successful")
+            #   {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
+            # end
           poly_length == 7 ->
             res9 =
               %{}
@@ -119,10 +119,10 @@ defmodule Mappers.H3 do
             %Res9{}
             |> Res9.changeset(res9)
             |> Repo.insert()
-            |> case do
-              {:ok, _} -> IO.puts("H3 Insert Successful")
-              {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
-            end
+            # |> case do
+            #   {:ok, _} -> IO.puts("H3 Insert Successful")
+            #   {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
+            # end
           poly_length == 8 ->
             res9 =
               %{}
@@ -149,10 +149,10 @@ defmodule Mappers.H3 do
             %Res9{}
             |> Res9.changeset(res9)
             |> Repo.insert()
-            |> case do
-              {:ok, _} -> IO.puts("H3 Insert Successful")
-              {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
-            end
+            # |> case do
+            #   {:ok, _} -> IO.puts("H3 Insert Successful")
+            #   {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
+            # end
           poly_length == 9 ->
             res9 =
               %{}
@@ -180,10 +180,10 @@ defmodule Mappers.H3 do
             %Res9{}
             |> Res9.changeset(res9)
             |> Repo.insert()
-            |> case do
-              {:ok, _} -> IO.puts("H3 Insert Successful")
-              {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
-            end
+            # |> case do
+            #   {:ok, _} -> IO.puts("H3 Insert Successful")
+            #   {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
+            # end
           poly_length == 10 ->
             res9 =
               %{}
@@ -212,10 +212,10 @@ defmodule Mappers.H3 do
             %Res9{}
             |> Res9.changeset(res9)
             |> Repo.insert()
-            |> case do
-              {:ok, _} -> IO.puts("H3 Insert Successful")
-              {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
-            end
+            # |> case do
+            #   {:ok, _} -> IO.puts("H3 Insert Successful")
+            #   {:error, changeset} -> IO.puts("H3 Insert Error #{changeset}")
+            # end
         end
       end
     end
