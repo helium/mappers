@@ -1,6 +1,8 @@
 defmodule Mappers.Ingest do
   alias Mappers.Uplinks
   alias Mappers.H3
+  alias Mappers.H3.Links
+  alias Mappers.UplinksHeard
 
   def ingest_uplink(message) do
     # validate that lat/lng actually make sense
@@ -11,17 +13,18 @@ defmodule Mappers.Ingest do
     {_ , h3_res9} = resp
     h3_res9_id = h3_res9.id
     IO.puts(h3_res9_id)
-    # {_, h3_res9} = resp
-    # h3_res9_id = h3_res9.id
+
     # create uplink record
     resp = Uplinks.create(message)
     {_, uplink} = resp
     uplink_id = uplink.id
     IO.puts(uplink_id)
+
     # create uplinks_heard
-    #UplinksHeard.create(message)
+    UplinksHeard.create(message, uplink_id)
+
     # create h3/uplink link
-    #Links.create(h3_res9_id, uplink_id)
+    Links.create(h3_res9_id, uplink_id)
     resp
   end
 end
