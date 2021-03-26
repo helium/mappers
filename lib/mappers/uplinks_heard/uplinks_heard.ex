@@ -4,6 +4,7 @@ defmodule Mappers.UplinksHeard do
 
   def create(message, uplink_id) do
     IO.puts(uplink_id)
+
     uplink_heard =
       %{}
       |> Map.put(:hotspot_address, Enum.at(message["hotspots"], 0)["id"])
@@ -14,7 +15,7 @@ defmodule Mappers.UplinksHeard do
       |> Map.put(:snr, Enum.at(message["hotspots"], 0)["snr"])
       |> Map.put(
         :timestamp,
-        Enum.at(message["hotspots"], 0)["reported_at"] |> DateTime.from_unix!()
+        round(Enum.at(message["hotspots"], 0)["reported_at"] / 1000) |> DateTime.from_unix!()
       )
       |> Map.put(:uplink_id, uplink_id)
 

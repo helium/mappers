@@ -8,7 +8,7 @@ defmodule Mappers.Uplinks do
       |> Map.put(:dev_eui, message["dev_eui"])
       |> Map.put(:device_id, message["id"])
       |> Map.put(:fcnt, message["fcnt"])
-      |> Map.put(:first_timestamp, message["reported_at"] |> DateTime.from_unix!())
+      |> Map.put(:first_timestamp, round(message["reported_at"]/1000) |> DateTime.from_unix!())
       |> Map.put(:frequency, Enum.at(message["hotspots"], 0)["frequency"])
       |> Map.put(:gps_accuracy, 2)
       |> Map.put(:spreading_factor, Enum.at(message["hotspots"], 0)["spreading"])
