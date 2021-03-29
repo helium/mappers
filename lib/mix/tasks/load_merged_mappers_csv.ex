@@ -12,11 +12,26 @@ defmodule Mix.Tasks.LoadMergedMappersCsv do
     IO.puts("Starting......")
 
     IO.puts("Loading CSVs.....")
-    uplinks = load_csv_stream("~/code/mappers/mappers/merged.csv")
+    # uplinks = load_csv_stream("~/code/mappers/mappers/merged.csv")
+    uplinks_csv_streams = load_split_csv("~/code/mappers/mappers/split-merged")
 
-    IO.puts("uplink rows: #{Enum.count(uplinks)}")
+    # IO.puts("uplink rows: #{Enum.count(uplinks)}")
+    # load_uplinks(uplinks)
 
-    load_uplinks(uplinks)
+    pid =
+      uplinks_csv_streams
+      |> Enum.map(fn uplinks ->
+        spawn(fn -> load_uplinks(uplinks) end)
+      end)
+
+    # Start monitoring `pid`
+    ref = Process.monitor(Enum.at(pid, 0))
+
+    # Wait until the process monitored by `ref` is down.
+    receive do
+      {:DOWN, ^ref, _, _, _} ->
+        IO.puts("Process #{inspect(pid)} is down")
+    end
   end
 
   def load_uplinks(uplinks) do
@@ -76,13 +91,21 @@ defmodule Mix.Tasks.LoadMergedMappersCsv do
             "reported_at",
             DateTime.to_unix(elem(DateTime.from_iso8601("#{Enum.at(uplink, 5)}Z"), 1)) * 1000
           )
-          |> Map.put("fcnt", String.to_integer(Enum.at(uplink, 7)))
+          |> Map.put("fcnt", Integer.parse(Enum.at(uplink, 7)) |> elem(0))
           |> Map.put("decoded", decoded_map)
           |> Map.put("hotspots", [hotspots_map])
-          |> Map.put("gps_accuracy", String.to_integer(Enum.at(uplink, 14)))
+          |> Map.put("gps_accuracy", Integer.parse(Enum.at(uplink, 14)) |> elem(0))
 
         Ingest.ingest_uplink(message)
       end
+    end)
+  end
+
+  def load_split_csv(dir) do
+    {_, files} = File.ls(Path.expand(dir))
+
+    Enum.map(files, fn file ->
+      load_csv_file("#{Path.expand(dir)}/#{file}")
     end)
   end
 
