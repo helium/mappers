@@ -74,7 +74,7 @@ defmodule Mix.Tasks.LoadMergedMappersCsv do
             else
               Float.parse(Enum.at(uplink, 18)) |> elem(0)
             end,
-          "rssi" => Integer.parse(Enum.at(uplink, 19)) |> elem(0),
+          "rssi" => Float.parse(Enum.at(uplink, 19)) |> elem(0),
           "snr" => Float.parse(Enum.at(uplink, 20)) |> elem(0),
           "frequency" => 0,
           "spreading" => Enum.at(uplink, 21),

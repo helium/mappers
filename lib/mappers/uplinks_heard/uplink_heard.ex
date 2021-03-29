@@ -8,7 +8,7 @@ defmodule Mappers.UplinksHeards.UplinkHeard do
     field :hotspot_name, :string
     field :latitude, :float
     field :longitude, :float
-    field :rssi, :integer
+    field :rssi, :float
     field :snr, :float
     field :timestamp, :utc_datetime_usec
     field :uplink_id, Ecto.UUID

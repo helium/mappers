@@ -5,7 +5,7 @@ defmodule Mappers.H3.Res9 do
   @primary_key {:id, :string, []}
   schema "h3_res9" do
     field :state, :string
-    field :average_rssi, :integer
+    field :average_rssi, :float
     field :geom, Geo.PostGIS.Geometry
 
     timestamps()
