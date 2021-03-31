@@ -23,8 +23,8 @@ defmodule Mappers.UplinksHeard do
     |> UplinkHeard.changeset(uplink_heard)
     |> Repo.insert()
     |> case do
-      {:ok, _} -> IO.puts("Uplink Heard Insert Successful")
-      {:error, changeset} -> IO.puts("Uplink Heard Insert Error #{changeset}")
+      {:ok, changeset} -> {:ok, changeset}
+      {:error, _} -> {:error, "Uplink Heard Insert Error"}
     end
   end
 end

@@ -11,5 +11,9 @@ defmodule Mappers.H3.Links do
     %Link{}
     |> Link.changeset(link)
     |> Repo.insert()
+    |> case do
+      {:ok, changeset} -> {:ok, changeset}
+      {:error, _} -> {:error, "H3 Link Insert Error"}
+    end
   end
 end

@@ -11,6 +11,7 @@
   "file_system": {:hex, :file_system, "0.2.10", "fb082005a9cd1711c05b5248710f8826b02d7d1784e7c3451f9c1231d4fc162d", [:mix], [], "hexpm", "41195edbfb562a593726eda3b3e8b103a309b733ad25f3d642ba49696bf715dc"},
   "geo": {:hex, :geo, "3.3.7", "d0354e099bdecc4138d1e01ac4d5aee8bccdb7cb8c9f840b6eb7b5ebbc328111", [:mix], [{:jason, "~> 1.2", [hex: :jason, repo: "hexpm", optional: true]}], "hexpm", "ec57118fd9de27c52d4a046e75ee6f0ecb1cdc28cab03642228ed1aa09bb30bc"},
   "geo_postgis": {:git, "https://github.com/bryanjos/geo_postgis.git", "6550ac3e7b14dbcdf46a5451fec2b19e0277eb6a", []},
+  "geocalc": {:hex, :geocalc, "0.8.3", "f2ca74b102b6d1159ab82124bcedfac1752c6a3f4116cdbd775d13461d542164", [:mix], [], "hexpm", "607dc67da8ebaebb4b4656be4138ccef0bb7eb94d5a2a5bfa9f521aa8b034cec"},
   "gettext": {:hex, :gettext, "0.18.2", "7df3ea191bb56c0309c00a783334b288d08a879f53a7014341284635850a6e55", [:mix], [], "hexpm", "f9f537b13d4fdd30f3039d33cb80144c3aa1f8d9698e47d7bcbcc8df93b1f5c5"},
   "h3": {:git, "https://github.com/helium/erlang-h3.git", "806639f0baa2f0170ec2571a8ee262e267ed0bdd", [branch: "master"]},
   "jason": {:hex, :jason, "1.2.2", "ba43e3f2709fd1aa1dce90aaabfd039d000469c05c56f0b8e31978e03fa39052", [:mix], [{:decimal, "~> 1.0 or ~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "18a228f5f0058ee183f29f9eae0805c6e59d61c3b006760668d8d18ff0d12179"},

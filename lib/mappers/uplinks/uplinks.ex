@@ -16,5 +16,9 @@ defmodule Mappers.Uplinks do
     %Uplink{}
     |> Uplink.changeset(uplink)
     |> Repo.insert()
+    |> case do
+      {:ok, changeset} -> {:ok, changeset}
+      {:error, _} -> {:error, "Uplink Insert Error"}
+    end
   end
 end
