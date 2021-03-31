@@ -1,20 +1,71 @@
 defmodule Mappers.Ingest do
+  alias Mappers.Uplink
   alias Mappers.Uplinks
+  alias Mappers.H3
+  alias Mappers.H3.Links
+  alias Mappers.UplinkHeard
+  alias Mappers.UplinksHeard
+  alias Mappers.Ingest
+
+  defmodule IngestUplinkResponse do
+    @fields [
+      :uplink,
+      :hotspots
+    ]
+    @derive {Jason.Encoder, only: @fields}
+    defstruct uplink: Uplink, hotspots: UplinkHeard, status: nil
+  end
 
   def ingest_uplink(message) do
-    # validate that lat/lng actually make sense
-    # validate device location with hotspot locations
+    # validate that message geo values actually make sense
+    Ingest.Validate.validate_message(message)
+    |> case do
+      {:error, reason} ->
+        reason
 
-    # create new h3_res9 record if it doesn't exist
-    #H3.create(message)
-    # create uplink record
-    resp = Uplinks.create(message)
-    {_, uplink} = resp
-    IO.puts(uplink.id)
-    # create uplinks_heard
-    #UplinksHeard.create(message)
-    # create h3/uplink link
-    #Links.create(h3_res_id, uplink_id)
-    resp
+      {:ok, _} ->
+        # create new h3_res9 record if it doesn't exist
+        H3.create(message)
+        |> case do
+          {:error, reason} ->
+            reason
+
+          {:ok, h3_res9} ->
+            h3_res9_id = h3_res9.id
+
+            # create uplink record
+            Uplinks.create(message)
+            |> case do
+              {:error, reason} ->
+                # reason
+                reason
+
+              {:ok, uplink} ->
+                uplink_id = uplink.id
+
+                # create uplinks heard
+                UplinksHeard.create(message, uplink_id)
+                |> case do
+                  {:error, reason} ->
+                    reason
+
+                  {:ok, uplink_heard} ->
+                    # create h3/uplink link
+                    Links.create(h3_res9_id, uplink_id)
+                    |> case do
+                      {:error, reason} ->
+                        reason
+
+                      {:ok, _} ->
+                        %IngestUplinkResponse{
+                          uplink: uplink,
+                          hotspots: uplink_heard,
+                          status: "success"
+                        }
+                    end
+                end
+            end
+        end
+    end
   end
 end

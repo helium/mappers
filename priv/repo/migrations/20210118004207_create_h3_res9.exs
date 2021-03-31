@@ -7,7 +7,7 @@ defmodule Mappers.Repo.Migrations.CreateH3Res9 do
     create table(:h3_res9, primary_key: false) do
       add :id, :string, primary_key: true
       add :state, :string
-      add :average_rssi, :integer
+      add :average_rssi, :float
       add :geom, :geometry
 
       timestamps()

@@ -5,8 +5,7 @@ defmodule MappersWeb.API.V1.IngestUplinkController do
   alias Mappers.Uplinks.Uplink
 
   def create(conn, params) do
-    with {:ok, %Uplink{} = uplink} <- Ingest.ingest_uplink(params) do
-      conn |> json(uplink)
-    end
+    resp = Ingest.ingest_uplink(params)
+    conn |> json(resp)
   end
 end

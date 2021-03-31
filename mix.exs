@@ -47,7 +47,9 @@ defmodule Mappers.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:h3, github: "helium/erlang-h3", branch: "master"},
       {:geo_postgis, github: "bryanjos/geo_postgis"},
-      { :uuid, "~> 1.1" }
+      {:uuid, "~> 1.1" },
+      {:nimble_csv, "~> 1.0"},
+      {:geocalc, "~> 0.5"}
     ]
   end
 

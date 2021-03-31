@@ -22,3 +22,17 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Docs: https://hexdocs.pm/phoenix
   * Forum: https://elixirforum.com/c/phoenix-forum
   * Source: https://github.com/phoenixframework/phoenix
+
+## Importing Mappers V1 Database
+
+### Download Database Export CSV 
+`wget link`
+### Split Database Export CSV
+
+Split amount based on total cpu cores available
+
+```
+mkdir split-database
+split -d -l 250000 merged.csv ./split-database
+mix load_merged_mappers_csv
+```
