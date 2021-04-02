@@ -2,6 +2,15 @@
 
 To start your Phoenix server:
 
+Edit your environment variables
+* Open the .sample.env file located at the root of the project
+* Create a Mapbox account and copy your public access token
+* Paste it in place of <replace me> for the PUBLIC_MAPBOX_KEY variable. That line should now look like this:
+
+`PUBLIC_MAPBOX_KEY=pk.ey[...the rest of your access token...]`
+
+Rename the file ".env" (delete ".sample" from the file name)
+
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.setup`
   * Install Node.js dependencies with `cd assets && yarn` 
