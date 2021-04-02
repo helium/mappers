@@ -5,6 +5,10 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const webpack = require('webpack')
+const dotenv = require('dotenv').config( {
+  path: path.join(__dirname, '../.env')
+} );
 
 module.exports = (env, options) => {
   const devMode = options.mode !== 'production';
@@ -46,7 +50,8 @@ module.exports = (env, options) => {
     },
     plugins: [
       new MiniCssExtractPlugin({ filename: '../css/app.css' }),
-      new CopyWebpackPlugin([{ from: 'static/', to: '../' }])
+      new CopyWebpackPlugin([{ from: 'static/', to: '../' }]),
+      new webpack.EnvironmentPlugin(['PUBLIC_MAPBOX_KEY'])
     ]
     .concat(devMode ? [new HardSourceWebpackPlugin()] : [])
   }
