@@ -5,26 +5,43 @@ defmodule Mappers.UplinksHeard do
   def create(message, uplink_id) do
     IO.puts(uplink_id)
 
-    uplink_heard =
-      %{}
-      |> Map.put(:hotspot_address, Enum.at(message["hotspots"], 0)["id"])
-      |> Map.put(:hotspot_name, Enum.at(message["hotspots"], 0)["name"])
-      |> Map.put(:latitude, Enum.at(message["hotspots"], 0)["lat"])
-      |> Map.put(:longitude, Enum.at(message["hotspots"], 0)["long"])
-      |> Map.put(:rssi, Enum.at(message["hotspots"], 0)["rssi"])
-      |> Map.put(:snr, Enum.at(message["hotspots"], 0)["snr"])
-      |> Map.put(
-        :timestamp,
-        round(Enum.at(message["hotspots"], 0)["reported_at"] / 1000) |> DateTime.from_unix!()
-      )
-      |> Map.put(:uplink_id, uplink_id)
+    uplinks_heard =
+      Enum.map(message["hotspots"], fn hotspot ->
+        %{}
+        |> Map.put(:hotspot_address, hotspot["id"])
+        |> Map.put(:hotspot_name, hotspot["name"])
+        |> Map.put(:latitude, hotspot["lat"])
+        |> Map.put(:longitude, hotspot["long"])
+        |> Map.put(:rssi, hotspot["rssi"])
+        |> Map.put(:snr, hotspot["snr"])
+        |> Map.put(
+          :timestamp,
+          round(hotspot["reported_at"] / 1000) |> DateTime.from_unix!()
+        )
+        |> Map.put(:uplink_id, uplink_id)
+      end)
 
-    %UplinkHeard{}
-    |> UplinkHeard.changeset(uplink_heard)
-    |> Repo.insert()
-    |> case do
-      {:ok, changeset} -> {:ok, changeset}
-      {:error, _} -> {:error, "Uplink Heard Insert Error"}
+    changesets = []
+
+    changeset_results =
+      Enum.map(uplinks_heard, fn uplink_heard ->
+        %UplinkHeard{}
+        |> UplinkHeard.changeset(uplink_heard)
+        |> Repo.insert()
+        |> case do
+          {:ok, changeset} -> changesets ++ changeset
+          {:error, _} -> {:error, ""}
+        end
+      end)
+
+    results = Enum.find(changeset_results, fn(changeset) ->
+      match?({:error, _}, changeset)
+    end)
+
+    if results == nil do
+      {:ok, changeset_results}
+    else
+      {:error, "Uplink Heard Insert Error"}
     end
   end
 end

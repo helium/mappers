@@ -13,7 +13,7 @@ defmodule Mappers.Ingest do
       :hotspots
     ]
     @derive {Jason.Encoder, only: @fields}
-    defstruct uplink: Uplink, hotspots: UplinkHeard, status: nil
+    defstruct uplink: Uplink, hotspots: [UplinkHeard], status: nil
   end
 
   def ingest_uplink(message) do
@@ -49,7 +49,7 @@ defmodule Mappers.Ingest do
                   {:error, reason} ->
                     reason
 
-                  {:ok, uplink_heard} ->
+                  {:ok, uplinks_heard} ->
                     # create h3/uplink link
                     Links.create(h3_res9_id, uplink_id)
                     |> case do
@@ -59,7 +59,7 @@ defmodule Mappers.Ingest do
                       {:ok, _} ->
                         %IngestUplinkResponse{
                           uplink: uplink,
-                          hotspots: uplink_heard,
+                          hotspots: uplinks_heard,
                           status: "success"
                         }
                     end
