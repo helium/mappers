@@ -49,7 +49,8 @@ defmodule Mappers.MixProject do
       {:geo_postgis, github: "bryanjos/geo_postgis"},
       {:uuid, "~> 1.1" },
       {:nimble_csv, "~> 1.0"},
-      {:geocalc, "~> 0.5"}
+      {:geocalc, "~> 0.5"},
+      {:telemetry_metrics_prometheus, "~> 1.0"}
     ]
   end
 
