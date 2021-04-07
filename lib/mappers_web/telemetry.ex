@@ -56,7 +56,7 @@ defmodule MappersWeb.Telemetry do
 
   defp prometheus_periodic_measurements do
     [
-      last_value("vm.memory.total", unit: :byte)
+      last_value("ingest.request.duration", unit: :millisecond)
     ]
   end
 end

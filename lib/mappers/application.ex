@@ -19,6 +19,14 @@ defmodule Mappers.Application do
       # {Mappers.Worker, arg}
     ]
 
+    :ok = :telemetry.attach(
+    # unique handler id
+    "ingest-uplink-request",
+    [:ingest, :request],
+    &MappersWeb.Telemetry.Metrics.handle_event/4,
+    nil
+  )
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Mappers.Supervisor]
