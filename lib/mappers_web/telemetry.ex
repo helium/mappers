@@ -59,10 +59,4 @@ defmodule MappersWeb.Telemetry do
       # {MappersWeb, :count_users, []}
     ]
   end
-
-  defp prometheus_periodic_measurements do
-    [
-      last_value("ingest.request.duration", unit: :millisecond)
-    ]
-  end
 end
