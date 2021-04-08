@@ -17,6 +17,8 @@ defmodule MappersWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    get "/metrics", PrometheusController, :scrape
   end
 
   # Other scopes may use custom stacks.
