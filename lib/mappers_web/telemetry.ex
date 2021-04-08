@@ -14,7 +14,13 @@ defmodule MappersWeb.Telemetry do
       {:telemetry_poller, measurements: periodic_measurements(), period: 10_000},
       # Add reporters as children of your supervision tree.
       # {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
-      {TelemetryMetricsPrometheus, [metrics: prometheus_periodic_measurements(), protocol: :https, plug_cowboy_opts: [keyfile: "priv/cert/selfsigned_key.pem", certfile: "priv/cert/selfsigned.pem", otp_app: :mappers]]}
+      {TelemetryMetricsPrometheus.Core,
+       [
+         metrics: [
+           last_value("ingest.request.duration", unit: :millisecond),
+           last_value("vm.memory.total", unit: :byte)
+         ]
+       ]}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
