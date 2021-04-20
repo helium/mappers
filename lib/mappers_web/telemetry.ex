@@ -17,7 +17,8 @@ defmodule MappersWeb.Telemetry do
       {TelemetryMetricsPrometheus.Core,
        [
          metrics: [
-           last_value("ingest.request.duration", unit: :millisecond),
+           counter("ingest.h3.res9.new.h3_res9_id"),
+           counter("ingest.h3.res9.existing.h3_res9_id"),
            last_value("vm.memory.total", unit: :byte)
          ]
        ]}

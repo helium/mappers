@@ -21,11 +21,19 @@ defmodule Mappers.Application do
 
     :ok = :telemetry.attach(
     # unique handler id
-    "ingest-uplink-request",
-    [:ingest, :request],
-    &MappersWeb.Telemetry.Metrics.handle_event/4,
+    "ingest-h3-res9-new-count",
+    [:ingest, :h3, :res9, :new],
+    &MappersWeb.Telemetry.Metrics.handle_event_h3_res9_new/4,
     nil
-  )
+    )
+
+    :ok = :telemetry.attach(
+    # unique handler id
+    "ingest-h3-res9-existing-count",
+    [:ingest, :h3, :res9, :existing],
+    &MappersWeb.Telemetry.Metrics.handle_event_h3_res9_existing/4,
+    nil
+    )
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

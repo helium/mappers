@@ -24,6 +24,9 @@ defmodule Mappers.H3 do
 
     # check if h3 index exist in the db
     if res9_temp != nil do
+      # record existing h3 res9 metric
+      :telemetry.execute([:ingest, :h3, :res9, :existing], %{h3_res9_id: h3_res9_id}, message)
+
       # IO.puts(res9_temp.geom)
       # IO.puts"here"
       # # index does not exist, create new
@@ -47,6 +50,9 @@ defmodule Mappers.H3 do
       end
     else
       if :h3.is_valid(h3_res9_id) do
+        # record new h3 res9 metric
+        :telemetry.execute([:ingest, :h3, :res9, :new], %{h3_res9_id: h3_res9_id}, message)
+
         poly = :h3.to_geo_boundary(h3_res9_id)
         poly_length = length(poly)
 
