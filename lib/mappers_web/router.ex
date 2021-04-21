@@ -17,7 +17,7 @@ defmodule MappersWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-
+    get "/leaderboard", LeaderboardController, :index
     get "/metrics", PrometheusController, :scrape
   end
 
@@ -25,6 +25,7 @@ defmodule MappersWeb.Router do
   scope "/api/v1", MappersWeb do
     pipe_through :api
 
+    get "/leaderboard", API.V1.LeaderboardController, :index
     post "/ingest/uplink", API.V1.IngestUplinkController, :create
   end
 
