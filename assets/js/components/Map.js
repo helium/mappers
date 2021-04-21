@@ -32,6 +32,16 @@ const Map = () => {
       setZoom(map.getZoom().toFixed(2));
     });
 
+    // Change the cursor to a pointer when the mouse is over a hexagon.
+    map.on('mouseenter', 'public.h3_res9', function () {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'public.h3_res9', function () {
+      map.getCanvas().style.cursor = '';
+    });
+
     map.on('load', () => {
       map.addSource('h3-vector-db', {
         type: 'vector',
