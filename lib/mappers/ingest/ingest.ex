@@ -32,6 +32,7 @@ defmodule Mappers.Ingest do
 
           {:ok, h3_res9} ->
             h3_res9_id = h3_res9.id
+            average_rssi = h3_res9.average_rssi
 
             # create uplink record
             Uplinks.create(message)
@@ -57,10 +58,14 @@ defmodule Mappers.Ingest do
                         reason
 
                       {:ok, _} ->
-                        %IngestUplinkResponse{
-                          uplink: uplink,
-                          hotspots: uplinks_heard,
-                          status: "success"
+                        %{
+                          h3_res9_id: h3_res9_id,
+                          average_rssi: average_rssi,
+                          resp: %IngestUplinkResponse{
+                            uplink: uplink,
+                            hotspots: uplinks_heard,
+                            status: "success"
+                          }
                         }
                     end
                 end
