@@ -128,7 +128,7 @@ const Map = () => {
 
       map.addSource('h3-vector-db', {
         type: 'vector',
-        url: `http://localhost:3500/${sourceId}.json`
+        url: `https://mappers-tileserver.herokuapp.com/${sourceId}.json`
       });
 
       map.addLayer({
