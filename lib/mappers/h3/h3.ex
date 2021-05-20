@@ -14,12 +14,20 @@ defmodule Mappers.H3 do
     res9_temp = Repo.get(Res9, h3_res9_id_s)
 
     rssi_r = Enum.at(message["hotspots"], 0)["rssi"]
+    snr_r = Enum.at(message["hotspots"], 0)["snr"]
 
     rssi =
       cond do
         is_float(rssi_r) -> rssi_r
         is_integer(rssi_r) -> rssi_r * 1.0
         is_binary(rssi_r) -> Float.parse(rssi_r) |> elem(0)
+      end
+
+    snr =
+      cond do
+        is_float(snr_r) -> snr_r
+        is_integer(snr_r) -> snr_r * 1.0
+        is_binary(snr_r) -> Float.parse(snr_r) |> elem(0)
       end
 
     # check if h3 index exist in the db
@@ -34,7 +42,7 @@ defmodule Mappers.H3 do
       #   %{}
       #   |> Map.put(:id, h3_res9_id_s)
       #   |> Map.put(:state, "mapped")
-      #   |> Map.put(:average_rssi, Enum.at(message["hotspots"], 0)["rssi"])
+      #   |> Map.put(:avg_rssi, Enum.at(message["hotspots"], 0)["rssi"])
       #   |> Map.put(:geom, res9_temp.geom)
 
       # IO.puts(res9)
@@ -42,7 +50,8 @@ defmodule Mappers.H3 do
       # %Res9{}
       # |> Res9.changeset(res9)
       res9_temp
-      |> Ecto.Changeset.change(%{average_rssi: rssi})
+      |> Ecto.Changeset.change(%{avg_rssi: rssi})
+      |> Ecto.Changeset.change(%{avg_snr: snr})
       |> Repo.update()
       |> case do
         {:ok, changeset} -> {:ok, changeset}
@@ -62,7 +71,8 @@ defmodule Mappers.H3 do
               %{}
               |> Map.put(:id, h3_res9_id_s)
               |> Map.put(:state, "mapped")
-              |> Map.put(:average_rssi, rssi)
+              |> Map.put(:avg_rssi, rssi)
+              |> Map.put(:avg_snr, snr)
               |> Map.put(:geom, %Geo.Polygon{
                 coordinates: [
                   [
@@ -90,7 +100,8 @@ defmodule Mappers.H3 do
               %{}
               |> Map.put(:id, h3_res9_id_s)
               |> Map.put(:state, "mapped")
-              |> Map.put(:average_rssi, rssi)
+              |> Map.put(:avg_rssi, rssi)
+              |> Map.put(:avg_snr, snr)
               |> Map.put(:geom, %Geo.Polygon{
                 coordinates: [
                   [
@@ -119,7 +130,8 @@ defmodule Mappers.H3 do
               %{}
               |> Map.put(:id, h3_res9_id_s)
               |> Map.put(:state, "mapped")
-              |> Map.put(:average_rssi, rssi)
+              |> Map.put(:avg_rssi, rssi)
+              |> Map.put(:avg_snr, snr)
               |> Map.put(:geom, %Geo.Polygon{
                 coordinates: [
                   [
@@ -149,7 +161,8 @@ defmodule Mappers.H3 do
               %{}
               |> Map.put(:id, h3_res9_id_s)
               |> Map.put(:state, "mapped")
-              |> Map.put(:average_rssi, rssi)
+              |> Map.put(:avg_rssi, rssi)
+              |> Map.put(:avg_snr, snr)
               |> Map.put(:geom, %Geo.Polygon{
                 coordinates: [
                   [
@@ -180,7 +193,8 @@ defmodule Mappers.H3 do
               %{}
               |> Map.put(:id, h3_res9_id_s)
               |> Map.put(:state, "mapped")
-              |> Map.put(:average_rssi, rssi)
+              |> Map.put(:avg_rssi, rssi)
+              |> Map.put(:avg_snr, snr)
               |> Map.put(:geom, %Geo.Polygon{
                 coordinates: [
                   [
@@ -212,7 +226,8 @@ defmodule Mappers.H3 do
               %{}
               |> Map.put(:id, h3_res9_id_s)
               |> Map.put(:state, "mapped")
-              |> Map.put(:average_rssi, rssi)
+              |> Map.put(:avg_rssi, rssi)
+              |> Map.put(:avg_snr, snr)
               |> Map.put(:geom, %Geo.Polygon{
                 coordinates: [
                   [

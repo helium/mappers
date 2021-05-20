@@ -54,7 +54,7 @@ defmodule Mix.Tasks.H3PopulateFromPolyfill do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-70..-110))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -82,7 +82,7 @@ defmodule Mix.Tasks.H3PopulateFromPolyfill do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-70..-110))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -111,7 +111,7 @@ defmodule Mix.Tasks.H3PopulateFromPolyfill do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-70..-110))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -141,7 +141,7 @@ defmodule Mix.Tasks.H3PopulateFromPolyfill do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-70..-110))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -172,7 +172,7 @@ defmodule Mix.Tasks.H3PopulateFromPolyfill do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-70..-110))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -204,7 +204,7 @@ defmodule Mix.Tasks.H3PopulateFromPolyfill do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:average_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-70..-110))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [

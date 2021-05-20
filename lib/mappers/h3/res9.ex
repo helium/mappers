@@ -5,7 +5,8 @@ defmodule Mappers.H3.Res9 do
   @primary_key {:id, :string, []}
   schema "h3_res9" do
     field :state, :string
-    field :average_rssi, :float
+    field :avg_rssi, :float
+    field :avg_snr, :float
     field :geom, Geo.PostGIS.Geometry
 
     timestamps()
@@ -14,7 +15,7 @@ defmodule Mappers.H3.Res9 do
   @doc false
   def changeset(res9, attrs) do
     res9
-    |> cast(attrs, [:id, :state, :average_rssi, :geom])
-    |> validate_required([:id, :state, :average_rssi, :geom])
+    |> cast(attrs, [:id, :state, :avg_rssi, :avg_snr, :geom])
+    |> validate_required([:id, :state, :avg_rssi, :avg_snr, :geom])
   end
 end

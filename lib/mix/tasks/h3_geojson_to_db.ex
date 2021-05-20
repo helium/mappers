@@ -16,7 +16,7 @@ defmodule Mix.Tasks.H3GeojsonToDb do
         %{}
         |> Map.put(:id, UUID.uuid4())
         |> Map.put(:state, "unmapped")
-        |> Map.put(:average_rssi, Kernel.round(feature.properties["rssi"]))
+        |> Map.put(:avg_rssi, Kernel.round(feature.properties["rssi"]))
         |> Map.put(:geom, %Geo.Polygon{coordinates: feature.coordinates, srid: 4326})
 
       %Mappers.H3.Res9{}

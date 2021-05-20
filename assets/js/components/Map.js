@@ -46,7 +46,7 @@ const Map = () => {
 
     map.on('click', 'public.h3_res9', function (e) {
       var coordinates = e.features[0].geometry.coordinates[0][0];
-      var rssi = e.features[0].properties.average_rssi;
+      var rssi = e.features[0].properties.avg_rssi;
 
       // Ensure that if the map is zoomed out such that multiple
       // copies of the feature are visible, the popup appears
@@ -73,7 +73,7 @@ const Map = () => {
 
     map.on('click', 'new-h3', function (e) {
       var coordinates = e.features[0].geometry.coordinates[0][0];
-      var rssi = e.features[0].properties.average_rssi;
+      var rssi = e.features[0].properties.avg_rssi;
 
       // Ensure that if the map is zoomed out such that multiple
       // copies of the feature are visible, the popup appears
@@ -93,7 +93,7 @@ const Map = () => {
 
       let channel = socket.channel("h3:new")
       channel.on("new_h3", payload => {
-        features.push(geojson2h3.h3ToFeature(payload.body.h3_id, {'average_rssi': payload.body.average_rssi}))
+        features.push(geojson2h3.h3ToFeature(payload.body.h3_id, {'avg_rssi': payload.body.avg_rssi}))
         const featureCollection =
         {
           "type": "FeatureCollection",
@@ -128,7 +128,7 @@ const Map = () => {
 
       map.addSource('h3-vector-db', {
         type: 'vector',
-        url: `https://mappers-tileserver.herokuapp.com/${sourceId}.json`
+        url: `http://localhost:3500/${sourceId}.json`
       });
 
       map.addLayer({
@@ -140,7 +140,7 @@ const Map = () => {
           'fill-color': [
             'interpolate',
             ['linear'],
-            ['get', 'average_rssi'],
+            ['get', 'avg_rssi'],
             -120,
             'rgba(38,251,202,0.1)',
             -100,
