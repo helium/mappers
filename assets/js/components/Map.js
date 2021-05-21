@@ -7,14 +7,22 @@ import geojson2h3 from 'geojson2h3';
 
 mapboxgl.accessToken = process.env.PUBLIC_MAPBOX_KEY;
 
-const Map = () => {
-  const mapContainerRef = useRef(null);
+function Map() {
 
+  const mapContainerRef = useRef(null);
   const [lng, setLng] = useState(-122.21);
   const [lat, setLat] = useState(37.58);
   const [zoom, setZoom] = useState(10);
-
   const [map, setMap] = useState(null);
+
+  const [hexId, setHexId] = useState(null);
+  const [hexState, setHexState] = useState(null);
+  const [avgRssi, setAvgRssi] = useState(null);
+  const [avgSnr, setAvgSnr] = useState(null);
+
+  const [showHexPane, setShowHexPane] = useState(false);
+  const onCloseHexPaneClick = () => setShowHexPane(false)
+
   const sourceId = 'public.h3_res9';
 
   // Initialize map when component mounts
@@ -27,7 +35,7 @@ const Map = () => {
     });
 
     // Add navigation control (the +/- zoom buttons)
-    // map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     map.on('move', () => {
       setLng(map.getCenter().lng.toFixed(4));
@@ -47,7 +55,16 @@ const Map = () => {
 
     map.on('click', 'public.h3_res9', function (e) {
       var coordinates = e.features[0].geometry.coordinates[0][0];
-      var rssi = e.features[0].properties.avg_rssi;
+      var avgRssi = e.features[0].properties.avg_rssi;
+      var avgSnr = e.features[0].properties.avg_snr;
+      var hexId = e.features[0].properties.id;
+      var hexState = e.features[0].properties.id;
+
+      setHexId(hexId);
+      setAvgRssi(avgRssi);
+      setAvgSnr(avgSnr.toFixed(2));
+      setHexState(hexState);
+      setShowHexPane(true);
 
       // Ensure that if the map is zoomed out such that multiple
       // copies of the feature are visible, the popup appears
@@ -55,11 +72,6 @@ const Map = () => {
       while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
-
-      new mapboxgl.Popup()
-        .setLngLat(coordinates)
-        .setHTML('rssi: ' + rssi)
-        .addTo(map);
     });
 
     // Change the cursor to a pointer when the mouse is over a hexagon.
@@ -94,7 +106,7 @@ const Map = () => {
 
       let channel = socket.channel("h3:new")
       channel.on("new_h3", payload => {
-        features.push(geojson2h3.h3ToFeature(payload.body.h3_id, {'avg_rssi': payload.body.avg_rssi}))
+        features.push(geojson2h3.h3ToFeature(payload.body.h3_id, { 'avg_rssi': payload.body.avg_rssi }))
         const featureCollection =
         {
           "type": "FeatureCollection",
@@ -162,13 +174,8 @@ const Map = () => {
 
   return (
     <div>
-      {/* <div className='sidebarStyle'>
-        <div>
-          Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
-        </div>
-      </div> */}
       <div className='map-container' ref={mapContainerRef} />
-      <InfoPane />
+      <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} lng={lng} lat={lat} zoom={zoom} />
     </div>
   );
 };
