@@ -13,11 +13,11 @@ code {
 }
 
 .map-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
 }
 .sidebarStyle {
   display: inline-block;
@@ -30,4 +30,56 @@ code {
   z-index: 1 !important;
   padding: 6px;
   font-weight: bold;
+}
+
+/** Info Pane **/
+.info-pane {
+  padding: 1.5rem;
+
+  background: rgba(22, 23, 29, 0.5);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+
+  border-radius: 0px 0px 10px 10px;
+  
+  position: fixed;
+  top: 0;
+  left: 2vw;
+  
+  max-width: 30rem;
+}
+.mappers-logo {
+  fill: white;
+}
+.pane-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 480px;
+}
+.pane-nav.has-subcontent {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.nav-links {
+  list-style: none;
+  
+  margin: 0;
+}
+.nav-link {
+  display: inline-block;
+}
+.nav-link a, .nav-link button {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  
+  color: white;
+  text-decoration: none;
+  
+  padding: 0.75rem 0 0.75rem 0.75rem;
+}
+.nav-link a:hover {
+  text-decoration: underline;
 }

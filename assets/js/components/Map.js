@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import InfoPane from "../components/InfoPane"
 import mapboxgl from 'mapbox-gl';
 import '../../css/app.css'
 import socket from "../socket"
@@ -26,7 +27,7 @@ const Map = () => {
     });
 
     // Add navigation control (the +/- zoom buttons)
-    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    // map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     map.on('move', () => {
       setLng(map.getCenter().lng.toFixed(4));
@@ -128,7 +129,7 @@ const Map = () => {
 
       map.addSource('h3-vector-db', {
         type: 'vector',
-        url: `https://mappers-tileserver.herokuapp.com/${sourceId}.json`
+        url: `http://localhost:3500/${sourceId}.json`
       });
 
       map.addLayer({
@@ -161,12 +162,13 @@ const Map = () => {
 
   return (
     <div>
-      <div className='sidebarStyle'>
+      {/* <div className='sidebarStyle'>
         <div>
           Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
         </div>
-      </div>
+      </div> */}
       <div className='map-container' ref={mapContainerRef} />
+      <InfoPane />
     </div>
   );
 };
