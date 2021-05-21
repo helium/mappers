@@ -4,7 +4,9 @@ import Map from "../components/Map"
 class MapScreen extends React.Component {
   render() {
     return (
+      <div>
         <Map />
+      </div>
     )
   }
 }
