@@ -141,7 +141,7 @@ function Map() {
 
       map.addSource('h3-vector-db', {
         type: 'vector',
-        url: `http://mappers-tileserver.herokuapp.com/${sourceId}.json`
+        url: `http://mappers-tileserver-martin.herokuapp.com/${sourceId}.json`
       });
 
       map.addLayer({
