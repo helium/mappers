@@ -4,6 +4,9 @@ function InfoPane() {
     const [showLegendPane, setShowLegendPane] = React.useState(false)
     const onLegendClick = () => setShowLegendPane(!showLegendPane)
 
+    const [showHexPane, setShowHexPane] = React.useState(true)
+    const onCloseHexPaneClick = () => setShowHexPane(false)
+
     return (
         <div className="info-pane">
             <div className="pane-nav">
@@ -29,7 +32,7 @@ function InfoPane() {
                     </li>
                 </ul>
             </div>
-            { showLegendPane ?
+            { showLegendPane &&
                 <div className="legend">
 
                     <div className="legend-line">
@@ -72,8 +75,27 @@ function InfoPane() {
                         </div>
                     </div>
                 </div>
-                : null}
-        </div>
+            }
+            { showHexPane &&
+                <div className="main-stats">
+                    <div className="stats-heading">
+                        <span>Hex Statistics</span>
+                        <button className="close-button" onClick={onCloseHexPaneClick}>
+                            <svg className="icon" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.9998 6.54957L13.4284 1.12096C13.8289 0.720422 14.4783 0.720422 14.8789 1.12096C15.2794 1.5215 15.2794 2.1709 14.8789 2.57144L9.45028 8.00004L14.8789 13.4287C15.2794 13.8292 15.2794 14.4786 14.8789 14.8791C14.4783 15.2797 13.8289 15.2797 13.4284 14.8791L7.9998 9.45052L2.57119 14.8791C2.17065 15.2797 1.52125 15.2797 1.12072 14.8791C0.720178 14.4786 0.720178 13.8292 1.12072 13.4287L6.54932 8.00004L1.12072 2.57144C0.720178 2.1709 0.720178 1.5215 1.12072 1.12096C1.52125 0.720422 2.17065 0.720422 2.57119 1.12096L7.9998 6.54957Z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div className="h3-holder">
+                        <svg className="hex-icon" width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.5 1.86603C10.4282 1.33013 11.5718 1.33013 12.5 1.86603L19.0263 5.63397C19.9545 6.16987 20.5263 7.16025 20.5263 8.23205V15.7679C20.5263 16.8397 19.9545 17.8301 19.0263 18.366L12.5 22.134C11.5718 22.6699 10.4282 22.6699 9.5 22.134L2.97372 18.366C2.04552 17.8301 1.47372 16.8397 1.47372 15.7679V8.23205C1.47372 7.16025 2.04552 6.16987 2.97372 5.63397L9.5 1.86603Z" stroke="#B680FD" stroke-width="2" stroke-linejoin="round" />
+                        </svg>
+                        <span className="h3id">#lksjdf</span>
+
+                    </div>
+                </div>
+            }
+        </div >
     );
 }
 
