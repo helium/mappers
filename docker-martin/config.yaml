@@ -1,0 +1,59 @@
+---
+# Database connection string
+connection_string: "postgres://postgres:postgres@localhost:5432/mappers_dev"
+
+# Connection keep alive timeout [default: 75]
+keep_alive: 75
+
+# The socket address to bind [default: 0.0.0.0:3000]
+listen_addresses: "0.0.0.0:3500"
+
+# Maximum connections pool size [default: 20]
+pool_size: 20
+
+# Enable watch mode
+watch: false
+
+# Trust invalid certificates. This introduces significant vulnerabilities, and should only be used as a last resort.
+danger_accept_invalid_certs: true
+
+# Number of web server workers
+worker_processes: 8
+
+# associative arrays of table sources
+table_sources:
+  public.h3_res9:
+    # table source id
+    id: public.h3_res9
+    # table schema
+    schema: public
+    # table name
+    table: h3_res9
+    # geometry column name
+    geometry_column: geom
+    # geometry srid
+    srid: 4326
+    # tile extent in tile coordinate space
+    extent: 4096
+    # buffer distance in tile coordinate space to optionally clip geometries
+    buffer: 64
+    # boolean to control if geometries should be clipped or encoded as is
+    clip_geom: true
+    # geometry type
+    geometry_type: GEOMETRY
+    # list of columns, that should be encoded as tile properties
+    properties:
+      id: string
+      state: string
+      avg_rssi: double
+      avg_snr: double
+
+# associative arrays of function sources
+function_sources:
+  public.function_source:
+    # function source id
+    id: public.function_source
+    # schema name
+    schema: public
+    # function name
+    function: function_source
