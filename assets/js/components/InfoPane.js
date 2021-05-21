@@ -1,8 +1,8 @@
 import React from 'react'
 
 function InfoPane() {
-    const [showPane, setShowPane] = React.useState(false)
-    const onClick = () => setShowPane(!showPane)
+    const [showLegendPane, setShowLegendPane] = React.useState(false)
+    const onLegendClick = () => setShowLegendPane(!showLegendPane)
 
     return (
         <div className="info-pane">
@@ -19,7 +19,7 @@ function InfoPane() {
                 </svg>
                 <ul className="nav-links">
                     <li className="nav-link">
-                        <button onClick={onClick}> Legend</button>
+                        <button onClick={onLegendClick}> Legend</button>
                     </li>
                     <li className="nav-link">
                         <a href="https://docs.helium.com/use-the-network/coverage-mapping">Docs</a>
@@ -29,7 +29,7 @@ function InfoPane() {
                     </li>
                 </ul>
             </div>
-            { showPane ?
+            { showLegendPane ?
                 <div className="legend">
 
                     <div className="legend-line">
