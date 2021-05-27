@@ -29,6 +29,8 @@ table_sources:
     schema: public
     # table name
     table: h3_res9
+    # table source id column
+    id_column: h3_index_int
     # geometry column name
     geometry_column: geom
     # geometry srid
@@ -47,13 +49,15 @@ table_sources:
       state: string
       avg_rssi: double
       avg_snr: double
+      h3_index_int: int4
 
 # associative arrays of function sources
 function_sources:
-  public.function_source:
+  public.function_source_i:
     # function source id
-    id: public.function_source
+    id: public.function_source_i
     # schema name
     schema: public
     # function name
-    function: function_source
+    function: function_source_i
+
