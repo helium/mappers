@@ -70,6 +70,7 @@ defmodule Mappers.H3 do
             res9 =
               %{}
               |> Map.put(:id, h3_res9_id_s)
+              |> Map.put(:h3_index_int, h3_res9_id)
               |> Map.put(:state, "mapped")
               |> Map.put(:avg_rssi, rssi)
               |> Map.put(:avg_snr, snr)
@@ -99,6 +100,7 @@ defmodule Mappers.H3 do
             res9 =
               %{}
               |> Map.put(:id, h3_res9_id_s)
+              |> Map.put(:h3_index_int, h3_res9_id)
               |> Map.put(:state, "mapped")
               |> Map.put(:avg_rssi, rssi)
               |> Map.put(:avg_snr, snr)
@@ -129,6 +131,7 @@ defmodule Mappers.H3 do
             res9 =
               %{}
               |> Map.put(:id, h3_res9_id_s)
+              |> Map.put(:h3_index_int, h3_res9_id)
               |> Map.put(:state, "mapped")
               |> Map.put(:avg_rssi, rssi)
               |> Map.put(:avg_snr, snr)
@@ -160,6 +163,7 @@ defmodule Mappers.H3 do
             res9 =
               %{}
               |> Map.put(:id, h3_res9_id_s)
+              |> Map.put(:h3_index_int, h3_res9_id)
               |> Map.put(:state, "mapped")
               |> Map.put(:avg_rssi, rssi)
               |> Map.put(:avg_snr, snr)
@@ -192,6 +196,7 @@ defmodule Mappers.H3 do
             res9 =
               %{}
               |> Map.put(:id, h3_res9_id_s)
+              |> Map.put(:h3_index_int, h3_res9_id)
               |> Map.put(:state, "mapped")
               |> Map.put(:avg_rssi, rssi)
               |> Map.put(:avg_snr, snr)
@@ -225,6 +230,7 @@ defmodule Mappers.H3 do
             res9 =
               %{}
               |> Map.put(:id, h3_res9_id_s)
+              |> Map.put(:h3_index_int, h3_res9_id)
               |> Map.put(:state, "mapped")
               |> Map.put(:avg_rssi, rssi)
               |> Map.put(:avg_snr, snr)
