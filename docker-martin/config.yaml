@@ -53,10 +53,11 @@ table_sources:
 
 # associative arrays of function sources
 function_sources:
-  public.function_source:
+  public.function_source_i:
     # function source id
-    id: public.function_source
+    id: public.function_source_i
     # schema name
     schema: public
     # function name
-    function: function_source
+    function: function_source_i
+
