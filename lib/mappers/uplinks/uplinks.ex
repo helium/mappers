@@ -1,6 +1,9 @@
 defmodule Mappers.Uplinks do
+  import Ecto.Query
   alias Mappers.Repo
   alias Mappers.Uplinks.Uplink
+  alias Mappers.UplinksHeards.UplinkHeard
+  alias Mappers.H3.Links.Link
 
   def create(message) do
     uplink = %{}
@@ -20,5 +23,29 @@ defmodule Mappers.Uplinks do
       {:ok, changeset} -> {:ok, changeset}
       {:error, _} -> {:error, "Uplink Insert Error"}
     end
+  end
+
+  def get_uplinks(h3_index) do
+    query =
+      from u in Uplink,
+      join: uh in UplinkHeard,
+      on: u.id == uh.uplink_id,
+      join: h3 in Link,
+      on: h3.uplink_id == u.id,
+      where: h3.h3_res9_id == ^h3_index,
+      distinct: uh.hotspot_name,
+      order_by: [asc: uh.timestamp],
+      limit: 5,
+      select: %{
+        uplink_heard_id: uh.id,
+        hotspot_name: uh.hotspot_name,
+        rssi: uh.rssi,
+        snr: uh.snr,
+        lat: uh.latitude,
+        lng: uh.longitude,
+        timestamp: uh.timestamp
+      }
+
+      Repo.all(query)
   end
 end

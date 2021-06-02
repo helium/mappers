@@ -27,6 +27,7 @@ defmodule MappersWeb.Router do
 
     get "/leaderboard", API.V1.LeaderboardController, :index
     post "/ingest/uplink", API.V1.IngestUplinkController, :create
+    get "/uplinks/hex/:h3_index", API.V1.UplinkController, :get_uplinks
   end
 
   # Enables LiveDashboard only for development
