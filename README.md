@@ -22,7 +22,6 @@ cd mappers
 
 * Install dependencies with `mix deps.get`
 * Create and migrate your database with `mix ecto.setup`
-* Install Node.js dependencies with `cd assets && yarn` 
 
 3. Edit your environment variables:
 
@@ -34,7 +33,9 @@ cd mappers
 
 Rename the file ".env" (delete ".sample" from the file name)
 
-4. Start development server:
+4. Install Node.js dependencies with `cd assets && yarn`
+
+5. Start development server:
 * Start Phoenix endpoint with `mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
