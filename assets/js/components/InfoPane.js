@@ -121,10 +121,10 @@ function InfoPane(props) {
                         </thead>
                         <tbody>
                             {props.uplinks.map(uplink => (
-                                <tr>
-                                    <td className="table-left animal-cell" key={uplink.hotspot_name}>{uplink.hotspot_name}</td>
-                                    <td className="table-right util-liga-mono tighten table-numeric" key={uplink.rssi}>{uplink.rssi}</td>
-                                    <td className="table-right util-liga-mono tighten table-numeric" key={uplink.snr}>{uplink.snr.toFixed(2)}</td>
+                                <tr key={uplink.id}>
+                                    <td className="table-left animal-cell">{uplink.hotspot_name}</td>
+                                    <td className="table-right util-liga-mono tighten table-numeric">{uplink.rssi}</td>
+                                    <td className="table-right util-liga-mono tighten table-numeric">{uplink.snr.toFixed(2)}</td>
                                 </tr>
                             ))}
                         </tbody>
