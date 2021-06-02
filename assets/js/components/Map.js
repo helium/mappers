@@ -111,8 +111,6 @@ function Map() {
       var hexId = e.features[0].properties.id;
       var hexState = e.features[0].properties.state;
 
-      console.log(e.features);
-
       if (e.features.length > 0) {
         if (selectedStateId !== null) {
           map.setFeatureState(
@@ -121,7 +119,6 @@ function Map() {
           );
         }
         selectedStateId = e.features[0].id;
-        console.log(selectedStateId)
         map.setFeatureState(
           { source: 'h3-vector-db', sourceLayer: 'public.h3_res9', id: selectedStateId },
           { selected: false }
