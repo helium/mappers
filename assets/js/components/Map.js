@@ -6,7 +6,7 @@ import socket from "../socket"
 import geojson2h3 from 'geojson2h3';
 import { get } from '../data/Rest'
 import GeoJSON from "geojson";
-import { h3ToGeo } from "h3-js";
+import { geoToH3, h3ToGeo } from "h3-js";
 
 mapboxgl.accessToken = process.env.PUBLIC_MAPBOX_KEY;
 
@@ -45,30 +45,27 @@ function Map() {
       get("uplinks/hex/" + h3_index)
         .then(res => res.json())
         .then(uplinks => {
-          var hotspot_features_line = [];
-          var hotspot_features_circle = [];
+          var hotspot_features = [];
           setUplinks(uplinks.uplinks)
           const uplink_coords = h3ToGeo(h3_index)
           uplinks.uplinks.map((h, i) => {
-            hotspot_features_line.push(
+            const hotspot_h3_index = geoToH3(h.lat, h.lng, 8)
+            const hotspot_coords = h3ToGeo(hotspot_h3_index)
+            hotspot_features.push(
               {
                 "type": "Feature",
                 "geometry": {
                   "type": "LineString",
                   "coordinates": [
-                    [h.lng, h.lat], [uplink_coords[1], uplink_coords[0]]
+                    [hotspot_coords[1], hotspot_coords[0]], [uplink_coords[1], uplink_coords[0]]
                   ]
                 }
-              }
-            )
-          })
-          uplinks.uplinks.map((h, i) => {
-            hotspot_features_circle.push(
+              },
               {
                 "type": "Feature",
                 "geometry": {
                   "type": "Point",
-                  "coordinates": [h.lng, h.lat]
+                  "coordinates": [hotspot_coords[1], hotspot_coords[0]]
                 },
                 "properties": {
                   "name": h.hotspot_name
@@ -76,18 +73,12 @@ function Map() {
               }
             )
           })
-          const hotspotFeatureCollectionLine =
+          const hotspotFeatureCollection =
           {
             "type": "FeatureCollection",
-            "features": hotspot_features_line
+            "features": hotspot_features
           }
-          const hotspotFeatureCollectionCircle =
-          {
-            "type": "FeatureCollection",
-            "features": hotspot_features_circle
-          }
-          map.getSource('uplink-hotspots-line').setData(hotspotFeatureCollectionLine)
-          map.getSource('uplink-hotspots-circle').setData(hotspotFeatureCollectionCircle)
+          map.getSource('uplink-hotspots').setData(hotspotFeatureCollection)
         })
         .catch(err => {
           alert(err)
@@ -207,15 +198,7 @@ function Map() {
         }
       });
 
-      map.addSource('uplink-hotspots-line', {
-        type: 'geojson', data:
-        {
-          "type": "FeatureCollection",
-          "features": []
-        }
-      });
-
-      map.addSource('uplink-hotspots-circle', {
+      map.addSource('uplink-hotspots', {
         type: 'geojson', data:
         {
           "type": "FeatureCollection",
@@ -276,7 +259,7 @@ function Map() {
       map.addLayer({
         'id': 'uplink-hotspots-line',
         'type': 'line',
-        'source': 'uplink-hotspots-line',
+        'source': 'uplink-hotspots',
         'layout': {
           'line-join': 'round',
           'line-cap': 'round'
@@ -290,7 +273,7 @@ function Map() {
       map.addLayer({
         'id': 'uplink-hotspots-circle',
         'type': 'circle',
-        'source': 'uplink-hotspots-circle',
+        'source': 'uplink-hotspots',
         'layout': {},
         'paint': {
           'circle-color': '#d8d51d',
