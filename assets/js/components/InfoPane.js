@@ -109,6 +109,28 @@ function InfoPane(props) {
                     </div>
                 </div>
             }
+            { props.uplinks && props.showHexPane &&
+                <div className="main-stats">
+                    <table className="hotspots-table">
+                        <thead className="hotspot-table-head type-smallcap">
+                            <tr>
+                                <th className="table-left">Hotspots</th>
+                                <th className="table-right">RSSI</th>
+                                <th className="table-right">SNR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {props.uplinks.map(uplink => (
+                                <tr>
+                                    <td className="table-left animal-cell" key={uplink.hotspot_name}>{uplink.hotspot_name}</td>
+                                    <td className="table-right util-liga-mono tighten table-numeric" key={uplink.rssi}>{uplink.rssi}</td>
+                                    <td className="table-right util-liga-mono tighten table-numeric" key={uplink.snr}>{uplink.snr.toFixed(2)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div >
     );
 }

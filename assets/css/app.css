@@ -234,3 +234,51 @@ code {
   font-size: 0.625em; /*relative to parent font*/
 }
 /*end big stats*/
+
+/*start hotspots table*/
+.hotspots-table {
+  border-collapse: collapse;
+  text-align: left;
+  width: 100%;
+  /*min-width: 480px;*/
+}
+.hotspots-table thead th {
+  padding-bottom: 0.5rem;
+}
+.hotspots-table th, 
+.hotspots-table td {
+  padding: 0.25rem 0.375rem;
+}
+.hotspots-table th:first-child, 
+.hotspots-table td:first-child {
+  padding-left: 0;
+}
+.hotspots-table th:last-child, 
+.hotspots-table td:last-child{
+  padding-right: 0;
+}
+.hotspot-table-head {}
+.animal-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100vw - 14rem); /*hacking in some text overflow*/
+}
+.table-left {
+  text-align: left;
+}
+.table-right {
+  text-align: right;
+}
+.table-numeric {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.table-unit {
+  font-size: 0.625em; /*relative to parent font*/
+}
+.has-km-toggle {
+  cursor: pointer;
+}
+/*end hotspots table*/
+/** end main stats stuff **/
