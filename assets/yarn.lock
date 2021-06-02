@@ -2824,6 +2824,11 @@ geojson2h3@^1.1.1:
   dependencies:
     h3-js "^3.6.1"
 
+geojson@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/geojson/-/geojson-0.5.0.tgz#3cd6c96399be65b56ee55596116fe9191ce701c0"
+  integrity sha1-PNbJY5m+ZbVu5VWWEW/pGRznAcA=
+
 get-caller-file@^2.0.1:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/get-caller-file/-/get-caller-file-2.0.5.tgz#4f94412a82db32f36e3b0b9741f8a97feb031f7e"
@@ -2963,6 +2968,11 @@ h3-js@^3.6.1:
   version "3.7.1"
   resolved "https://registry.yarnpkg.com/h3-js/-/h3-js-3.7.1.tgz#cb80092fd917c182c5025c2590ac093f52906edb"
   integrity sha512-EManlaXSd8BKiuw7hnkg4grpzEjvf+aGkw33upVrO+iGenPHz+tVurgx5ZMTVBSV8lkbSUm44tHrs5biX7UTlQ==
+
+h3-js@^3.7.2:
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/h3-js/-/h3-js-3.7.2.tgz#61d4feb7bb42868ca9cdb2d5cf9d9dda94f9e5a3"
+  integrity sha512-LPjlHSwB9zQZrMqKloCZmmmt3yZzIK7nqPcXqwU93zT3TtYG6jP4tZBzAPouxut7lLjdFbMQ75wRBiKfpsnY7w==
 
 har-schema@^2.0.0:
   version "2.0.0"
