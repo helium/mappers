@@ -17,32 +17,47 @@ function Map() {
         pitch: 0
     });
 
+    const [hexId, setHexId] = useState(null);
+    const [avgRssi, setAvgRssi] = useState(null);
+    const [avgSnr, setAvgSnr] = useState(null);
+    const [showHexPane, setShowHexPane] = useState(false);
+    const onCloseHexPaneClick = () => setShowHexPane(false)
+
     const onClick = event => {
         const feature = event.features[0];
+        console.log(feature)
         if (feature) {
-            // calculate the bounding box of the feature
-            const [minLng, minLat, maxLng, maxLat] = bbox(feature);
-            // construct a viewport instance from the current state
-            const vp = new WebMercatorViewport(viewport);
-            var { longitude, latitude } = vp.fitBounds(
-                [
-                    [minLng, minLat],
-                    [maxLng, maxLat]
-                ],
-                {
-                    padding: 40
-                }
-            );
+            if (feature.layer.id == "public.h3_res9") {
+                // set hex data for info pane
+                setAvgRssi(feature.properties.avg_rssi);
+                setAvgSnr(feature.properties.avg_snr.toFixed(2));
+                setHexId(feature.properties.id);
+                setShowHexPane(true);
 
-            setViewport({
-                ...viewport,
-                longitude,
-                latitude,
-                transitionInterpolator: new LinearInterpolator({
-                    around: [event.offsetCenter.x, event.offsetCenter.y]
-                }),
-                transitionDuration: 700
-            });
+                // calculate the bounding box of the feature
+                const [minLng, minLat, maxLng, maxLat] = bbox(feature);
+                // construct a viewport instance from the current state
+                const vp = new WebMercatorViewport(viewport);
+                var { longitude, latitude } = vp.fitBounds(
+                    [
+                        [minLng, minLat],
+                        [maxLng, maxLat]
+                    ],
+                    {
+                        padding: 40
+                    }
+                );
+
+                setViewport({
+                    ...viewport,
+                    longitude,
+                    latitude,
+                    transitionInterpolator: new LinearInterpolator({
+                        around: [event.offsetCenter.x, event.offsetCenter.y]
+                    }),
+                    transitionDuration: 700
+                });
+            }
         }
     };
 
@@ -61,7 +76,7 @@ function Map() {
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
             </MapGL>
-            <InfoPane />
+            <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick}/>
         </div>
     );
 }
