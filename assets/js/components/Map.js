@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { render } from 'react-dom';
 import MapGL from 'react-map-gl';
+import InfoPane from "../components/InfoPane"
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
 
@@ -24,6 +25,7 @@ function Map() {
                 onViewportChange={setViewport}
                 mapboxApiAccessToken={MAPBOX_TOKEN}
             />
+            <InfoPane />
         </div>
     );
 }
