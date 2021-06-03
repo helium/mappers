@@ -5,6 +5,7 @@ import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport } from 'r
 import InfoPane from "../components/InfoPane"
 import { uplinkTileServerLayer } from './MapStyles.js';
 import bbox from '@turf/bbox';
+import { get } from '../data/Rest'
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
 
@@ -17,11 +18,23 @@ function Map() {
         pitch: 0
     });
 
+    const [uplinks, setUplinks] = useState(null);
     const [hexId, setHexId] = useState(null);
     const [avgRssi, setAvgRssi] = useState(null);
     const [avgSnr, setAvgSnr] = useState(null);
     const [showHexPane, setShowHexPane] = useState(false);
     const onCloseHexPaneClick = () => setShowHexPane(false)
+
+    const getHex = h3_index => {
+        get("uplinks/hex/" + h3_index)
+            .then(res => res.json())
+            .then(uplinks => {
+                setUplinks(uplinks.uplinks)
+            })
+            .catch(err => {
+                alert(err)
+            })
+    }
 
     const onClick = event => {
         const feature = event.features[0];
@@ -32,6 +45,7 @@ function Map() {
                 setAvgRssi(feature.properties.avg_rssi);
                 setAvgSnr(feature.properties.avg_snr.toFixed(2));
                 setHexId(feature.properties.id);
+                getHex(feature.properties.id);
                 setShowHexPane(true);
 
                 // calculate the bounding box of the feature
@@ -76,7 +90,7 @@ function Map() {
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
             </MapGL>
-            <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick}/>
+            <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
         </div>
     );
 }
