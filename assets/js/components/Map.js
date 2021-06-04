@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
-import { uplinkTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer } from './MapStyles.js';
+import { uplinkTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer } from './Layers.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
 import { geoToH3, h3ToGeo } from "h3-js";
