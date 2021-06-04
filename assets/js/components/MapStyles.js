@@ -28,3 +28,25 @@ export const uplinkTileServerLayer = {
         ]
     }
 };
+
+export const uplinkHotspotsLineLayer = {
+    id: 'uplinkHotspotsLineLayer',
+    'type': 'line',
+    'layout': {
+        'line-join': 'round',
+        'line-cap': 'round'
+    },
+    'paint': {
+        'line-color': '#d8d51d',
+        'line-width': 2
+    }
+};
+
+export const uplinkHotspotsCircleLayer = {
+    'id': 'uplinkHotspotsCircleLayer',
+    'type': 'circle',
+    'layout': {},
+    'paint': {
+        'circle-color': '#d8d51d',
+    }
+};

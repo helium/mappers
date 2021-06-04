@@ -2,9 +2,10 @@ import * as React from 'react';
 import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
-import { uplinkTileServerLayer } from './MapStyles.js';
+import { uplinkTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer } from './MapStyles.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
+import { geoToH3, h3ToGeo } from "h3-js";
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
 var selectedStateId = null;
@@ -19,6 +20,7 @@ function Map() {
     });
     const mapRef = useRef(null);
     const [uplinks, setUplinks] = useState(null);
+    const [uplinkHotspotsData, setUplinkHotspotsData] = useState(null);
     const [hexId, setHexId] = useState(null);
     const [avgRssi, setAvgRssi] = useState(null);
     const [avgSnr, setAvgSnr] = useState(null);
@@ -29,7 +31,40 @@ function Map() {
         get("uplinks/hex/" + h3_index)
             .then(res => res.json())
             .then(uplinks => {
+                var hotspot_features = [];
                 setUplinks(uplinks.uplinks)
+                const uplink_coords = h3ToGeo(h3_index)
+                uplinks.uplinks.map((h, i) => {
+                    const hotspot_h3_index = geoToH3(h.lat, h.lng, 8)
+                    const hotspot_coords = h3ToGeo(hotspot_h3_index)
+                    hotspot_features.push(
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "LineString",
+                                "coordinates": [
+                                    [hotspot_coords[1], hotspot_coords[0]], [uplink_coords[1], uplink_coords[0]]
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Point",
+                                "coordinates": [hotspot_coords[1], hotspot_coords[0]]
+                            },
+                            "properties": {
+                                "name": h.hotspot_name
+                            }
+                        }
+                    )
+                })
+                const hotspotFeatureCollection =
+                {
+                    "type": "FeatureCollection",
+                    "features": hotspot_features
+                }
+                setUplinkHotspotsData(hotspotFeatureCollection)
             })
             .catch(err => {
                 alert(err)
@@ -102,6 +137,10 @@ function Map() {
             >
                 <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver-martin.herokuapp.com/public.h3_res9.json"}>
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
+                </Source>
+                <Source id="uplink-hotspots" type="geojson" data={uplinkHotspotsData}>
+                    <Layer {...uplinkHotspotsLineLayer} />
+                    <Layer {...uplinkHotspotsCircleLayer} />
                 </Source>
             </MapGL>
             <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
