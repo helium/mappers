@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { render } from 'react-dom';
+import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
 import { uplinkTileServerLayer } from './MapStyles.js';
@@ -8,6 +7,7 @@ import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
+var selectedStateId = null;
 
 function Map() {
     const [viewport, setViewport] = useState({
@@ -17,13 +17,13 @@ function Map() {
         bearing: 0,
         pitch: 0
     });
-
+    const mapRef = useRef(null);
     const [uplinks, setUplinks] = useState(null);
     const [hexId, setHexId] = useState(null);
     const [avgRssi, setAvgRssi] = useState(null);
     const [avgSnr, setAvgSnr] = useState(null);
     const [showHexPane, setShowHexPane] = useState(false);
-    const onCloseHexPaneClick = () => setShowHexPane(false)
+    const onCloseHexPaneClick = () => setShowHexPane(false);
 
     const getHex = h3_index => {
         get("uplinks/hex/" + h3_index)
@@ -38,7 +38,8 @@ function Map() {
 
     const onClick = event => {
         const feature = event.features[0];
-        console.log(feature)
+        const map = mapRef.current.getMap();
+
         if (feature) {
             if (feature.layer.id == "public.h3_res9") {
                 // set hex data for info pane
@@ -47,6 +48,18 @@ function Map() {
                 setHexId(feature.properties.id);
                 getHex(feature.properties.id);
                 setShowHexPane(true);
+
+                if (selectedStateId !== null) {
+                    map.setFeatureState(
+                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateId },
+                        { selected: true }
+                    );
+                }
+                selectedStateId = feature.id;
+                map.setFeatureState(
+                    { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateId },
+                    { selected: false }
+                );
 
                 // calculate the bounding box of the feature
                 const [minLng, minLat, maxLng, maxLat] = bbox(feature);
@@ -84,6 +97,7 @@ function Map() {
                 mapStyle="mapbox://styles/petermain/ckmwdn50a1ebk17o3h5e6wwui"
                 onClick={onClick}
                 onViewportChange={setViewport}
+                ref={mapRef}
                 mapboxApiAccessToken={MAPBOX_TOKEN}
             >
                 <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver-martin.herokuapp.com/public.h3_res9.json"}>
