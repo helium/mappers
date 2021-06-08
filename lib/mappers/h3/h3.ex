@@ -1,6 +1,7 @@
 defmodule Mappers.H3 do
   alias Mappers.Repo
   alias Mappers.H3.Res9
+  use MappersWeb, :controller
 
   def create(message) do
     # grab lat/lng if available
@@ -65,202 +66,210 @@ defmodule Mappers.H3 do
         poly = :h3.to_geo_boundary(h3_res9_id)
         poly_length = length(poly)
 
-        cond do
-          poly_length == 5 ->
-            res9 =
-              %{}
-              |> Map.put(:id, h3_res9_id_s)
-              |> Map.put(:h3_index_int, h3_res9_id)
-              |> Map.put(:state, "mapped")
-              |> Map.put(:avg_rssi, rssi)
-              |> Map.put(:avg_snr, snr)
-              |> Map.put(:geom, %Geo.Polygon{
-                coordinates: [
-                  [
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                    {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                    {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                    {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                    {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
-                  ]
-                ],
-                srid: 4326
-              })
+        result =
+          cond do
+            poly_length == 5 ->
+              res9 =
+                %{}
+                |> Map.put(:id, h3_res9_id_s)
+                |> Map.put(:h3_index_int, h3_res9_id)
+                |> Map.put(:state, "mapped")
+                |> Map.put(:avg_rssi, rssi)
+                |> Map.put(:avg_snr, snr)
+                |> Map.put(:geom, %Geo.Polygon{
+                  coordinates: [
+                    [
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                      {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                      {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                      {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                      {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                    ]
+                  ],
+                  srid: 4326
+                })
 
-            %Res9{}
-            |> Res9.changeset(res9)
-            |> Repo.insert()
-            |> case do
-              {:ok, changeset} -> {:ok, changeset}
-              {:error, _} -> {:error, "H3 Insert Error"}
-            end
+              %Res9{}
+              |> Res9.changeset(res9)
+              |> Repo.insert()
+              |> case do
+                {:ok, changeset} -> {:ok, changeset}
+                {:error, _} -> {:error, "H3 Insert Error"}
+              end
 
-          poly_length == 6 ->
-            res9 =
-              %{}
-              |> Map.put(:id, h3_res9_id_s)
-              |> Map.put(:h3_index_int, h3_res9_id)
-              |> Map.put(:state, "mapped")
-              |> Map.put(:avg_rssi, rssi)
-              |> Map.put(:avg_snr, snr)
-              |> Map.put(:geom, %Geo.Polygon{
-                coordinates: [
-                  [
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                    {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                    {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                    {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                    {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                    {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
-                  ]
-                ],
-                srid: 4326
-              })
+            poly_length == 6 ->
+              res9 =
+                %{}
+                |> Map.put(:id, h3_res9_id_s)
+                |> Map.put(:h3_index_int, h3_res9_id)
+                |> Map.put(:state, "mapped")
+                |> Map.put(:avg_rssi, rssi)
+                |> Map.put(:avg_snr, snr)
+                |> Map.put(:geom, %Geo.Polygon{
+                  coordinates: [
+                    [
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                      {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                      {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                      {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                      {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                      {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                    ]
+                  ],
+                  srid: 4326
+                })
 
-            %Res9{}
-            |> Res9.changeset(res9)
-            |> Repo.insert()
-            |> case do
-              {:ok, changeset} -> {:ok, changeset}
-              {:error, _} -> {:error, "H3 Insert Error"}
-            end
+              %Res9{}
+              |> Res9.changeset(res9)
+              |> Repo.insert()
+              |> case do
+                {:ok, changeset} -> {:ok, changeset}
+                {:error, _} -> {:error, "H3 Insert Error"}
+              end
 
-          poly_length == 7 ->
-            res9 =
-              %{}
-              |> Map.put(:id, h3_res9_id_s)
-              |> Map.put(:h3_index_int, h3_res9_id)
-              |> Map.put(:state, "mapped")
-              |> Map.put(:avg_rssi, rssi)
-              |> Map.put(:avg_snr, snr)
-              |> Map.put(:geom, %Geo.Polygon{
-                coordinates: [
-                  [
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                    {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                    {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                    {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                    {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                    {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                    {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
-                  ]
-                ],
-                srid: 4326
-              })
+            poly_length == 7 ->
+              res9 =
+                %{}
+                |> Map.put(:id, h3_res9_id_s)
+                |> Map.put(:h3_index_int, h3_res9_id)
+                |> Map.put(:state, "mapped")
+                |> Map.put(:avg_rssi, rssi)
+                |> Map.put(:avg_snr, snr)
+                |> Map.put(:geom, %Geo.Polygon{
+                  coordinates: [
+                    [
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                      {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                      {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                      {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                      {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                      {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                      {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                    ]
+                  ],
+                  srid: 4326
+                })
 
-            %Res9{}
-            |> Res9.changeset(res9)
-            |> Repo.insert()
-            |> case do
-              {:ok, changeset} -> {:ok, changeset}
-              {:error, _} -> {:error, "H3 Insert Error"}
-            end
+              %Res9{}
+              |> Res9.changeset(res9)
+              |> Repo.insert()
+              |> case do
+                {:ok, changeset} -> {:ok, changeset}
+                {:error, _} -> {:error, "H3 Insert Error"}
+              end
 
-          poly_length == 8 ->
-            res9 =
-              %{}
-              |> Map.put(:id, h3_res9_id_s)
-              |> Map.put(:h3_index_int, h3_res9_id)
-              |> Map.put(:state, "mapped")
-              |> Map.put(:avg_rssi, rssi)
-              |> Map.put(:avg_snr, snr)
-              |> Map.put(:geom, %Geo.Polygon{
-                coordinates: [
-                  [
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                    {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                    {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                    {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                    {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                    {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                    {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
-                    {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
-                  ]
-                ],
-                srid: 4326
-              })
+            poly_length == 8 ->
+              res9 =
+                %{}
+                |> Map.put(:id, h3_res9_id_s)
+                |> Map.put(:h3_index_int, h3_res9_id)
+                |> Map.put(:state, "mapped")
+                |> Map.put(:avg_rssi, rssi)
+                |> Map.put(:avg_snr, snr)
+                |> Map.put(:geom, %Geo.Polygon{
+                  coordinates: [
+                    [
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                      {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                      {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                      {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                      {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                      {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                      {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
+                      {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                    ]
+                  ],
+                  srid: 4326
+                })
 
-            %Res9{}
-            |> Res9.changeset(res9)
-            |> Repo.insert()
-            |> case do
-              {:ok, changeset} -> {:ok, changeset}
-              {:error, _} -> {:error, "H3 Insert Error"}
-            end
+              %Res9{}
+              |> Res9.changeset(res9)
+              |> Repo.insert()
+              |> case do
+                {:ok, changeset} -> {:ok, changeset}
+                {:error, _} -> {:error, "H3 Insert Error"}
+              end
 
-          poly_length == 9 ->
-            res9 =
-              %{}
-              |> Map.put(:id, h3_res9_id_s)
-              |> Map.put(:h3_index_int, h3_res9_id)
-              |> Map.put(:state, "mapped")
-              |> Map.put(:avg_rssi, rssi)
-              |> Map.put(:avg_snr, snr)
-              |> Map.put(:geom, %Geo.Polygon{
-                coordinates: [
-                  [
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                    {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                    {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                    {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                    {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                    {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                    {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
-                    {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
-                    {elem(Enum.at(poly, 8), 1), elem(Enum.at(poly, 8), 0)},
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
-                  ]
-                ],
-                srid: 4326
-              })
+            poly_length == 9 ->
+              res9 =
+                %{}
+                |> Map.put(:id, h3_res9_id_s)
+                |> Map.put(:h3_index_int, h3_res9_id)
+                |> Map.put(:state, "mapped")
+                |> Map.put(:avg_rssi, rssi)
+                |> Map.put(:avg_snr, snr)
+                |> Map.put(:geom, %Geo.Polygon{
+                  coordinates: [
+                    [
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                      {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                      {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                      {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                      {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                      {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                      {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
+                      {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
+                      {elem(Enum.at(poly, 8), 1), elem(Enum.at(poly, 8), 0)},
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                    ]
+                  ],
+                  srid: 4326
+                })
 
-            %Res9{}
-            |> Res9.changeset(res9)
-            |> Repo.insert()
-            |> case do
-              {:ok, changeset} -> {:ok, changeset}
-              {:error, _} -> {:error, "H3 Insert Error"}
-            end
+              %Res9{}
+              |> Res9.changeset(res9)
+              |> Repo.insert()
+              |> case do
+                {:ok, changeset} -> {:ok, changeset}
+                {:error, _} -> {:error, "H3 Insert Error"}
+              end
 
-          poly_length == 10 ->
-            res9 =
-              %{}
-              |> Map.put(:id, h3_res9_id_s)
-              |> Map.put(:h3_index_int, h3_res9_id)
-              |> Map.put(:state, "mapped")
-              |> Map.put(:avg_rssi, rssi)
-              |> Map.put(:avg_snr, snr)
-              |> Map.put(:geom, %Geo.Polygon{
-                coordinates: [
-                  [
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
-                    {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
-                    {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
-                    {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
-                    {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
-                    {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
-                    {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
-                    {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
-                    {elem(Enum.at(poly, 8), 1), elem(Enum.at(poly, 8), 0)},
-                    {elem(Enum.at(poly, 9), 1), elem(Enum.at(poly, 9), 0)},
-                    {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
-                  ]
-                ],
-                srid: 4326
-              })
+            poly_length == 10 ->
+              res9 =
+                %{}
+                |> Map.put(:id, h3_res9_id_s)
+                |> Map.put(:h3_index_int, h3_res9_id)
+                |> Map.put(:state, "mapped")
+                |> Map.put(:avg_rssi, rssi)
+                |> Map.put(:avg_snr, snr)
+                |> Map.put(:geom, %Geo.Polygon{
+                  coordinates: [
+                    [
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)},
+                      {elem(Enum.at(poly, 1), 1), elem(Enum.at(poly, 1), 0)},
+                      {elem(Enum.at(poly, 2), 1), elem(Enum.at(poly, 2), 0)},
+                      {elem(Enum.at(poly, 3), 1), elem(Enum.at(poly, 3), 0)},
+                      {elem(Enum.at(poly, 4), 1), elem(Enum.at(poly, 4), 0)},
+                      {elem(Enum.at(poly, 5), 1), elem(Enum.at(poly, 5), 0)},
+                      {elem(Enum.at(poly, 6), 1), elem(Enum.at(poly, 6), 0)},
+                      {elem(Enum.at(poly, 7), 1), elem(Enum.at(poly, 7), 0)},
+                      {elem(Enum.at(poly, 8), 1), elem(Enum.at(poly, 8), 0)},
+                      {elem(Enum.at(poly, 9), 1), elem(Enum.at(poly, 9), 0)},
+                      {elem(Enum.at(poly, 0), 1), elem(Enum.at(poly, 0), 0)}
+                    ]
+                  ],
+                  srid: 4326
+                })
 
-            %Res9{}
-            |> Res9.changeset(res9)
-            |> Repo.insert()
-            |> case do
-              {:ok, changeset} -> {:ok, changeset}
-              {:error, _} -> {:error, "H3 Insert Error"}
-            end
-        end
+              %Res9{}
+              |> Res9.changeset(res9)
+              |> Repo.insert()
+              |> case do
+                {:ok, changeset} -> {:ok, changeset}
+                {:error, _} -> {:error, "H3 Insert Error"}
+              end
+          end
+
+        # broadcast new hex on channel
+        MappersWeb.Endpoint.broadcast!("h3:new", "new_h3", %{
+          body: %{id: h3_res9_id, id_string: h3_res9_id_s, avg_rssi: rssi, avg_snr: snr}
+        })
+
+        result
       end
     end
   end

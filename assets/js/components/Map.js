@@ -10,7 +10,9 @@ import socket from "../socket";
 import geojson2h3 from 'geojson2h3';
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
-var selectedStateId = null;
+var selectedStateIdTile = null;
+var selectedStateIdChannel = null;
+const channel = socket.channel("h3:new")
 
 function Map() {
     const [viewport, setViewport] = useState({
@@ -32,13 +34,14 @@ function Map() {
 
     React.useEffect(() => {
         let features = []
-        let channel = socket.channel("h3:new")
         channel.on("new_h3", payload => {
-            features.push(geojson2h3.h3ToFeature(payload.body.id, { 'id': payload.body.id, 'avg_rssi': payload.body.avg_rssi, 'avg_snr': payload.body.avg_snr }))
+            var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id': payload.body.id, 'id_string': payload.body.id_string, 'avg_rssi': payload.body.avg_rssi, 'avg_snr': payload.body.avg_snr })
+            new_feature.id = payload.body.id
+            features.push(new_feature)
             const featureCollection =
             {
                 "type": "FeatureCollection",
-                "features": features
+                "features": [...features]
             }
             // Update data 
             setUplinkChannelData(featureCollection)
@@ -107,15 +110,15 @@ function Map() {
                 getHex(feature.properties.id);
                 setShowHexPane(true);
 
-                if (selectedStateId !== null) {
+                if (selectedStateIdTile !== null) {
                     map.setFeatureState(
-                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateId },
+                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
                         { selected: true }
                     );
                 }
-                selectedStateId = feature.id;
+                selectedStateIdTile = feature.id;
                 map.setFeatureState(
-                    { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateId },
+                    { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
                     { selected: false }
                 );
 
@@ -147,19 +150,19 @@ function Map() {
                 // set hex data for info pane
                 setAvgRssi(feature.properties.avg_rssi);
                 setAvgSnr(feature.properties.avg_snr.toFixed(2));
-                setHexId(feature.properties.id);
-                getHex(feature.properties.id);
+                setHexId(feature.properties.id_string);
+                getHex(feature.properties.id_string);
                 setShowHexPane(true);
 
-                if (selectedStateId !== null) {
+                if (selectedStateIdChannel !== null) {
                     map.setFeatureState(
-                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateId },
+                        { source: 'uplink-channel', id: selectedStateIdChannel },
                         { selected: true }
                     );
                 }
-                selectedStateId = feature.id;
+                selectedStateIdChannel = feature.id;
                 map.setFeatureState(
-                    { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateId },
+                    { source: 'uplink-channel', id: selectedStateIdChannel },
                     { selected: false }
                 );
 
