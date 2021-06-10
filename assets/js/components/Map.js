@@ -8,6 +8,7 @@ import { get } from '../data/Rest'
 import { geoToH3, h3ToGeo } from "h3-js";
 import socket from "../socket";
 import geojson2h3 from 'geojson2h3';
+import '../../css/app.css';
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
 var selectedStateIdTile = null;
@@ -136,15 +137,15 @@ function Map() {
                     }
                 );
 
-                setViewport({
-                    ...viewport,
-                    longitude,
-                    latitude,
-                    transitionInterpolator: new LinearInterpolator({
-                        around: [event.offsetCenter.x, event.offsetCenter.y]
-                    }),
-                    transitionDuration: 700
-                });
+                // setViewport({
+                //     ...viewport,
+                //     longitude,
+                //     latitude,
+                //     transitionInterpolator: new LinearInterpolator({
+                //         around: [event.offsetCenter.x, event.offsetCenter.y]
+                //     }),
+                //     transitionDuration: 700
+                // });
             }
             else if (feature.layer.id == "uplinkChannelLayer") {
                 // set hex data for info pane
