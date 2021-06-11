@@ -110,9 +110,14 @@ function Map() {
                 getHex(feature.properties.id);
                 setShowHexPane(true);
 
-                if (selectedStateIdTile !== null) {
+                // unselect any currently selected hex on both hex layers
+                if (selectedStateIdTile !== null || selectedStateIdTile !== null) {
                     map.setFeatureState(
                         { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
+                        { selected: true }
+                    );
+                    map.setFeatureState(
+                        { source: 'uplink-channel', id: selectedStateIdChannel },
                         { selected: true }
                     );
                 }
@@ -154,9 +159,14 @@ function Map() {
                 getHex(feature.properties.id_string);
                 setShowHexPane(true);
 
-                if (selectedStateIdChannel !== null) {
+                // unselect any currently selected hex on both hex layers
+                if (selectedStateIdChannel !== null || selectedStateIdTile !== null) {
                     map.setFeatureState(
                         { source: 'uplink-channel', id: selectedStateIdChannel },
+                        { selected: true }
+                    );
+                    map.setFeatureState(
+                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
                         { selected: true }
                     );
                 }
