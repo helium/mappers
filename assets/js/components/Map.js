@@ -218,12 +218,12 @@ function Map() {
                 <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver-martin.herokuapp.com/public.h3_res9.json"}>
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
+                <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
+                    <Layer {...uplinkChannelLayer} />
+                </Source>
                 <Source id="uplink-hotspots" type="geojson" data={uplinkHotspotsData}>
                     <Layer {...uplinkHotspotsLineLayer} />
                     <Layer {...uplinkHotspotsCircleLayer} />
-                </Source>
-                <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
-                    <Layer {...uplinkChannelLayer} />
                 </Source>
             </MapGL>
             <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
