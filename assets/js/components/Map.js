@@ -111,9 +111,14 @@ function Map() {
                 getHex(feature.properties.id);
                 setShowHexPane(true);
 
-                if (selectedStateIdTile !== null) {
+                // unselect any currently selected hex on both hex layers
+                if (selectedStateIdTile !== null || selectedStateIdTile !== null) {
                     map.setFeatureState(
                         { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
+                        { selected: true }
+                    );
+                    map.setFeatureState(
+                        { source: 'uplink-channel', id: selectedStateIdChannel },
                         { selected: true }
                     );
                 }
@@ -155,9 +160,14 @@ function Map() {
                 getHex(feature.properties.id_string);
                 setShowHexPane(true);
 
-                if (selectedStateIdChannel !== null) {
+                // unselect any currently selected hex on both hex layers
+                if (selectedStateIdChannel !== null || selectedStateIdTile !== null) {
                     map.setFeatureState(
                         { source: 'uplink-channel', id: selectedStateIdChannel },
+                        { selected: true }
+                    );
+                    map.setFeatureState(
+                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
                         { selected: true }
                     );
                 }
@@ -209,12 +219,12 @@ function Map() {
                 <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver-martin.herokuapp.com/public.h3_res9.json"}>
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
+                <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
+                    <Layer {...uplinkChannelLayer} />
+                </Source>
                 <Source id="uplink-hotspots" type="geojson" data={uplinkHotspotsData}>
                     <Layer {...uplinkHotspotsLineLayer} />
                     <Layer {...uplinkHotspotsCircleLayer} />
-                </Source>
-                <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
-                    <Layer {...uplinkChannelLayer} />
                 </Source>
             </MapGL>
             <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
