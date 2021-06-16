@@ -109,28 +109,27 @@ function InfoPane(props) {
                             </div>
                         </div>
                     </div>
+                    <table className="hotspots-table">
+                        <thead className="hotspot-table-head type-smallcap">
+                            <tr>
+                                <th className="table-left">Hotspots</th>
+                                <th className="table-right">RSSI</th>
+                                <th className="table-right">SNR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {props.uplinks && props.uplinks.map(uplink => (
+                                <tr key={uplink.id}>
+                                    <td className="table-left animal-cell">{uplink.hotspot_name}</td>
+                                    <td className="table-right util-liga-mono tighten table-numeric">{uplink.rssi}</td>
+                                    <td className="table-right util-liga-mono tighten table-numeric">{uplink.snr.toFixed(2)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             }
-            { props.uplinks && props.showHexPane &&   
-                <table className="hotspots-table">
-                    <thead className="hotspot-table-head type-smallcap">
-                        <tr>
-                            <th className="table-left">Hotspots</th>
-                            <th className="table-right">RSSI</th>
-                            <th className="table-right">SNR</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {props.uplinks.map(uplink => (
-                            <tr key={uplink.id}>
-                                <td className="table-left animal-cell">{uplink.hotspot_name}</td>
-                                <td className="table-right util-liga-mono tighten table-numeric">{uplink.rssi}</td>
-                                <td className="table-right util-liga-mono tighten table-numeric">{uplink.snr.toFixed(2)}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            }
+            
         </div >
     );
 }
