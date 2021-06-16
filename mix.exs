@@ -50,7 +50,8 @@ defmodule Mappers.MixProject do
       {:uuid, "~> 1.1" },
       {:nimble_csv, "~> 1.0"},
       {:geocalc, "~> 0.5"},
-      {:telemetry_metrics_prometheus_core, "~> 1.0.0"}
+      {:telemetry_metrics_prometheus_core, "~> 1.0.0"},
+      {:appsignal_phoenix, "~> 2.0.0"}
     ]
   end
 
