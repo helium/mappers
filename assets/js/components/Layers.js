@@ -50,6 +50,16 @@ export const uplinkHotspotsCircleLayer = {
     }
 };
 
+export const uplinkHotspotsHexLayer = {
+    id: 'uplinkHotspotsHexLayer',
+    type: 'fill',
+    paint: {
+        'fill-color': '#414a4a',
+        'fill-outline-color': '#d8d51d',
+        'fill-opacity': 0.5,
+    }
+};
+
 export const uplinkChannelLayer = {
     id: 'uplinkChannelLayer',
     type: 'fill',
