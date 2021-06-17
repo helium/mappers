@@ -2,10 +2,10 @@ import * as React from 'react';
 import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
-import { uplinkTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkChannelLayer } from './Layers.js';
+import { uplinkTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer } from './Layers.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
-import { geoToH3, h3ToGeo } from "h3-js";
+import { geoToH3, h3ToGeo, h3ToGeoBoundary } from "h3-js";
 import socket from "../socket";
 import geojson2h3 from 'geojson2h3';
 
@@ -24,7 +24,7 @@ function Map() {
     });
     const mapRef = useRef(null);
     const [uplinks, setUplinks] = useState(null);
-    const [uplinkHotspotsData, setUplinkHotspotsData] = useState(null);
+    const [uplinkHotspotsData, setUplinkHotspotsData] = useState({ line: null, circle: null, hex: null });
     const [uplinkChannelData, setUplinkChannelData] = useState(null);
     const [hexId, setHexId] = useState(null);
     const [avgRssi, setAvgRssi] = useState(null);
@@ -57,13 +57,16 @@ function Map() {
         get("uplinks/hex/" + h3_index)
             .then(res => res.json())
             .then(uplinks => {
-                var hotspot_features = [];
+                var hotspot_line_features = [];
+                var hotspot_circle_features = [];
+                var hotspot_hex_features = [];
                 setUplinks(uplinks.uplinks)
                 const uplink_coords = h3ToGeo(h3_index)
                 uplinks.uplinks.map((h, i) => {
                     const hotspot_h3_index = geoToH3(h.lat, h.lng, 8)
                     const hotspot_coords = h3ToGeo(hotspot_h3_index)
-                    hotspot_features.push(
+                    const hotspot_polygon_coords = h3ToGeoBoundary(hotspot_h3_index, true)
+                    hotspot_line_features.push(
                         {
                             "type": "Feature",
                             "geometry": {
@@ -72,7 +75,9 @@ function Map() {
                                     [hotspot_coords[1], hotspot_coords[0]], [uplink_coords[1], uplink_coords[0]]
                                 ]
                             }
-                        },
+                        }
+                    )
+                    hotspot_circle_features.push(
                         {
                             "type": "Feature",
                             "geometry": {
@@ -84,13 +89,38 @@ function Map() {
                             }
                         }
                     )
+                    hotspot_hex_features.push(
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    hotspot_polygon_coords
+                                ]
+                            },
+                            "properties": {
+                                "name": h.hotspot_name
+                            }
+                        }
+                    )
                 })
-                const hotspotFeatureCollection =
+                const hotspotLineFeatureCollection =
                 {
                     "type": "FeatureCollection",
-                    "features": hotspot_features
+                    "features": hotspot_line_features
                 }
-                setUplinkHotspotsData(hotspotFeatureCollection)
+                const hotspotCircleFeatureCollection =
+                {
+                    "type": "FeatureCollection",
+                    "features": hotspot_circle_features
+                }
+                const hotspotHexFeatureCollection =
+                {
+                    "type": "FeatureCollection",
+                    "features": hotspot_hex_features
+                }
+
+                setUplinkHotspotsData({ line: hotspotLineFeatureCollection, circle: hotspotCircleFeatureCollection, hex: hotspotHexFeatureCollection })
             })
             .catch(err => {
                 alert(err)
@@ -221,10 +251,16 @@ function Map() {
                 <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
                     <Layer {...uplinkChannelLayer} />
                 </Source>
-                <Source id="uplink-hotspots" type="geojson" data={uplinkHotspotsData}>
+                <Source id="uplink-hotspots-hex" type="geojson" data={uplinkHotspotsData.hex}>
+                    <Layer {...uplinkHotspotsHexLayer} />
+                </Source>
+                <Source id="uplink-hotspots-line" type="geojson" data={uplinkHotspotsData.line}>
                     <Layer {...uplinkHotspotsLineLayer} />
+                </Source>
+                <Source id="uplink-hotspots-circle" type="geojson" data={uplinkHotspotsData.circle}>
                     <Layer {...uplinkHotspotsCircleLayer} />
                 </Source>
+
             </MapGL>
             <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
         </div>
