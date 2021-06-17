@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
-import { uplinkTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer } from './Layers.js';
+import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer} from './Layers.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
 import { geoToH3, h3ToGeo, h3ToGeoBoundary } from "h3-js";
@@ -245,6 +245,9 @@ function Map() {
                 ref={mapRef}
                 mapboxApiAccessToken={MAPBOX_TOKEN}
             >
+                <Source id="hotspot-tileserver" type="vector" url={"https://hotspot-tileserver-martin.herokuapp.com/public.h3_res8.json"}>
+                    <Layer {...hotspotTileServerLayer} source-layer={"public.h3_res8"} />
+                </Source>
                 <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver-martin.herokuapp.com/public.h3_res9.json"}>
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
