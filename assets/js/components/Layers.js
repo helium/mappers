@@ -29,6 +29,16 @@ export const uplinkTileServerLayer = {
     }
 };
 
+export const hotspotTileServerLayer = {
+    id: 'public.h3_res8',
+    type: 'fill',
+    paint: {
+        'fill-color': '#414a4a',
+        'fill-outline-color': '#fafbfd',
+        'fill-opacity': 0.2,
+    }
+};
+
 export const uplinkHotspotsLineLayer = {
     id: 'uplinkHotspotsLineLayer',
     type: 'line',
