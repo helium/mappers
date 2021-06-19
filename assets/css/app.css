@@ -1,6 +1,7 @@
 html, body {
   margin: 0;
   height: 100%;
+  font-size: 16px;
 }
 
 body {
@@ -8,7 +9,6 @@ body {
   font-family: Inter, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
   background: #181B20;
 }
 
@@ -52,17 +52,10 @@ body {
   left: 2vw;
   color: white;
   
-  max-width: 30rem;
-  max-height: 95vh;
-  overflow: auto;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-  
   padding-top: 0;
   margin-top: 0;
-}
-.info-pane::-webkit-scrollbar {
-  display: none;
+  
+  max-width: 30rem;
 }
 
 .mappers-logo {
@@ -79,14 +72,6 @@ body {
 .pane-nav.has-subcontent {
   padding-bottom: 1.25rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
-
-  position: sticky;
-  top: 0;
-  margin: 0 -1.5rem;
-  padding: 1.5rem 1.5rem 1.25rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 2;
 }
 
 .nav-links {
@@ -261,11 +246,29 @@ body {
 /*end big stats*/
 
 /*start hotspots table*/
+.hotspots-table-container {
+  /* TODO: Stuff <==== */
+  max-height: calc(90vh - 15rem); /*Change this if overview area height changes.*/
+  overflow: auto;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  margin: 0 -1.5rem -1.5rem;
+  padding: 0 1.5rem 1.5rem;
+}
+.hotspots-table-container::-webkit-scrollbar {
+  display: none;
+}
 .hotspots-table {
   border-collapse: collapse;
   text-align: left;
   width: 100%;
   /*min-width: 480px;*/
+}
+.hotspots-table thead {
+  position: sticky;
+  top: -0.25rem;
 }
 .hotspots-table thead th {
   padding-bottom: 0.5rem;
@@ -332,14 +335,11 @@ body {
     border: none;
     
     width: auto;
+    max-width: unset;
   }
   .pane-nav.has-subcontent {
     position: inherit;
-    padding:  0.25rem 0.75rem;
-    margin: unset;
     border: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
   .main-stats {
     position: fixed;
@@ -359,7 +359,10 @@ body {
 
     border-radius: 10px 10px 0 0;
 
-    z-index: 5;
+    z-index: 2;
+  }
+  .hotspots-table-container {
+    max-height: unset;
   }
   
 }
