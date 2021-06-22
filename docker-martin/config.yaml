@@ -47,8 +47,8 @@ table_sources:
     properties:
       id: string
       state: string
-      avg_rssi: double
-      avg_snr: double
+      best_rssi: double
+      snr: double
       h3_index_int: int8
 
 # associative arrays of function sources

@@ -5,6 +5,6 @@ defmodule MappersWeb.API.V1.IngestUplinkController do
 
   def create(conn, params) do
     resp = Ingest.ingest_uplink(params)
-    conn |> json(resp.resp)
+    conn |> json(resp)
   end
 end

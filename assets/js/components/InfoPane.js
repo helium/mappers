@@ -96,15 +96,15 @@ function InfoPane(props) {
                         <div className="big-stat">
                             <div className="stat-head type-smallcap">Best RSSI</div>
                             <div className="stat-body">
-                                {props.avgRssi}
+                                {props.bestRssi}
                                 <span className="stat-unit">dBm</span>
                             </div>
                         </div>
 
                         <div className="big-stat">
-                            <div className="stat-head type-smallcap">Best SNR</div>
+                            <div className="stat-head type-smallcap">SNR</div>
                             <div className="stat-body">
-                                {props.avgSnr}
+                                {props.snr}
                                 <span className="stat-unit"></span>
                             </div>
                         </div>
