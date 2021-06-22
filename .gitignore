@@ -35,3 +35,4 @@ npm-debug.log
 
 #misc
 .env
+.DS_Store
