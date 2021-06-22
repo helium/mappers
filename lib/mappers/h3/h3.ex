@@ -37,16 +37,16 @@ defmodule Mappers.H3 do
       :telemetry.execute([:ingest, :h3, :res9, :existing], %{h3_res9_id: h3_res9_id_s}, message)
 
       # Check for best rssi and snr
-      best_rssi = if rssi > res9_temp.rssi do
+      best_rssi = if rssi > res9_temp.best_rssi do
         rssi
       else
-        res9_temp.rssi
+        res9_temp.best_rssi
       end
 
-      best_snr = if snr > res9_temp.snr do
+      best_snr = if snr > res9_temp.best_snr do
         snr
       else
-        res9_temp.snr
+        res9_temp.best_snr
       end
 
       # %Res9{}
