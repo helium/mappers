@@ -60,16 +60,16 @@ defmodule Mappers.H3 do
           res9_temp.best_rssi
         end
 
-      best_snr =
+      snr =
         if best_new_rssi > res9_temp.best_rssi do
           best_new_snr
         else
-          res9_temp.best_snr
+          res9_temp.snr
         end
 
       res9_temp
       |> Ecto.Changeset.change(%{best_rssi: best_rssi})
-      |> Ecto.Changeset.change(%{best_snr: best_snr})
+      |> Ecto.Changeset.change(%{snr: snr})
       |> Repo.update()
       |> case do
         {:ok, changeset} -> {:ok, changeset}
@@ -95,7 +95,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
-                |> Map.put(:best_snr, snr)
+                |> Map.put(:snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -125,7 +125,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
-                |> Map.put(:best_snr, snr)
+                |> Map.put(:snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -156,7 +156,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
-                |> Map.put(:best_snr, snr)
+                |> Map.put(:snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -188,7 +188,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
-                |> Map.put(:best_snr, snr)
+                |> Map.put(:snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -221,7 +221,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
-                |> Map.put(:best_snr, snr)
+                |> Map.put(:snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -255,7 +255,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
-                |> Map.put(:best_snr, snr)
+                |> Map.put(:snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -286,7 +286,7 @@ defmodule Mappers.H3 do
 
         # broadcast new hex on channel
         MappersWeb.Endpoint.broadcast!("h3:new", "new_h3", %{
-          body: %{id: h3_res9_id, id_string: h3_res9_id_s, best_rssi: rssi, best_snr: snr}
+          body: %{id: h3_res9_id, id_string: h3_res9_id_s, best_rssi: rssi, snr: snr}
         })
 
         result

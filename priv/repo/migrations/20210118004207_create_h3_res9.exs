@@ -9,7 +9,7 @@ defmodule Mappers.Repo.Migrations.CreateH3Res9 do
       add :h3_index_int, :bigint
       add :state, :string
       add :best_rssi, :float
-      add :best_snr, :float
+      add :snr, :float
       add :geom, :geometry
 
       timestamps()

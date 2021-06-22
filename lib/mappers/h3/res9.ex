@@ -7,7 +7,7 @@ defmodule Mappers.H3.Res9 do
     field :h3_index_int, :integer
     field :state, :string
     field :best_rssi, :float
-    field :best_snr, :float
+    field :snr, :float
     field :geom, Geo.PostGIS.Geometry
 
     timestamps()
@@ -16,7 +16,7 @@ defmodule Mappers.H3.Res9 do
   @doc false
   def changeset(res9, attrs) do
     res9
-    |> cast(attrs, [:id, :h3_index_int, :state, :best_rssi, :best_snr, :geom])
-    |> validate_required([:id, :h3_index_int, :state, :best_rssi, :best_snr, :geom])
+    |> cast(attrs, [:id, :h3_index_int, :state, :best_rssi, :snr, :geom])
+    |> validate_required([:id, :h3_index_int, :state, :best_rssi, :snr, :geom])
   end
 end
