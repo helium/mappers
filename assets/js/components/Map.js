@@ -33,6 +33,10 @@ function Map() {
     const [avgSnr, setAvgSnr] = useState(null);
     const [showHexPane, setShowHexPane] = useState(false);
     const onCloseHexPaneClick = () => setShowHexPane(false);
+    const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+    const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
+
+
 
     React.useEffect(() => {
         let features = []
@@ -268,7 +272,7 @@ function Map() {
 
             </MapGL>
             <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
-            <WelcomeModal/>
+            <WelcomeModal showWelcomeModal={showWelcomeModal} onCloseWelcomeModalClick={onCloseWelcomeModalClick}/>
         </div>
     );
 }

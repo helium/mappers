@@ -319,7 +319,7 @@ body {
 
   top: 50%;
   left: 50%;
-  transform: translateX(-50%) translateY(calc(-50% - 2rem));
+  transform: translateX(-50%) translateY(calc(-50% - 0.5rem));
   
   padding: 0 2.25rem 2.5rem;
   
@@ -332,6 +332,23 @@ body {
   border-radius: 10px;
   
   z-index: 10;
+}
+
+@media not prefers-reduced-motion {
+  .modal {
+    animation: 0.35s modalEntry 2s ease-out 1 backwards;
+  }
+}
+
+@keyframes modalEntry {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(calc(-50% + 0.5rem));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(calc(-50% - 0.5rem));
+  }
 }
 
 .illo-header {
@@ -441,6 +458,7 @@ body {
     top: initial;
     left: initial;
     transform: unset;
+    animation: none;
     
     border-radius: 10px 10px 0 0;
   }
