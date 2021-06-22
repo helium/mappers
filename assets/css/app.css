@@ -362,7 +362,7 @@ body {
   align-items: center;
   justify-content: center;
   
-  background-image: url("https://assets.codepen.io/69025/hexillo.svg");
+  background-image: url("https://helium-mappers.s3.us-west-2.amazonaws.com/hexillo.svg");
   background-position: 50% 0;
   background-repeat: no-repeat;
 }
