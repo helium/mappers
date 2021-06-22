@@ -12,45 +12,61 @@ defmodule Mappers.H3 do
     h3_res9_id = :h3.from_geo({lat, lng}, 9)
     h3_res9_id_s = to_string(:h3.to_string(h3_res9_id))
 
+    # get current hex if it exist
     res9_temp = Repo.get(Res9, h3_res9_id_s)
 
-    rssi_r = Enum.at(message["hotspots"], 0)["rssi"]
-    snr_r = Enum.at(message["hotspots"], 0)["snr"]
+    # create list of rssi's with snr
+    rssi_snr_list =
+      Enum.reduce(message["hotspots"], [], fn hotspot, list ->
+        rssi_r = hotspot["rssi"]
+        snr_r = hotspot["snr"]
 
-    rssi =
-      cond do
-        is_float(rssi_r) -> rssi_r
-        is_integer(rssi_r) -> rssi_r * 1.0
-        is_binary(rssi_r) -> Float.parse(rssi_r) |> elem(0)
-      end
+        rssi =
+          cond do
+            is_float(rssi_r) -> rssi_r
+            is_integer(rssi_r) -> rssi_r * 1.0
+            is_binary(rssi_r) -> Float.parse(rssi_r) |> elem(0)
+          end
 
-    snr =
-      cond do
-        is_float(snr_r) -> snr_r
-        is_integer(snr_r) -> snr_r * 1.0
-        is_binary(snr_r) -> Float.parse(snr_r) |> elem(0)
-      end
+        snr =
+          cond do
+            is_float(snr_r) -> snr_r
+            is_integer(snr_r) -> snr_r * 1.0
+            is_binary(snr_r) -> Float.parse(snr_r) |> elem(0)
+          end
+
+        [{rssi, snr} | list]
+      end)
+
+    # find best rssi
+    best_new_rssi_pair =
+      Enum.max_by(rssi_snr_list, fn x ->
+        elem(x, 0)
+      end)
 
     # check if h3 index exist in the db
     if res9_temp != nil do
       # record existing h3 res9 metric
       :telemetry.execute([:ingest, :h3, :res9, :existing], %{h3_res9_id: h3_res9_id_s}, message)
 
-      # Check for best rssi and snr
-      best_rssi = if rssi > res9_temp.best_rssi do
-        rssi
-      else
-        res9_temp.best_rssi
-      end
+      # get best rssi with snr
+      {best_new_rssi, _} = best_new_rssi_pair
+      {_, best_new_snr} = best_new_rssi_pair
 
-      best_snr = if snr > res9_temp.best_snr do
-        snr
-      else
-        res9_temp.best_snr
-      end
+      best_rssi =
+        if best_new_rssi > res9_temp.best_rssi do
+          best_new_rssi
+        else
+          res9_temp.best_rssi
+        end
 
-      # %Res9{}
-      # |> Res9.changeset(res9)
+      best_snr =
+        if best_new_rssi > res9_temp.best_rssi do
+          best_new_snr
+        else
+          res9_temp.best_snr
+        end
+
       res9_temp
       |> Ecto.Changeset.change(%{best_rssi: best_rssi})
       |> Ecto.Changeset.change(%{best_snr: best_snr})
@@ -63,6 +79,9 @@ defmodule Mappers.H3 do
       if :h3.is_valid(h3_res9_id) do
         # record new h3 res9 metric
         :telemetry.execute([:ingest, :h3, :res9, :new], %{h3_res9_id: h3_res9_id_s}, message)
+
+        {rssi, _} = best_new_rssi_pair
+        {_, snr} = best_new_rssi_pair
 
         poly = :h3.to_geo_boundary(h3_res9_id)
         poly_length = length(poly)
