@@ -36,23 +36,24 @@ defmodule Mappers.H3 do
       # record existing h3 res9 metric
       :telemetry.execute([:ingest, :h3, :res9, :existing], %{h3_res9_id: h3_res9_id_s}, message)
 
-      # IO.puts(res9_temp.geom)
-      # IO.puts"here"
-      # # index does not exist, create new
-      # res9 =
-      #   %{}
-      #   |> Map.put(:id, h3_res9_id_s)
-      #   |> Map.put(:state, "mapped")
-      #   |> Map.put(:avg_rssi, Enum.at(message["hotspots"], 0)["rssi"])
-      #   |> Map.put(:geom, res9_temp.geom)
+      # Check for best rssi and snr
+      best_rssi = if rssi > res9_temp.rssi do
+        rssi
+      else
+        res9_temp.rssi
+      end
 
-      # IO.puts(res9)
+      best_snr = if snr > res9_temp.snr do
+        snr
+      else
+        res9_temp.snr
+      end
 
       # %Res9{}
       # |> Res9.changeset(res9)
       res9_temp
-      |> Ecto.Changeset.change(%{avg_rssi: rssi})
-      |> Ecto.Changeset.change(%{avg_snr: snr})
+      |> Ecto.Changeset.change(%{best_rssi: best_rssi})
+      |> Ecto.Changeset.change(%{best_snr: best_snr})
       |> Repo.update()
       |> case do
         {:ok, changeset} -> {:ok, changeset}
@@ -74,8 +75,8 @@ defmodule Mappers.H3 do
                 |> Map.put(:id, h3_res9_id_s)
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
-                |> Map.put(:avg_rssi, rssi)
-                |> Map.put(:avg_snr, snr)
+                |> Map.put(:best_rssi, rssi)
+                |> Map.put(:best_snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -104,8 +105,8 @@ defmodule Mappers.H3 do
                 |> Map.put(:id, h3_res9_id_s)
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
-                |> Map.put(:avg_rssi, rssi)
-                |> Map.put(:avg_snr, snr)
+                |> Map.put(:best_rssi, rssi)
+                |> Map.put(:best_snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -135,8 +136,8 @@ defmodule Mappers.H3 do
                 |> Map.put(:id, h3_res9_id_s)
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
-                |> Map.put(:avg_rssi, rssi)
-                |> Map.put(:avg_snr, snr)
+                |> Map.put(:best_rssi, rssi)
+                |> Map.put(:best_snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -167,8 +168,8 @@ defmodule Mappers.H3 do
                 |> Map.put(:id, h3_res9_id_s)
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
-                |> Map.put(:avg_rssi, rssi)
-                |> Map.put(:avg_snr, snr)
+                |> Map.put(:best_rssi, rssi)
+                |> Map.put(:best_snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -200,8 +201,8 @@ defmodule Mappers.H3 do
                 |> Map.put(:id, h3_res9_id_s)
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
-                |> Map.put(:avg_rssi, rssi)
-                |> Map.put(:avg_snr, snr)
+                |> Map.put(:best_rssi, rssi)
+                |> Map.put(:best_snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -234,8 +235,8 @@ defmodule Mappers.H3 do
                 |> Map.put(:id, h3_res9_id_s)
                 |> Map.put(:h3_index_int, h3_res9_id)
                 |> Map.put(:state, "mapped")
-                |> Map.put(:avg_rssi, rssi)
-                |> Map.put(:avg_snr, snr)
+                |> Map.put(:best_rssi, rssi)
+                |> Map.put(:best_snr, snr)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -266,7 +267,7 @@ defmodule Mappers.H3 do
 
         # broadcast new hex on channel
         MappersWeb.Endpoint.broadcast!("h3:new", "new_h3", %{
-          body: %{id: h3_res9_id, id_string: h3_res9_id_s, avg_rssi: rssi, avg_snr: snr}
+          body: %{id: h3_res9_id, id_string: h3_res9_id_s, best_rssi: rssi, best_snr: snr}
         })
 
         result
