@@ -29,8 +29,8 @@ function Map() {
     const [uplinkHotspotsData, setUplinkHotspotsData] = useState({ line: null, circle: null, hex: null });
     const [uplinkChannelData, setUplinkChannelData] = useState(null);
     const [hexId, setHexId] = useState(null);
-    const [avgRssi, setAvgRssi] = useState(null);
-    const [avgSnr, setAvgSnr] = useState(null);
+    const [bestRssi, setBestRssi] = useState(null);
+    const [snr, setSnr] = useState(null);
     const [showHexPane, setShowHexPane] = useState(false);
     const onCloseHexPaneClick = () => setShowHexPane(false);
     const [showWelcomeModal, setShowWelcomeModal] = useState(true);
@@ -41,7 +41,7 @@ function Map() {
     React.useEffect(() => {
         let features = []
         channel.on("new_h3", payload => {
-            var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id': payload.body.id, 'id_string': payload.body.id_string, 'avg_rssi': payload.body.avg_rssi, 'avg_snr': payload.body.avg_snr })
+            var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id': payload.body.id, 'id_string': payload.body.id_string, 'best_rssi': payload.body.best_rssi, 'snr': payload.body.snr })
             new_feature.id = payload.body.id
             features.push(new_feature)
             const featureCollection =
@@ -140,8 +140,8 @@ function Map() {
         if (feature) {
             if (feature.layer.id == "public.h3_res9") {
                 // set hex data for info pane
-                setAvgRssi(feature.properties.avg_rssi);
-                setAvgSnr(feature.properties.avg_snr.toFixed(2));
+                setBestRssi(feature.properties.best_rssi);
+                setSnr(feature.properties.snr.toFixed(2));
                 setHexId(feature.properties.id);
                 getHex(feature.properties.id);
                 setShowHexPane(true);
@@ -189,8 +189,8 @@ function Map() {
             }
             else if (feature.layer.id == "uplinkChannelLayer") {
                 // set hex data for info pane
-                setAvgRssi(feature.properties.avg_rssi);
-                setAvgSnr(feature.properties.avg_snr.toFixed(2));
+                setBestRssi(feature.properties.best_rssi);
+                setSnr(feature.properties.snr.toFixed(2));
                 setHexId(feature.properties.id_string);
                 getHex(feature.properties.id_string);
                 setShowHexPane(true);
@@ -271,7 +271,7 @@ function Map() {
                 </Source>
 
             </MapGL>
-            <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
+            <InfoPane hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
             <WelcomeModal showWelcomeModal={showWelcomeModal} onCloseWelcomeModalClick={onCloseWelcomeModalClick}/>
         </div>
     );
