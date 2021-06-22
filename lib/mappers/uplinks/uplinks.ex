@@ -33,9 +33,8 @@ defmodule Mappers.Uplinks do
       join: h3 in Link,
       on: h3.uplink_id == u.id,
       where: h3.h3_res9_id == ^h3_index,
-      distinct: uh.hotspot_name,
-      order_by: [asc: uh.timestamp],
-      # limit: 5,
+      distinct: [uh.hotspot_name],
+      order_by: [desc: uh.rssi],
       select: %{
         uplink_heard_id: uh.id,
         hotspot_name: uh.hotspot_name,
