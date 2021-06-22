@@ -10,7 +10,8 @@ defmodule Mappers.Ingest do
   defmodule IngestUplinkResponse do
     @fields [
       :uplink,
-      :hotspots
+      :hotspots,
+      :status
     ]
     @derive {Jason.Encoder, only: @fields}
     defstruct uplink: Uplink, hotspots: [UplinkHeard], status: nil
@@ -21,26 +22,23 @@ defmodule Mappers.Ingest do
     Ingest.Validate.validate_message(message)
     |> case do
       {:error, reason} ->
-        reason
+        %{error: reason}
 
       {:ok, _} ->
         # create new h3_res9 record if it doesn't exist
         H3.create(message)
         |> case do
           {:error, reason} ->
-            reason
+            %{error: reason}
 
           {:ok, h3_res9} ->
             h3_res9_id = h3_res9.id
-            best_rssi = h3_res9.best_rssi
-            best_snr = h3_res9.best_snr
 
             # create uplink record
             Uplinks.create(message)
             |> case do
               {:error, reason} ->
-                # reason
-                reason
+                %{error: reason}
 
               {:ok, uplink} ->
                 uplink_id = uplink.id
@@ -49,25 +47,20 @@ defmodule Mappers.Ingest do
                 UplinksHeard.create(message, uplink_id)
                 |> case do
                   {:error, reason} ->
-                    reason
+                    %{error: reason}
 
                   {:ok, uplinks_heard} ->
                     # create h3/uplink link
                     Links.create(h3_res9_id, uplink_id)
                     |> case do
                       {:error, reason} ->
-                        reason
+                        %{error: reason}
 
                       {:ok, _} ->
-                        %{
-                          h3_res9_id: h3_res9_id,
-                          best_rssi: best_rssi,
-                          best_snr: best_snr,
-                          resp: %IngestUplinkResponse{
-                            uplink: uplink,
-                            hotspots: uplinks_heard,
-                            status: "success"
-                          }
+                        %IngestUplinkResponse{
+                          uplink: uplink,
+                          hotspots: uplinks_heard,
+                          status: "success"
                         }
                     end
                 end
