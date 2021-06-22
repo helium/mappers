@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
+import WelcomeModal from "../components/WelcomeModal"
 import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer} from './Layers.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
@@ -32,6 +33,10 @@ function Map() {
     const [avgSnr, setAvgSnr] = useState(null);
     const [showHexPane, setShowHexPane] = useState(false);
     const onCloseHexPaneClick = () => setShowHexPane(false);
+    const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+    const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
+
+
 
     React.useEffect(() => {
         let features = []
@@ -267,6 +272,7 @@ function Map() {
 
             </MapGL>
             <InfoPane hexId={hexId} avgRssi={avgRssi} avgSnr={avgSnr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
+            <WelcomeModal showWelcomeModal={showWelcomeModal} onCloseWelcomeModalClick={onCloseWelcomeModalClick}/>
         </div>
     );
 }

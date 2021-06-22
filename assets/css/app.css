@@ -90,8 +90,7 @@ body {
   color: white;
   text-decoration: none;
 
-  font-size:16px;
-  color: white;
+  font-size: 1rem;
   
   padding: 0.75rem 0 0.75rem 0.75rem;
 }
@@ -265,11 +264,11 @@ body {
   width: 100%;
   /*min-width: 480px;*/
 }
-.hotspots-table thead {
+.hotspot-table-head {
   position: sticky;
   top: -0.25rem;
 }
-.hotspots-table thead th {
+.hotspot-table-head th {
   padding-bottom: 0.5rem;
 }
 .hotspots-table th, 
@@ -284,7 +283,6 @@ body {
 .hotspots-table td:last-child{
   padding-right: 0;
 }
-.hotspot-table-head {}
 .animal-cell {
   white-space: nowrap;
   overflow: hidden;
@@ -309,6 +307,94 @@ body {
 }
 /*end hotspots table*/
 /** end main stats stuff **/
+
+/** start welcome modal **/
+
+.modal {
+  position: fixed;
+      
+  box-sizing: border-box;
+  
+  color: white;
+
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(calc(-50% - 0.5rem));
+  
+  padding: 0 2.25rem 2.5rem;
+  
+  width: 500px;
+
+  background: rgba(22, 23, 29, 0.9);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  
+  border-radius: 10px;
+  
+  z-index: 10;
+}
+
+@media not prefers-reduced-motion {
+  .modal {
+    animation: 0.35s modalEntry 2s ease-out 1 backwards;
+  }
+}
+
+@keyframes modalEntry {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(calc(-50% + 0.5rem));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(calc(-50% - 0.5rem));
+  }
+}
+
+.illo-header {
+  text-align: center;
+  
+  height: 250px;
+  max-height: 30vh; /*Keep things on screen, within reason*/
+  margin-bottom: 2rem;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  background-image: url("https://helium-mappers.s3.us-west-2.amazonaws.com/hexillo.svg");
+  background-position: 50% 0;
+  background-repeat: no-repeat;
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 125%;
+}
+.modal-copy {
+  font-weight: normal;
+  font-size: 1rem;
+  line-height: 155%;
+}
+.modal-copy a {
+  color: currentColor;
+  text-underline-offset: .125rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+.modal-notice {
+  padding: 16px 24px;
+  color: #F1B0F7;
+  
+  border: 1px solid currentColor;
+  border-radius: 3px;
+}
+/** end welcome modal **/
 
  /*media queries*/
  @media only screen and (max-width: 550px) {
@@ -363,6 +449,23 @@ body {
   .hotspots-table-container {
     max-height: unset;
   }
+
+  /** start welcome modal **/
+  .modal {
+    width: 100vw;
+    
+    bottom: 0;
+    top: initial;
+    left: initial;
+    transform: unset;
+    animation: none;
+    
+    border-radius: 10px 10px 0 0;
+  }
+  .illo-header {
+    margin-bottom: 0;
+  }
+  /** end welcome modal **/
 
 }
 @media only screen and (max-width: 450px) {
