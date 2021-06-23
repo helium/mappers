@@ -57,6 +57,18 @@ defmodule Mix.Tasks.LoadMergedMappersMultiHotspotCsv do
                 0.0
               else
                 Float.parse(Enum.at(uplink, 10)) |> elem(0)
+              end,
+            "altitude" =>
+              if Enum.at(uplink, 11) == "" or Enum.at(uplink, 11) == "0.0" do
+                0
+              else
+                Integer.parse(Enum.at(uplink, 11)) |> elem(0)
+              end,
+            "accuracy" =>
+              if Enum.at(uplink, 14) == "0" or Enum.at(uplink, 14) == "" do
+                0.0
+              else
+                Float.parse(Enum.at(uplink, 14)) |> elem(0)
               end
           }
         }

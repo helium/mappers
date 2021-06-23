@@ -10,7 +10,8 @@ defmodule Mappers.Repo.Migrations.CreateUplinks do
       add :fcnt, :integer
       add :frequency, :float
       add :spreading_factor, :string
-      add :gps_accuracy, :integer
+      add :altitude, :integer
+      add :gps_accuracy, :float
       add :first_timestamp, :utc_datetime_usec
     end
 
