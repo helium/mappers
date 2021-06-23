@@ -5,6 +5,10 @@ defmodule MappersWeb.API.V1.IngestUplinkController do
 
   def create(conn, params) do
     resp = Ingest.ingest_uplink(params)
-    conn |> json(resp)
+    case resp do
+      %{error: _} -> Plug.Conn.put_status(conn, 400)
+      _ -> Plug.Conn.put_status(conn, 200)
+    end
+    |> json(resp)
   end
 end
