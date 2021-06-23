@@ -9,8 +9,9 @@ defmodule Mappers.Uplinks.Uplink do
     :fcnt,
     :first_timestamp,
     :frequency,
-    :gps_accuracy,
-    :spreading_factor
+    :spreading_factor,
+    :altitude,
+    :gps_accuracy
   ]
 
   @derive {Jason.Encoder, only: @fields}
@@ -22,14 +23,15 @@ defmodule Mappers.Uplinks.Uplink do
     field :fcnt, :integer
     field :first_timestamp, :utc_datetime_usec
     field :frequency, :float
-    field :gps_accuracy, :integer
     field :spreading_factor, :string
+    field :altitude, :integer
+    field :gps_accuracy, :float
   end
 
   @doc false
   def changeset(uplink, attrs) do
     uplink
-    |> cast(attrs, [:dev_eui, :app_eui, :device_id, :fcnt, :frequency, :spreading_factor, :gps_accuracy, :first_timestamp])
-    |> validate_required([:dev_eui, :app_eui, :device_id, :fcnt, :frequency, :spreading_factor, :gps_accuracy, :first_timestamp])
+    |> cast(attrs, [:dev_eui, :app_eui, :device_id, :fcnt, :frequency, :spreading_factor, :altitude, :gps_accuracy, :first_timestamp])
+    |> validate_required([:dev_eui, :app_eui, :device_id, :fcnt, :frequency, :spreading_factor, :altitude, :gps_accuracy, :first_timestamp])
   end
 end
