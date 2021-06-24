@@ -437,7 +437,8 @@ body {
     padding: 1rem;
 
     max-height: 30vh;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     background: rgba(22, 23, 29, 0.5);
     backdrop-filter: saturate(180%) blur(10px);
