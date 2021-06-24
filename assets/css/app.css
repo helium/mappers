@@ -147,11 +147,15 @@ body {
   
   margin-right: 0.5rem;
 }
-.legend-dBm-low         {fill: #28776a}
-.legend-dBm-medium      {fill: #2fa48b}
-.legend-dBm-high        {fill: #3afacb}
-.legend-mapper-witness  {fill: #66b1f6}
-.legend-hotspot         {fill: #ffffff}
+.legend-dBm-low         { fill: #28776a}
+.legend-dBm-medium      { fill: #2fa48b}
+.legend-dBm-high        { fill: #3afacb}
+.legend-mapper-witness  { fill: #d8d51d}
+.legend-hotspot         { fill: #ffffff;
+                          fill-opacity: 0.2;
+                          stroke: #ffffff;
+                          stroke-width: 0.5px;
+                        }
 
 /** start main stats stuff **/
 .main-stats {
