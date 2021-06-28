@@ -24,7 +24,7 @@ defmodule Mappers.Ingest.Validate do
               if device_alt < -500 do
                 {:error, "Invalid Device Altitude Value"}
               else
-                if device_acu <= 0 do
+                if device_acu < 0 do
                   {:error, "Invalid Device Accuracy Value"}
                 else
                   Enum.map(message["hotspots"], fn hotspot ->
@@ -52,7 +52,7 @@ defmodule Mappers.Ingest.Validate do
                           if hotspot_snr < -40 or hotspot_snr > 40 do
                             {:error, "Invalid Uplink SNR for Hotspot #{hotspot_name}"}
                           else
-                            {:ok, "Valid Ingest Message"}
+                            {:ok, hotspot}
                           end
                         end
                       end
@@ -63,15 +63,21 @@ defmodule Mappers.Ingest.Validate do
                     {:ok, _} -> false
                   end)
                   |> case do
-                    {[], oks} ->
-                      {:ok, oks}
-
-                    {errors, _} ->
+                    # if there are any hotspot errors but no oks
+                    {errors, []} ->
                       errors_s =
                         errors
                         |> Enum.map(&elem(&1, 1))
 
                       {:error, errors_s}
+
+                    # if there are any hotspot oks
+                    {_, hotspots} ->
+                      hotspots_s =
+                        hotspots
+                        |> Enum.map(&elem(&1, 1))
+
+                      {:ok, hotspots_s}
                   end
                 end
               end
