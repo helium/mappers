@@ -5,9 +5,7 @@ html, body {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: Inter, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #181B20;
@@ -394,7 +392,7 @@ body {
 }
 .modal-notice {
   padding: 16px 24px;
-  color: #F1B0F7;
+  color: #f175ca;
   
   border: 1px solid currentColor;
   border-radius: 3px;
