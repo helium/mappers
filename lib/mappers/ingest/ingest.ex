@@ -24,7 +24,7 @@ defmodule Mappers.Ingest do
       {:error, reason} ->
         %{error: reason}
 
-      {:ok, _} ->
+      {:ok, hotspots} ->
         # create new h3_res9 record if it doesn't exist
         H3.create(message)
         |> case do
@@ -44,7 +44,7 @@ defmodule Mappers.Ingest do
                 uplink_id = uplink.id
 
                 # create uplinks heard
-                UplinksHeard.create(message, uplink_id)
+                UplinksHeard.create(hotspots, uplink_id)
                 |> case do
                   {:error, reason} ->
                     %{error: reason}

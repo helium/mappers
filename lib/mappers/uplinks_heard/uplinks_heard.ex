@@ -2,11 +2,9 @@ defmodule Mappers.UplinksHeard do
   alias Mappers.Repo
   alias Mappers.UplinksHeards.UplinkHeard
 
-  def create(message, uplink_id) do
-    IO.puts(uplink_id)
-
+  def create(hotspots, uplink_id) do
     uplinks_heard =
-      Enum.map(message["hotspots"], fn hotspot ->
+      Enum.map(hotspots, fn hotspot ->
         %{}
         |> Map.put(:hotspot_address, hotspot["id"])
         |> Map.put(:hotspot_name, hotspot["name"])
