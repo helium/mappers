@@ -19,7 +19,7 @@ defmodule Mix.Tasks.LoadMergedMappersMultiHotspotCsv do
     # load_uplinks(uplinks)
 
     # load multiple csv files in parallel
-    uplinks_csv_streams = load_split_csv("~/code/mappers/mappers/temp_merged")
+    uplinks_csv_streams = load_split_csv("~/code/mappers/mappers/split-merged")
 
     pids =
       uplinks_csv_streams
