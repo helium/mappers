@@ -19,7 +19,7 @@ function WelcomeModal(props) {
                     
                     <p className="modal-copy">We're getting the conversation started with this release. Your feedback is key in defining the features in the next evolution of this tool.</p>
                     <p className="modal-copy">Visit <a href="https://docs.helium.com/use-the-network/coverage-mapping" target="_blank">Docs</a> to find a few ways to give input or jump into <a href="https://github.com/helium/mappers" target="_blank">Github</a> to file an issue or contribute.</p>
-                    <p className="modal-copy modal-notice"><strong>Notice:</strong> The Mappers submission endpoint will change on Wednesday, July 8. Update in under a minute with our <a href="https://docs.helium.com/use-the-network/coverage-mapping/mappers-api/#ingest-uplink" target="_blank">migration guide.</a></p>
+                    <p className="modal-copy modal-notice"><strong>Notice:</strong> The Mappers submission endpoint will change on Wednesday, July 7. Update in under a minute with our <a href="https://docs.helium.com/use-the-network/coverage-mapping/mappers-api/#ingest-uplink" target="_blank">migration guide.</a></p>
                 </div>
             }
         </div>
