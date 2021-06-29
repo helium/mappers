@@ -19,13 +19,14 @@ defmodule Mappers.Ingest.Validate do
 
             if device_lat == 0.0 or device_lat < -90 or device_lat > 90 or device_lng == 0.0 or
                  device_lng < -180 or device_lng > 180 do
-              {:error, "Invalid Device Latitude or Longitude Values"}
+              {:error,
+               "Invalid Device Latitude or Longitude Values for Lat: #{device_lat} Lng: #{device_lng}"}
             else
               if device_alt < -500 do
-                {:error, "Invalid Device Altitude Value"}
+                {:error, "Invalid Device Altitude Value for Alt: #{device_alt}"}
               else
                 if device_acu < 0 do
-                  {:error, "Invalid Device Accuracy Value"}
+                  {:error, "Invalid Device Accuracy Value for Accuracy: #{device_acu}"}
                 else
                   Enum.map(message["hotspots"], fn hotspot ->
                     hotspot_name = hotspot["name"]
@@ -37,20 +38,21 @@ defmodule Mappers.Ingest.Validate do
                     if hotspot_lat == 0.0 or hotspot_lat < -90 or
                          hotspot_lat > 90 or hotspot_lng == 0.0 or
                          hotspot_lng < -180 or hotspot_lng > 180 do
-                      {:error, "Invalid Latitude or Longitude Values for Hotspot #{hotspot_name}"}
+                      {:error,
+                       "Invalid Latitude or Longitude Values for Hotspot: #{hotspot_name}"}
                     else
                       if Geocalc.distance_between([device_lat, device_lng], [
                            hotspot_lat,
                            hotspot_lng
                          ]) >
                            500_000 do
-                        {:error, "Invalid Distance Between Device and Hotspot #{hotspot_name}"}
+                        {:error, "Invalid Distance Between Device and Hotspot: #{hotspot_name}"}
                       else
                         if hotspot_rssi < -130 or hotspot_rssi > 0 do
-                          {:error, "Invalid Uplink RSSI for Hotspot #{hotspot_name}"}
+                          {:error, "Invalid Uplink RSSI for Hotspot: #{hotspot_name}"}
                         else
                           if hotspot_snr < -40 or hotspot_snr > 40 do
-                            {:error, "Invalid Uplink SNR for Hotspot #{hotspot_name}"}
+                            {:error, "Invalid Uplink SNR for Hotspot: #{hotspot_name}"}
                           else
                             {:ok, hotspot}
                           end
