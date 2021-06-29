@@ -11,7 +11,7 @@ use Mix.Config
 # before starting your production server.
 config :mappers, MappersWeb.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "helium-mappers-v2.herokuapp.com", port: 443],
+  url: [scheme: "https", host: "mappers.helium.com", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
