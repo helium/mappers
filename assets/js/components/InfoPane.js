@@ -5,6 +5,13 @@ function InfoPane(props) {
     const [showLegendPane, setShowLegendPane] = React.useState(false)
     const onLegendClick = () => setShowLegendPane(!showLegendPane)
 
+    function deKebab(string){
+        return string
+        .split('-')
+        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+        .join(' ');
+    }
+
     return (
         <div className="info-pane">
             <div className={classNames("pane-nav", {
@@ -121,7 +128,7 @@ function InfoPane(props) {
                             <tbody>
                                 {props.uplinks && props.uplinks.map(uplink => (
                                     <tr key={uplink.id}>
-                                        <td className="table-left animal-cell">{uplink.hotspot_name}</td>
+                                        <td className="table-left animal-cell">{deKebab(uplink.hotspot_name)}</td>
                                         <td className="table-right util-liga-mono tighten table-numeric">{uplink.rssi}<span className="table-unit"> dBm</span></td>
                                         <td className="table-right util-liga-mono tighten table-numeric">{uplink.snr.toFixed(2)}</td>
                                     </tr>
