@@ -5,6 +5,10 @@ function InfoPane(props) {
     const [showLegendPane, setShowLegendPane] = React.useState(false)
     const onLegendClick = () => setShowLegendPane(!showLegendPane)
 
+    function hotspotCount() {
+        return props.uplinks.length
+    }
+
     function deKebab(string){
         return string
         .split('-')
@@ -104,7 +108,7 @@ function InfoPane(props) {
                             <div className="stat-head type-smallcap">Best RSSI</div>
                             <div className="stat-body">
                                 {props.bestRssi}
-                                <span className="stat-unit">dBm</span>
+                                <span className="stat-unit"> dBm</span>
                             </div>
                         </div>
 
@@ -115,6 +119,15 @@ function InfoPane(props) {
                                 <span className="stat-unit"></span>
                             </div>
                         </div>
+
+                        <div className="big-stat">
+                            <div className="stat-head type-smallcap">Redundancy</div>
+                            <div className="stat-body">
+                                {props.uplinks && hotspotCount()}
+                                <span className="stat-unit"> Hotspots</span>
+                            </div>
+                        </div>
+
                     </div>
                     <div className="hotspots-table-container">
                         <table className="hotspots-table">
