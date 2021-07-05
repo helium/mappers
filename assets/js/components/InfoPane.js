@@ -1,9 +1,38 @@
 import React from 'react'
 import classNames from 'classnames'
+import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
+import parseISO from 'date-fns/parseISO'
 
 function InfoPane(props) {
     const [showLegendPane, setShowLegendPane] = React.useState(false)
     const onLegendClick = () => setShowLegendPane(!showLegendPane)
+
+    function hotspotCount() {
+        return props.uplinks.length
+    }
+
+    function recentTime() {
+        let sortedTimes = props.uplinks;
+        sortedTimes.sort((a,b) => -a.timestamp.localeCompare(b.timestamp))
+
+        let distTimeFull = formatDistanceToNowStrict(parseISO(sortedTimes[0].timestamp))
+        
+        let distTimeValue = distTimeFull.split(" ")[0];
+        
+        let distTimeUnit = distTimeFull.split(" ")[1];
+        let distTimeUnitUppercase = distTimeUnit.charAt(0).toUpperCase() + distTimeUnit.slice(1);
+
+        let timeInfo = {
+            full: distTimeFull,
+            number: distTimeValue,
+            unit: distTimeUnitUppercase
+        }
+        return timeInfo
+    }
+
+    function recentTimeValue() {
+        return recentTime();
+    }
 
     function deKebab(string){
         return string
@@ -104,7 +133,7 @@ function InfoPane(props) {
                             <div className="stat-head type-smallcap">Best RSSI</div>
                             <div className="stat-body">
                                 {props.bestRssi}
-                                <span className="stat-unit">dBm</span>
+                                <span className="stat-unit"> dBm</span>
                             </div>
                         </div>
 
@@ -115,6 +144,23 @@ function InfoPane(props) {
                                 <span className="stat-unit"></span>
                             </div>
                         </div>
+
+                        <div className="big-stat">
+                            <div className="stat-head type-smallcap">Redundancy</div>
+                            <div className="stat-body">
+                                {props.uplinks && hotspotCount()}
+                                <span className="stat-unit"> Hotspots</span>
+                            </div>
+                        </div>
+
+                        <div className="big-stat">
+                            <div className="stat-head type-smallcap">Hex Updated</div>
+                            <div className="stat-body">
+                                {props.uplinks && recentTime().number}
+                                <span className="stat-unit"> {props.uplinks && recentTime().unit} Ago</span>
+                            </div>
+                        </div>
+
                     </div>
                     <div className="hotspots-table-container">
                         <table className="hotspots-table">

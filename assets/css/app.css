@@ -399,8 +399,8 @@ body {
 }
 /** end welcome modal **/
 
- /*media queries*/
- @media only screen and (max-width: 550px) {
+/*media queries*/
+@media only screen and (max-width: 550px) {
   html, body {
     font-size: 16px;
   }
@@ -452,6 +452,7 @@ body {
   }
   .hotspots-table-container {
     max-height: unset;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /** start welcome modal **/
