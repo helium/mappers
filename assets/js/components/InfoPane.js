@@ -2,6 +2,7 @@ import React from 'react'
 import classNames from 'classnames'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
 import parseISO from 'date-fns/parseISO'
+import h3 from 'h3-js/dist/h3-js';
 
 function InfoPane(props) {
     const [showLegendPane, setShowLegendPane] = React.useState(false)
@@ -17,9 +18,9 @@ function InfoPane(props) {
 
         let distTimeFull = formatDistanceToNowStrict(parseISO(sortedTimes[0].timestamp))
         
-        let distTimeValue = distTimeFull.split(" ")[0];
+        let distTimeValue = distTimeFull.split(" ")[0]; //get the value e.g. "3 hours" => "3"
         
-        let distTimeUnit = distTimeFull.split(" ")[1];
+        let distTimeUnit = distTimeFull.split(" ")[1]; //get the unit e.g. "3 hours" => "hours"
         let distTimeUnitUppercase = distTimeUnit.charAt(0).toUpperCase() + distTimeUnit.slice(1);
 
         let timeInfo = {
@@ -30,8 +31,39 @@ function InfoPane(props) {
         return timeInfo
     }
 
-    function recentTimeValue() {
-        return recentTime();
+    function uplinkDistance(uplinkLat, uplinkLng) {
+        // hotspots are res8, find the parent res8 from the res9 selected hex  
+        let selectedHex = h3.h3ToParent(props.hexId, 8); 
+        // Create the res8 from provided coordinates
+        let hotspotHex = h3.geoToH3(uplinkLat, uplinkLng, 8);
+
+        // if the mapped hex is within the hotspot hex return a null result.
+        if (selectedHex == hotspotHex) {
+            let result = {
+                number: "–",
+                unit: ""
+            }
+            return result
+        }
+        else { //compute the distance
+            let point1 = [uplinkLat, uplinkLng];
+            let point2 = h3.h3ToGeo(props.hexId);
+            let distMi = h3.pointDist(point1, point2, h3.UNITS.km)/1.609;
+            if (distMi < 1) {
+                let result = {
+                    number: distMi.toFixed(1),
+                    unit: "mi"
+                }
+                return result
+            }
+            else {
+                let result = {
+                    number: Math.round(distMi),
+                    unit: "mi"
+                }
+                return result
+            }
+        }
     }
 
     function deKebab(string){
@@ -166,9 +198,10 @@ function InfoPane(props) {
                         <table className="hotspots-table">
                             <thead className="hotspot-table-head type-smallcap">
                                 <tr>
-                                    <th className="table-left">Hotspots</th>
-                                    <th className="table-right">RSSI</th>
-                                    <th className="table-right">SNR</th>
+                                    <th className="table-left" title="Helium hotspot that heard the mapping device">Hotspots</th>
+                                    <th className="table-right" title="Received Signal Strength Indicator - an estimated measure of power recieved">RSSI</th>
+                                    <th className="table-right" title="Signal to noise ratio">SNR</th>
+                                    <th className="table-right" title="Distance between hotspot and surveyed hex">Dist</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -177,6 +210,7 @@ function InfoPane(props) {
                                         <td className="table-left animal-cell">{deKebab(uplink.hotspot_name)}</td>
                                         <td className="table-right util-liga-mono tighten table-numeric">{uplink.rssi}<span className="table-unit"> dBm</span></td>
                                         <td className="table-right util-liga-mono tighten table-numeric">{uplink.snr.toFixed(2)}</td>
+                                        <td className="table-right util-liga-mono tighten table-numeric">{uplinkDistance(uplink.lat, uplink.lng).number}<span className="table-unit"> {uplinkDistance(uplink.lat, uplink.lng).unit}</span></td>
                                     </tr>
                                 ))}
                             </tbody>
