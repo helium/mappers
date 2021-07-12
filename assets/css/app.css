@@ -390,13 +390,6 @@ body {
   top: 1.5rem;
   right: 1.5rem;
 }
-.modal-notice {
-  padding: 16px 24px;
-  color: #f175ca;
-  
-  border: 1px solid currentColor;
-  border-radius: 3px;
-}
 /** end welcome modal **/
 
 /*media queries*/
