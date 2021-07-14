@@ -24,7 +24,7 @@ export const uplinkTileServerLayer = {
             ['boolean',
                 ['feature-state', 'selected'], true],
             'rgba(38,251,202,0.45)',
-            '#FFFFFF'
+            '#ffffff'
         ]
     }
 };
@@ -33,9 +33,9 @@ export const hotspotTileServerLayer = {
     id: 'public.h3_res8',
     type: 'fill',
     paint: {
-        'fill-color': '#414a4a',
+        'fill-color': '#ffffff',
         'fill-outline-color': '#fafbfd',
-        'fill-opacity': 0.2,
+        'fill-opacity': 0.15,
     }
 };
 
@@ -64,9 +64,9 @@ export const uplinkHotspotsHexLayer = {
     id: 'uplinkHotspotsHexLayer',
     type: 'fill',
     paint: {
-        'fill-color': '#414a4a',
-        'fill-outline-color': '#d8d51d',
-        'fill-opacity': 0.5,
+        'fill-color': '#a5a308',
+        'fill-outline-color': '#414a4a',
+        'fill-opacity': 0.45,
     }
 };
 
@@ -96,7 +96,7 @@ export const uplinkChannelLayer = {
             ['boolean',
                 ['feature-state', 'selected'], true],
             'rgba(38,251,202,0.45)',
-            '#FFFFFF'
+            '#ffffff'
         ]
     }
 };
