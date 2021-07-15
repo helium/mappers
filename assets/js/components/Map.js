@@ -9,6 +9,7 @@ import { get } from '../data/Rest'
 import { geoToH3, h3ToGeo, h3ToGeoBoundary } from "h3-js";
 import socket from "../socket";
 import geojson2h3 from 'geojson2h3';
+import useLocalStorageState from 'use-local-storage-state';
 import '../../css/app.css';
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
@@ -33,7 +34,7 @@ function Map() {
     const [snr, setSnr] = useState(null);
     const [showHexPane, setShowHexPane] = useState(false);
     const onCloseHexPaneClick = () => setShowHexPane(false);
-    const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+    const [showWelcomeModal, setShowWelcomeModal] = useLocalStorageState('welcomeModalOpen_v1', true);
     const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
 
 
