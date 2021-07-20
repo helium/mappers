@@ -258,6 +258,7 @@ function Map() {
                 <GeolocateControl
                     style={geolocateControlStyle}
                     positionOptions={{enableHighAccuracy: true}}
+                    fitBoundsOptions={{maxZoom: viewport.zoom}}
                     trackUserLocation={true}
                     disabledLabel="Unable to locate"
                 />
