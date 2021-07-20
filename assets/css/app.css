@@ -24,6 +24,12 @@ body {
   bottom: 0;
 }
 
+.geolocate-button {
+  position: absolute;
+  right: 20px;
+  bottom: 50px;
+}
+
 .util-liga-mono {
   font-feature-settings: 'tnum' on, 'lnum' on;
 }

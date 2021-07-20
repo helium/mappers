@@ -36,10 +36,6 @@ function Map() {
     const onCloseHexPaneClick = () => setShowHexPane(false);
     const [showWelcomeModal, setShowWelcomeModal] = useLocalStorageState('welcomeModalOpen_v1', true);
     const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
-    const geolocateControlStyle= {
-        right: 20,
-        bottom: 50
-      };
 
 
     React.useEffect(() => {
@@ -256,11 +252,11 @@ function Map() {
                 mapboxApiAccessToken={MAPBOX_TOKEN}
             >
                 <GeolocateControl
-                    style={geolocateControlStyle}
                     positionOptions={{enableHighAccuracy: true}}
                     fitBoundsOptions={{maxZoom: viewport.zoom}}
                     trackUserLocation={true}
                     disabledLabel="Unable to locate"
+                    className="geolocate-button"
                 />
                 <Source id="hotspot-tileserver" type="vector" url={"https://hotspot-tileserver-martin.herokuapp.com/public.h3_res8.json"}>
                     <Layer {...hotspotTileServerLayer} source-layer={"public.h3_res8"} />
