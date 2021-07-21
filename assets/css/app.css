@@ -25,9 +25,17 @@ body {
 }
 
 .geolocate-button {
-  position: absolute;
-  right: 20px;
-  bottom: 50px;
+  right: 24px;
+  bottom: 24px;
+  transform: scale(1.25);
+}
+
+@media only screen and (max-width: 550px) {
+  .geolocate-button {
+    right: 16px;
+    top: 48px;
+    bottom: unset;
+  }
 }
 
 .util-liga-mono {
