@@ -255,7 +255,7 @@ function Map() {
                 <Source id="hotspot-tileserver" type="vector" url={"https://hotspot-tileserver-martin.herokuapp.com/public.h3_res8.json"}>
                     <Layer {...hotspotTileServerLayer} source-layer={"public.h3_res8"} />
                 </Source>
-                <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver-martin.herokuapp.com/public.h3_res9.json"}>
+                <Source id="uplink-tileserver" type="vector" url={"https://d3spfrukkgeic1.cloudfront.net/public.h3_res9.json"}>
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
                 <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
