@@ -252,9 +252,9 @@ function Map() {
                 ref={mapRef}
                 mapboxApiAccessToken={MAPBOX_TOKEN}
             >
-                {/* <Source id="hotspot-tileserver" type="vector" url={"https://hotspot-tileserver-martin.herokuapp.com/public.h3_res8.json"}>
+                <Source id="hotspot-tileserver" type="vector" url={"https://hotspot-tileserver-martin.herokuapp.com/public.h3_res8.json"}>
                     <Layer {...hotspotTileServerLayer} source-layer={"public.h3_res8"} />
-                </Source> */}
+                </Source>
                 <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver-martin.herokuapp.com/public.h3_res9.json"}>
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
