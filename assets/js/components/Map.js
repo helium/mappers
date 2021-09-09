@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
-import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport } from 'react-map-gl';
+import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport, GeolocateControl } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
 import WelcomeModal from "../components/WelcomeModal"
 import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer} from './Layers.js';
@@ -36,7 +36,6 @@ function Map() {
     const onCloseHexPaneClick = () => setShowHexPane(false);
     const [showWelcomeModal, setShowWelcomeModal] = useLocalStorageState('welcomeModalOpen_v1', true);
     const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
-
 
 
     React.useEffect(() => {
@@ -252,6 +251,13 @@ function Map() {
                 ref={mapRef}
                 mapboxApiAccessToken={MAPBOX_TOKEN}
             >
+                <GeolocateControl
+                    positionOptions={{enableHighAccuracy: true}}
+                    fitBoundsOptions={{maxZoom: viewport.zoom}}
+                    trackUserLocation={true}
+                    disabledLabel="Unable to locate"
+                    className="geolocate-button"
+                />
                 <Source id="hotspot-tileserver" type="vector" url={"https://hotspot-tileserver-martin.herokuapp.com/public.h3_res8.json"}>
                     <Layer {...hotspotTileServerLayer} source-layer={"public.h3_res8"} />
                 </Source>
