@@ -258,7 +258,7 @@ function Map() {
                     disabledLabel="Unable to locate"
                     className="geolocate-button"
                 />
-                <Source id="hotspot-tileserver" type="vector" url={"https://hotspot-tileserver-martin.herokuapp.com/public.h3_res8.json"}>
+                <Source id="hotspot-tileserver" type="vector" url={"https://hotspot-tileserver.helium.wtf/public.h3_res8.json"}>
                     <Layer {...hotspotTileServerLayer} source-layer={"public.h3_res8"} />
                 </Source>
                 <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver.helium.wtf/public.h3_res9.json"}>
