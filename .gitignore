@@ -22,11 +22,15 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 mappers-*.tar
 
-# If NPM crashes, it generates a log, let's ignore it too.
+# Log files of JavaScript package managers.
 npm-debug.log
+yarn-error.log
 
-# The directory NPM downloads your dependencies sources to.
-/assets/node_modules/
+# The directory for downloaded JavaScript dependencies.
+node_modules/
+
+# Settings/configuration for IntelliJ-based IDEs.
+.idea/
 
 # Since we are building assets from assets/,
 # we ignore priv/static. You may want to comment
