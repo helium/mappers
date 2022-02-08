@@ -9,9 +9,9 @@ defmodule MappersWeb.API.V1.UplinkController do
     conn |> json(%{uplinks: uplinks})
   end
 
-  def get_hotspot_uplinks(conn, %{ "hotspot_name" => hotspot_name }) do
-    IO.puts(hotspot_name)
-    uplinks = Uplinks.get_hotspot_uplinks(hotspot_name)
+  def get_hotspot_uplinks(conn, %{ "hotspot_address" => hotspot_address }) do
+    IO.puts(hotspot_address)
+    uplinks = Uplinks.get_hotspot_uplinks(hotspot_address)
     conn |> json(%{uplinks: uplinks})
   end
 end

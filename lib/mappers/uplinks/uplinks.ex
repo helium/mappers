@@ -49,14 +49,14 @@ defmodule Mappers.Uplinks do
       Repo.all(query)
   end
 
-  def get_hotspot_uplinks(hotspot_name) do
+  def get_hotspot_uplinks(hotspot_address) do
     query =
       from u in Uplink,
       join: uh in UplinkHeard,
       on: u.id == uh.uplink_id,
       join: h3 in Link,
       on: h3.uplink_id == u.id,
-      where: uh.hotspot_name == ^hotspot_name,
+      where: uh.hotspot_address == ^hotspot_address,
       order_by: [desc: uh.rssi],
       select: %{
         uplink_heard_id: uh.id,
