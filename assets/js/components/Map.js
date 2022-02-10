@@ -11,6 +11,7 @@ import socket from "../socket";
 import geojson2h3 from 'geojson2h3';
 import useLocalStorageState from 'use-local-storage-state';
 import '../../css/app.css';
+import { useParams, useNavigate } from "react-router-dom";
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
 var selectedStateIdTile = null;
@@ -37,6 +38,9 @@ function Map() {
     const [showWelcomeModal, setShowWelcomeModal] = useLocalStorageState('welcomeModalOpen_v1', true);
     const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
 
+    let navigate = useNavigate();
+    let routerParams = useParams();
+    console.log(routerParams);
 
     React.useEffect(() => {
         let features = []
@@ -138,6 +142,7 @@ function Map() {
         const map = mapRef.current.getMap();
 
         if (feature) {
+            navigate("/uplinks/hex/" + feature.properties.id);
             if (feature.layer.id == "public.h3_res9") {
                 // set hex data for info pane
                 setBestRssi(feature.properties.best_rssi);
