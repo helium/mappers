@@ -21,6 +21,7 @@ defmodule MappersWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/uplinks/*path", PageController, :index
     get "/metrics", PrometheusController, :scrape
   end
 

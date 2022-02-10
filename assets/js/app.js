@@ -16,8 +16,8 @@ ReactDOM.render(
     <Routes>
       <Route path="/" element={<App />} >
         <Route path="uplinks" element={<App />}>
-          <Route path="hex" element={<MapScreen />}>
-            <Route path=":hexId" element={<MapScreen />} />
+          <Route path="hex" element={<App />}>
+            <Route path=":hexId" element={<App />} />
           </Route>
         </Route>
       </Route>
