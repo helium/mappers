@@ -60,7 +60,7 @@ defmodule Mappers.Uplinks do
       order_by: [desc: uh.rssi],
       select: %{
         uplink_heard_id: uh.id,
-        h3_index: h3.id,
+        h3_index: h3.h3_res9_id,
         rssi: uh.rssi,
         snr: uh.snr,
         timestamp: uh.timestamp
