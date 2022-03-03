@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
-import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport, GeolocateControl } from 'react-map-gl';
+import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport, GeolocateControl, LngLat } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
 import WelcomeModal from "../components/WelcomeModal"
-import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer} from './Layers.js';
+import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer } from './Layers.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
 import { geoToH3, h3ToGeo, h3ToGeoBoundary } from "h3-js";
@@ -42,6 +42,12 @@ function Map() {
     let routerParams = useParams();
     console.log(routerParams);
 
+    // if(routerParams.hexId != null){
+    //     // const map = mapRef.current.getMap();
+    //     console.log(h3ToGeo(routerParams.hexId))
+    //     // map.fire(
+    // }
+
     React.useEffect(() => {
         let features = []
         channel.on("new_h3", payload => {
@@ -61,7 +67,35 @@ function Map() {
             .receive("ok", resp => { console.log("Joined successfully", resp) })
             .receive("error", resp => { console.log("Unable to join", resp) })
 
+        if (routerParams.hexId != null) {
+            const map = mapRef.current.getMap();
+            var center = map.getCenter();
+            var latlng = h3ToGeo(routerParams.hexId);
+            var hexLocation = new mapboxgl.LngLat(
+            latlng[1],
+            latlng[0]
+            );
+            console.log(hexLocation);
+            // var mLngLat = new LngLat(lng: latlng[0], lat: latlng[1])
+            console.log(map.fire("click", { latLng: hexLocation, point: map.project(hexLocation), originalEvent: {} }));
+        }
+
     }, []) // <-- empty dependency array
+
+    const testFire = event => {
+        if (routerParams.hexId != null) {
+            const map = mapRef.current.getMap();
+            var center = map.getCenter();
+            var latlng = h3ToGeo(routerParams.hexId);
+            var hexLocation = new mapboxgl.LngLat(
+            latlng[1],
+            latlng[0]
+            );
+            console.log(hexLocation);
+            // var mLngLat = new LngLat(lng: latlng[0], lat: latlng[1])
+            console.log(layer.fire("click", { latLng: hexLocation, point: map.project(hexLocation), originalEvent: {} }));
+        }
+    }
 
     const getHex = h3_index => {
         get("uplinks/hex/" + h3_index)
@@ -246,6 +280,9 @@ function Map() {
 
     return (
         <div className='map-container'>
+            <button onClick={testFire}>
+            Test Fire
+            </button>
             <MapGL
                 {...viewport}
                 width="100vw"
@@ -257,8 +294,8 @@ function Map() {
                 mapboxApiAccessToken={MAPBOX_TOKEN}
             >
                 <GeolocateControl
-                    positionOptions={{enableHighAccuracy: true}}
-                    fitBoundsOptions={{maxZoom: viewport.zoom}}
+                    positionOptions={{ enableHighAccuracy: true }}
+                    fitBoundsOptions={{ maxZoom: viewport.zoom }}
                     trackUserLocation={true}
                     disabledLabel="Unable to locate"
                     className="geolocate-button"
@@ -284,7 +321,7 @@ function Map() {
 
             </MapGL>
             <InfoPane hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
-            <WelcomeModal showWelcomeModal={showWelcomeModal} onCloseWelcomeModalClick={onCloseWelcomeModalClick}/>
+            <WelcomeModal showWelcomeModal={showWelcomeModal} onCloseWelcomeModalClick={onCloseWelcomeModalClick} />
         </div>
     );
 }
