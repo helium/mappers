@@ -48,7 +48,7 @@ defmodule Mappers.Ingest.Validate do
                            500_000 do
                         {:error, "Invalid Distance Between Device and Hotspot: #{hotspot_name}"}
                       else
-                        if hotspot_rssi < -130 or hotspot_rssi > 0 do
+                        if hotspot_rssi < -141 or hotspot_rssi > 0 do
                           {:error, "Invalid Uplink RSSI for Hotspot: #{hotspot_name}"}
                         else
                           if hotspot_snr < -40 or hotspot_snr > 40 do
