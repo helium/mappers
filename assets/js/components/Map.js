@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
-import MapGL, { Source, Layer, LinearInterpolator, WebMercatorViewport, GeolocateControl, LngLat } from 'react-map-gl';
+import MapGL, { Source, Layer, FlyToInterpolator, LinearInterpolator, WebMercatorViewport, GeolocateControl, LngLat } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
 import WelcomeModal from "../components/WelcomeModal"
 import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer } from './Layers.js';
@@ -40,13 +40,6 @@ function Map() {
 
     let navigate = useNavigate();
     let routerParams = useParams();
-    console.log(routerParams);
-
-    // if(routerParams.hexId != null){
-    //     // const map = mapRef.current.getMap();
-    //     console.log(h3ToGeo(routerParams.hexId))
-    //     // map.fire(
-    // }
 
     React.useEffect(() => {
         let features = []
@@ -67,34 +60,29 @@ function Map() {
             .receive("ok", resp => { console.log("Joined successfully", resp) })
             .receive("error", resp => { console.log("Unable to join", resp) })
 
-        if (routerParams.hexId != null) {
-            const map = mapRef.current.getMap();
-            var center = map.getCenter();
-            var latlng = h3ToGeo(routerParams.hexId);
-            var hexLocation = new mapboxgl.LngLat(
-            latlng[1],
-            latlng[0]
-            );
-            console.log(hexLocation);
-            // var mLngLat = new LngLat(lng: latlng[0], lat: latlng[1])
-            console.log(map.fire("click", { latLng: hexLocation, point: map.project(hexLocation), originalEvent: {} }));
-        }
+        setTimeout(()=>{
+            // console.log("calling goToUplinkHex()")
+            goToUplinkHex()
+        }, 1000)
 
     }, []) // <-- empty dependency array
 
-    const testFire = event => {
-        if (routerParams.hexId != null) {
-            const map = mapRef.current.getMap();
-            var center = map.getCenter();
-            var latlng = h3ToGeo(routerParams.hexId);
-            var hexLocation = new mapboxgl.LngLat(
-            latlng[1],
-            latlng[0]
-            );
-            console.log(hexLocation);
-            // var mLngLat = new LngLat(lng: latlng[0], lat: latlng[1])
-            console.log(layer.fire("click", { latLng: hexLocation, point: map.project(hexLocation), originalEvent: {} }));
+    const goToUplinkHex = event => {
+        // console.log(mapRef)
+        const map = mapRef.current.getMap();
+        var features = map.querySourceFeatures('uplink-tileserver', {sourceLayer: 'public.h3_res9'})
+        // console.log(features)
+        features.forEach(function(feature_i){ 
+        if(feature_i.properties.id == routerParams.hexId)
+        {
+            // console.log(feature_i)
+            // console.log('here')
+            feature_i.layer = {id: "public.h3_res9", layout: {}, source: "uplink-tileserver", sourceLayer: "public.h3_res9", type: "fill"}
+            var event = {features: [feature_i]}
+            onClick(event)
         }
+            
+        });
     }
 
     const getHex = h3_index => {
@@ -202,29 +190,19 @@ function Map() {
                     { selected: false }
                 );
 
-                // calculate the bounding box of the feature
-                const [minLng, minLat, maxLng, maxLat] = bbox(feature);
-                // construct a viewport instance from the current state
-                const vp = new WebMercatorViewport(viewport);
-                var { longitude, latitude } = vp.fitBounds(
-                    [
-                        [minLng, minLat],
-                        [maxLng, maxLat]
-                    ],
-                    {
-                        padding: 40
-                    }
-                );
+                const hotspot_coords = h3ToGeo(feature.properties.id)
+                // console.log(hotspot_coords)
+                var longitude = hotspot_coords[1]
+                var latitude = hotspot_coords[0]
 
-                // setViewport({
-                //     ...viewport,
-                //     longitude,
-                //     latitude,
-                //     transitionInterpolator: new LinearInterpolator({
-                //         around: [event.offsetCenter.x, event.offsetCenter.y]
-                //     }),
-                //     transitionDuration: 700
-                // });
+                setViewport({
+                    longitude,
+                    latitude,
+                    zoom: 11,
+                    transitionInterpolator: new FlyToInterpolator(),
+                    transitionDuration: 3000
+                });
+
             }
             else if (feature.layer.id == "uplinkChannelLayer") {
                 // set hex data for info pane
@@ -280,9 +258,6 @@ function Map() {
 
     return (
         <div className='map-container'>
-            <button onClick={testFire}>
-            Test Fire
-            </button>
             <MapGL
                 {...viewport}
                 width="100vw"
