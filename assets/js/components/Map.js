@@ -63,26 +63,44 @@ function Map() {
         setTimeout(()=>{
             // console.log("calling goToUplinkHex()")
             goToUplinkHex()
-        }, 1000)
+        }, 500)
 
     }, []) // <-- empty dependency array
 
     const goToUplinkHex = event => {
         // console.log(mapRef)
-        const map = mapRef.current.getMap();
-        var features = map.querySourceFeatures('uplink-tileserver', {sourceLayer: 'public.h3_res9'})
-        // console.log(features)
-        features.forEach(function(feature_i){ 
-        if(feature_i.properties.id == routerParams.hexId)
-        {
-            // console.log(feature_i)
-            // console.log('here')
-            feature_i.layer = {id: "public.h3_res9", layout: {}, source: "uplink-tileserver", sourceLayer: "public.h3_res9", type: "fill"}
-            var event = {features: [feature_i]}
-            onClick(event)
-        }
-            
+        const hotspot_coords = h3ToGeo(routerParams.hexId)
+        // console.log(hotspot_coords)
+        var longitude = hotspot_coords[1]
+        var latitude = hotspot_coords[0]
+
+        setViewport({
+            longitude,
+            latitude,
+            zoom: 11,
+            transitionInterpolator: new FlyToInterpolator(),
+            transitionDuration: 3000
         });
+
+        setTimeout(()=>{        
+
+            const map = mapRef.current.getMap();
+            var features = map.querySourceFeatures('uplink-tileserver', {sourceLayer: 'public.h3_res9'})
+            // console.log(features)
+            // console.log(routerParams.hexId)
+            features.forEach(function(feature_i){ 
+                if(feature_i.properties.id == routerParams.hexId)
+                {
+                    // console.log(feature_i)
+                    // console.log('here')
+                    feature_i.layer = {id: "public.h3_res9", layout: {}, source: "uplink-tileserver", sourceLayer: "public.h3_res9", type: "fill"}
+                    var event = {features: [feature_i]}
+                    onClick(event)
+                }
+            });
+        }, 2000)
+            
+        
     }
 
     const getHex = h3_index => {
@@ -160,6 +178,7 @@ function Map() {
     }
 
     const onClick = event => {
+        // console.log("onClick")
         const feature = event.features[0];
         const map = mapRef.current.getMap();
 
@@ -190,18 +209,18 @@ function Map() {
                     { selected: false }
                 );
 
-                const hotspot_coords = h3ToGeo(feature.properties.id)
-                // console.log(hotspot_coords)
-                var longitude = hotspot_coords[1]
-                var latitude = hotspot_coords[0]
+                // const hotspot_coords = h3ToGeo(feature.properties.id)
+                // // console.log(hotspot_coords)
+                // var longitude = hotspot_coords[1]
+                // var latitude = hotspot_coords[0]
 
-                setViewport({
-                    longitude,
-                    latitude,
-                    zoom: 11,
-                    transitionInterpolator: new FlyToInterpolator(),
-                    transitionDuration: 3000
-                });
+                // setViewport({
+                //     longitude,
+                //     latitude,
+                //     zoom: 11,
+                //     transitionInterpolator: new FlyToInterpolator(),
+                //     transitionDuration: 3000
+                // });
 
             }
             else if (feature.layer.id == "uplinkChannelLayer") {
