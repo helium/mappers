@@ -101,7 +101,7 @@ function Map(props) {
                     onClick(event)
                 }
             });
-        }, 4000)
+        }, 2000)
             
         
     }
