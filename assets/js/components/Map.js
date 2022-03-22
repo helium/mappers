@@ -11,17 +11,17 @@ import socket from "../socket";
 import geojson2h3 from 'geojson2h3';
 import useLocalStorageState from 'use-local-storage-state';
 import '../../css/app.css';
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
 var selectedStateIdTile = null;
 var selectedStateIdChannel = null;
 const channel = socket.channel("h3:new")
 
-function Map() {
+function Map(props) {
     const [viewport, setViewport] = useState({
-        latitude: 37.8,
-        longitude: -122.4,
+        latitude: props.startLatitude,
+        longitude: props.startLongitude,
         zoom: 11,
         bearing: 0,
         pitch: 0
@@ -37,9 +37,9 @@ function Map() {
     const onCloseHexPaneClick = () => setShowHexPane(false);
     const [showWelcomeModal, setShowWelcomeModal] = useLocalStorageState('welcomeModalOpen_v1', true);
     const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
+    const routerParams = props.routerParams;
 
     let navigate = useNavigate();
-    let routerParams = useParams();
 
     React.useEffect(() => {
         let features = []
