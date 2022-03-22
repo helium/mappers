@@ -98,7 +98,7 @@ function Map() {
                     onClick(event)
                 }
             });
-        }, 2000)
+        }, 4000)
             
         
     }
