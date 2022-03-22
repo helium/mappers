@@ -60,10 +60,13 @@ function Map() {
             .receive("ok", resp => { console.log("Joined successfully", resp) })
             .receive("error", resp => { console.log("Unable to join", resp) })
 
-        setTimeout(()=>{
-            // console.log("calling goToUplinkHex()")
-            goToUplinkHex()
-        }, 500)
+        if(routerParams.hexId != null)
+        {
+            setTimeout(()=>{
+                // console.log("calling goToUplinkHex()")
+                goToUplinkHex()
+            }, 500)
+        } 
 
     }, []) // <-- empty dependency array
 
