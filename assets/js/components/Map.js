@@ -85,25 +85,27 @@ function Map(props) {
             transitionDuration: 3000
         });
 
-        setTimeout(()=>{        
+        simulateUplinkHexClick()
+    }
 
-            const map = mapRef.current.getMap();
+    const simulateUplinkHexClick = event => {
+        const map = mapRef.current.getMap();
+
+        if(map.areTilesLoaded())
+        {  
             var features = map.querySourceFeatures('uplink-tileserver', {sourceLayer: 'public.h3_res9'})
-            // console.log(features)
-            // console.log(routerParams.hexId)
             features.forEach(function(feature_i){ 
                 if(feature_i.properties.id == routerParams.hexId)
                 {
-                    // console.log(feature_i)
-                    // console.log('here')
                     feature_i.layer = {id: "public.h3_res9", layout: {}, source: "uplink-tileserver", sourceLayer: "public.h3_res9", type: "fill"}
                     var event = {features: [feature_i]}
                     onClick(event)
                 }
             });
-        }, 2000)
-            
-        
+        }
+        else{
+            setTimeout(()=>{  simulateUplinkHexClick() }, 500)
+        }
     }
 
     const getHex = h3_index => {
