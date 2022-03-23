@@ -60,20 +60,16 @@ function Map(props) {
             .receive("ok", resp => { console.log("Joined successfully", resp) })
             .receive("error", resp => { console.log("Unable to join", resp) })
 
-        if(routerParams.hexId != null)
-        {
-            setTimeout(()=>{
-                // console.log("calling goToUplinkHex()")
+        if (routerParams.hexId != null) {
+            setTimeout(() => {
                 goToUplinkHex()
             }, 500)
-        } 
+        }
 
     }, []) // <-- empty dependency array
 
     const goToUplinkHex = event => {
-        // console.log(mapRef)
         const hotspot_coords = h3ToGeo(routerParams.hexId)
-        // console.log(hotspot_coords)
         var longitude = hotspot_coords[1]
         var latitude = hotspot_coords[0]
 
@@ -91,20 +87,18 @@ function Map(props) {
     const simulateUplinkHexClick = event => {
         const map = mapRef.current.getMap();
 
-        if(map.areTilesLoaded())
-        {  
-            var features = map.querySourceFeatures('uplink-tileserver', {sourceLayer: 'public.h3_res9'})
-            features.forEach(function(feature_i){ 
-                if(feature_i.properties.id == routerParams.hexId)
-                {
-                    feature_i.layer = {id: "public.h3_res9", layout: {}, source: "uplink-tileserver", sourceLayer: "public.h3_res9", type: "fill"}
-                    var event = {features: [feature_i]}
+        if (map.areTilesLoaded()) {
+            var features = map.querySourceFeatures('uplink-tileserver', { sourceLayer: 'public.h3_res9' })
+            features.forEach(function (feature_i) {
+                if (feature_i.properties.id == routerParams.hexId) {
+                    feature_i.layer = { id: "public.h3_res9", layout: {}, source: "uplink-tileserver", sourceLayer: "public.h3_res9", type: "fill" }
+                    var event = { features: [feature_i] }
                     onClick(event)
                 }
             });
         }
-        else{
-            setTimeout(()=>{  simulateUplinkHexClick() }, 500)
+        else {
+            setTimeout(() => { simulateUplinkHexClick() }, 500)
         }
     }
 
