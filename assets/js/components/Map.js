@@ -11,7 +11,7 @@ import socket from "../socket";
 import geojson2h3 from 'geojson2h3';
 import useLocalStorageState from 'use-local-storage-state';
 import '../../css/app.css';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
 var selectedStateIdTile = null;
@@ -38,35 +38,53 @@ function Map(props) {
     const [showWelcomeModal, setShowWelcomeModal] = useLocalStorageState('welcomeModalOpen_v1', true);
     const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
     const routerParams = props.routerParams;
+    const [initComplete, setInitComplete] = useState(false);
+    const [lastPath, setLastPath] = useState(false);
 
     let navigate = useNavigate();
+    const location = useLocation();
 
     React.useEffect(() => {
-        let features = []
-        channel.on("new_h3", payload => {
-            var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id': payload.body.id, 'id_string': payload.body.id_string, 'best_rssi': payload.body.best_rssi, 'snr': payload.body.snr })
-            new_feature.id = payload.body.id
-            features.push(new_feature)
-            const featureCollection =
-            {
-                "type": "FeatureCollection",
-                "features": [...features]
+        if (!initComplete && location.pathname != lastPath) {
+
+            setLastPath(location.pathname);
+            let features = []
+            channel.on("new_h3", payload => {
+                var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id': payload.body.id, 'id_string': payload.body.id_string, 'best_rssi': payload.body.best_rssi, 'snr': payload.body.snr })
+                new_feature.id = payload.body.id
+                features.push(new_feature)
+                const featureCollection =
+                {
+                    "type": "FeatureCollection",
+                    "features": [...features]
+                }
+                // Update data 
+                setUplinkChannelData(featureCollection)
+            })
+
+            channel.join()
+                .receive("ok", resp => { console.log("Joined successfully", resp) })
+                .receive("error", resp => { console.log("Unable to join", resp) })
+
+            if (routerParams.hexId != null) {
+                setTimeout(() => {
+                    goToUplinkHex()
+                }, 500)
             }
-            // Update data 
-            setUplinkChannelData(featureCollection)
-        })
 
-        channel.join()
-            .receive("ok", resp => { console.log("Joined successfully", resp) })
-            .receive("error", resp => { console.log("Unable to join", resp) })
+            setInitComplete(true);
+        }
+        else if (initComplete && location.pathname != lastPath) {
 
-        if (routerParams.hexId != null) {
-            setTimeout(() => {
-                goToUplinkHex()
-            }, 500)
+            setLastPath(location.pathname);
+            if (routerParams.hexId != null && routerParams.hexId != 'undefined') {
+                setTimeout(() => {
+                    goToUplinkHex()
+                }, 500)
+            }
         }
 
-    }, []) // <-- empty dependency array
+    }, [location,]) // <-- empty dependency array
 
     const goToUplinkHex = event => {
         const hotspot_coords = h3ToGeo(routerParams.hexId)
