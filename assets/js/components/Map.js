@@ -68,7 +68,7 @@ function Map(props) {
 
             if (routerParams.hexId != null) {
                 setTimeout(() => {
-                    goToUplinkHex()
+                    simulateUplinkHexClick()
                 }, 500)
             }
 
@@ -79,28 +79,12 @@ function Map(props) {
             setLastPath(location.pathname);
             if (routerParams.hexId != null && routerParams.hexId != 'undefined') {
                 setTimeout(() => {
-                    goToUplinkHex()
+                    simulateUplinkHexClick()
                 }, 500)
             }
         }
 
     }, [location,]) // <-- empty dependency array
-
-    const goToUplinkHex = event => {
-        const hotspot_coords = h3ToGeo(routerParams.hexId)
-        var longitude = hotspot_coords[1]
-        var latitude = hotspot_coords[0]
-
-        setViewport({
-            longitude,
-            latitude,
-            zoom: 11,
-            transitionInterpolator: new FlyToInterpolator(),
-            transitionDuration: 3000
-        });
-
-        simulateUplinkHexClick()
-    }
 
     const simulateUplinkHexClick = event => {
         const map = mapRef.current.getMap();
