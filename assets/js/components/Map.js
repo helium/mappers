@@ -183,8 +183,8 @@ function Map(props) {
         const map = mapRef.current.getMap();
 
         if (feature) {
-            navigate("/uplinks/hex/" + feature.properties.id);
             if (feature.layer.id == "public.h3_res9") {
+                navigate("/uplinks/hex/" + feature.properties.id);
                 // set hex data for info pane
                 setBestRssi(feature.properties.best_rssi);
                 setSnr(feature.properties.snr.toFixed(2));
@@ -210,6 +210,7 @@ function Map(props) {
                 );
             }
             else if (feature.layer.id == "uplinkChannelLayer") {
+                navigate("/uplinks/hex/" + feature.properties.id);
                 // set hex data for info pane
                 setBestRssi(feature.properties.best_rssi);
                 setSnr(feature.properties.snr.toFixed(2));
