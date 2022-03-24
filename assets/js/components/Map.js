@@ -84,7 +84,7 @@ function Map(props) {
             }
         }
 
-    }, [location,]) // <-- empty dependency array
+    }, [location,])
 
     const simulateUplinkHexClick = event => {
         const map = mapRef.current.getMap();
@@ -179,7 +179,6 @@ function Map(props) {
     }
 
     const onClick = event => {
-        // console.log("onClick")
         const feature = event.features[0];
         const map = mapRef.current.getMap();
 
@@ -209,20 +208,6 @@ function Map(props) {
                     { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
                     { selected: false }
                 );
-
-                // const hotspot_coords = h3ToGeo(feature.properties.id)
-                // // console.log(hotspot_coords)
-                // var longitude = hotspot_coords[1]
-                // var latitude = hotspot_coords[0]
-
-                // setViewport({
-                //     longitude,
-                //     latitude,
-                //     zoom: 11,
-                //     transitionInterpolator: new FlyToInterpolator(),
-                //     transitionDuration: 3000
-                // });
-
             }
             else if (feature.layer.id == "uplinkChannelLayer") {
                 // set hex data for info pane
