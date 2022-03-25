@@ -105,6 +105,7 @@ function Map(props) {
             "features": []
         }
         setUplinkHotspotsData({ line: hotspotLineFeatureCollection, circle: hotspotCircleFeatureCollection, hex: hotspotHexFeatureCollection })
+        navigate("/");
     }
 
     const clearSelectedHex = () => {
