@@ -34,7 +34,6 @@ function Map(props) {
     const [bestRssi, setBestRssi] = useState(null);
     const [snr, setSnr] = useState(null);
     const [showHexPane, setShowHexPane] = useState(false);
-    const onCloseHexPaneClick = () => setShowHexPane(false);
     const [showWelcomeModal, setShowWelcomeModal] = useLocalStorageState('welcomeModalOpen_v1', true);
     const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
     const routerParams = props.routerParams;
@@ -85,6 +84,43 @@ function Map(props) {
         }
 
     }, [location,])
+
+    const onCloseHexPaneClick = () => {
+        setShowHexPane(false);
+
+        clearSelectedHex();
+        const hotspotLineFeatureCollection =
+        {
+            "type": "FeatureCollection",
+            "features": []
+        }
+        const hotspotCircleFeatureCollection =
+        {
+            "type": "FeatureCollection",
+            "features": []
+        }
+        const hotspotHexFeatureCollection =
+        {
+            "type": "FeatureCollection",
+            "features": []
+        }
+        setUplinkHotspotsData({ line: hotspotLineFeatureCollection, circle: hotspotCircleFeatureCollection, hex: hotspotHexFeatureCollection })
+    }
+
+    const clearSelectedHex = () => {
+        const map = mapRef.current.getMap();
+        // unselect any currently selected hex on both hex layers
+        if (selectedStateIdTile !== null || selectedStateIdTile !== null) {
+            map.setFeatureState(
+                { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
+                { selected: true }
+            );
+            map.setFeatureState(
+                { source: 'uplink-channel', id: selectedStateIdChannel },
+                { selected: true }
+            );
+        }
+    }
 
     const simulateUplinkHexClick = event => {
         const map = mapRef.current.getMap();
