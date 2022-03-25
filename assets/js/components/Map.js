@@ -39,13 +39,13 @@ function Map(props) {
     const routerParams = props.routerParams;
     const [initComplete, setInitComplete] = useState(false);
     const [lastPath, setLastPath] = useState(false);
+    const [showHexPaneCloseButton, setShowHexPaneCloseButton] = useState(false);
 
     let navigate = useNavigate();
     const location = useLocation();
 
     React.useEffect(() => {
         if (!initComplete && location.pathname != lastPath) {
-
             setLastPath(location.pathname);
             let features = []
             channel.on("new_h3", payload => {
@@ -106,6 +106,7 @@ function Map(props) {
         }
         setUplinkHotspotsData({ line: hotspotLineFeatureCollection, circle: hotspotCircleFeatureCollection, hex: hotspotHexFeatureCollection })
         navigate("/");
+        setShowHexPaneCloseButton(false);
     }
 
     const clearSelectedHex = () => {
@@ -218,6 +219,7 @@ function Map(props) {
     const onClick = event => {
         const feature = event.features[0];
         const map = mapRef.current.getMap();
+        setShowHexPaneCloseButton(false);
 
         if (feature) {
             if (feature.layer.id == "public.h3_res9") {
@@ -245,6 +247,7 @@ function Map(props) {
                     { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
                     { selected: false }
                 );
+                setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
             }
             else if (feature.layer.id == "uplinkChannelLayer") {
                 navigate("/uplinks/hex/" + feature.properties.id);
@@ -295,6 +298,7 @@ function Map(props) {
                     }),
                     transitionDuration: 700
                 });
+                setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000) 
             }
         }
     };
@@ -338,7 +342,7 @@ function Map(props) {
                 </Source>
 
             </MapGL>
-            <InfoPane hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} />
+            <InfoPane hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} />
             <WelcomeModal showWelcomeModal={showWelcomeModal} onCloseWelcomeModalClick={onCloseWelcomeModalClick} />
         </div>
     );
