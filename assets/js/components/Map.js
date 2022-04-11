@@ -146,7 +146,7 @@ function Map(props) {
         get("uplinks/hex/" + h3_index)
             .then(res => {
                 if(res.status == 429){
-                    alert("Too many request, take a break");
+                    alert("Too many requests, take a break");
                     return Promise.reject("Try again in a minute")
                 }
                 else
