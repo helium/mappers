@@ -7,10 +7,12 @@ defmodule MappersWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug MappersWeb.Plug.RateLimit, ["browser_actions", 60]
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug MappersWeb.Plug.RateLimit, ["api_actions", 60]
   end
 
   pipeline :allow_cors do
