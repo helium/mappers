@@ -12,7 +12,7 @@ defmodule MappersWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug MappersWeb.Plug.RateLimit, ["api_actions", 60]
+    plug MappersWeb.Plug.RateLimit, ["api_actions", 10]
   end
 
   pipeline :allow_cors do

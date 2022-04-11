@@ -144,6 +144,14 @@ function Map(props) {
 
     const getHex = h3_index => {
         get("uplinks/hex/" + h3_index)
+            .then(res => {
+                if(res.status == 429){
+                    alert("Too many request, take a break");
+                    return Promise.reject("Try again in a minute")
+                }
+                else
+                    return res
+            })
             .then(res => res.json())
             .then(uplinks => {
                 var hotspot_line_features = [];
