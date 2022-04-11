@@ -36,6 +36,7 @@ defmodule Mappers.Uplinks do
       where: h3.h3_res9_id == ^h3_index,
       distinct: [uh.hotspot_name],
       order_by: [desc: uh.rssi],
+      limit: 1500,
       select: %{
         uplink_heard_id: uh.id,
         hotspot_name: uh.hotspot_name,
