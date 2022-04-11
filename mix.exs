@@ -53,7 +53,8 @@ defmodule Mappers.MixProject do
       {:telemetry_metrics_prometheus_core, "~> 1.0.0"},
       {:appsignal_phoenix, "~> 2.0.0"},
       {:corsica, "~> 1.1.3"},
-      {:math, "~> 0.6.0"}
+      {:math, "~> 0.6.0"},
+      {:hammer, "~> 6.0"},
     ]
   end
 
