@@ -21,7 +21,11 @@ defmodule Mappers.UplinksHeard do
         |> Map.put(:uplink_id, uplink_id)
       end)
 
-    changeset_results = insert_uplinks_heard(uplinks_heard)
+    changeset_insert_results = insert_uplinks_heard(uplinks_heard)
+
+    changeset_results = Enum.map(changeset_insert_results, fn {_, {_, changeset}} ->
+      changeset
+    end)
 
     results =
       Enum.find(changeset_results, fn changeset ->
