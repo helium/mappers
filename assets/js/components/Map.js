@@ -258,7 +258,7 @@ function Map(props) {
                 setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
             }
             else if (feature.layer.id == "uplinkChannelLayer") {
-                navigate("/uplinks/hex/" + feature.properties.id);
+                navigate("/uplinks/hex/" + feature.properties.id_string);
                 // set hex data for info pane
                 setBestRssi(feature.properties.best_rssi);
                 setSnr(feature.properties.snr.toFixed(2));
