@@ -11,19 +11,25 @@ Any and all contributions from the community are encouraged.
 
 ## Getting Started:
 
-1. First, clone the repository to your local machine and navigate into the folder. For example:
+### 1. First, clone the repository to your local machine and navigate into the folder. For example:
 
 ```bash
 git clone https://github.com/helium/mappers.git
 cd mappers
 ```
 
-2. Second, install all the dependencies:
+### 2. Second, install all the dependencies:
 
+#### System dependencies:
+* cmake
+* postgres - add user/password postgres/postgres
+* postgis
+
+#### Application Dependencies:
 * Install dependencies with `mix deps.get`
-* Create and migrate your database with `mix ecto.setup`
+* Create and migrate your database with `mix ecto.setup`  
 
-3. Edit your environment variables:
+### 3. Edit your environment variables:
 
 * Open the .sample.env file located at the root of the project
 * Create a Mapbox account and copy your public access token
@@ -33,9 +39,9 @@ cd mappers
 
 Rename the file ".env" (delete ".sample" from the file name)
 
-4. Install Node.js dependencies with `cd assets && yarn`
+### 4. Install Node.js dependencies with `cd assets && yarn`
 
-5. Start development server:
+### 5. Start development server:
 * Start Phoenix endpoint with `mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
