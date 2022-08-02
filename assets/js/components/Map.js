@@ -145,7 +145,7 @@ function Map(props) {
     const getHex = h3_index => {
         get("uplinks/hex/" + h3_index)
             .then(res => {
-                if(res.status == 429){
+                if (res.status == 429) {
                     alert("Too many requests, take a break");
                     return Promise.reject("Try again in a minute")
                 }
@@ -225,89 +225,90 @@ function Map(props) {
     }
 
     const onClick = event => {
-        const feature = event.features[0];
+        const features = event.features;
         const map = mapRef.current.getMap();
         setShowHexPaneCloseButton(false);
+        if (features) {
+            features.forEach(feature => {
+                if (feature.layer.id == "public.h3_res9") {
+                    navigate("/uplinks/hex/" + feature.properties.id);
+                    // set hex data for info pane
+                    setBestRssi(feature.properties.best_rssi);
+                    setSnr(feature.properties.snr.toFixed(2));
+                    setHexId(feature.properties.id);
+                    getHex(feature.properties.id);
+                    setShowHexPane(true);
 
-        if (feature) {
-            if (feature.layer.id == "public.h3_res9") {
-                navigate("/uplinks/hex/" + feature.properties.id);
-                // set hex data for info pane
-                setBestRssi(feature.properties.best_rssi);
-                setSnr(feature.properties.snr.toFixed(2));
-                setHexId(feature.properties.id);
-                getHex(feature.properties.id);
-                setShowHexPane(true);
-
-                // unselect any currently selected hex on both hex layers
-                if (selectedStateIdTile !== null || selectedStateIdTile !== null) {
-                    map.setFeatureState(
-                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
-                        { selected: true }
-                    );
-                    map.setFeatureState(
-                        { source: 'uplink-channel', id: selectedStateIdChannel },
-                        { selected: true }
-                    );
-                }
-                selectedStateIdTile = feature.id;
-                map.setFeatureState(
-                    { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
-                    { selected: false }
-                );
-                setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
-            }
-            else if (feature.layer.id == "uplinkChannelLayer") {
-                navigate("/uplinks/hex/" + feature.properties.id_string);
-                // set hex data for info pane
-                setBestRssi(feature.properties.best_rssi);
-                setSnr(feature.properties.snr.toFixed(2));
-                setHexId(feature.properties.id_string);
-                getHex(feature.properties.id_string);
-                setShowHexPane(true);
-
-                // unselect any currently selected hex on both hex layers
-                if (selectedStateIdChannel !== null || selectedStateIdTile !== null) {
-                    map.setFeatureState(
-                        { source: 'uplink-channel', id: selectedStateIdChannel },
-                        { selected: true }
-                    );
-                    map.setFeatureState(
-                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
-                        { selected: true }
-                    );
-                }
-                selectedStateIdChannel = feature.id;
-                map.setFeatureState(
-                    { source: 'uplink-channel', id: selectedStateIdChannel },
-                    { selected: false }
-                );
-
-                // calculate the bounding box of the feature
-                const [minLng, minLat, maxLng, maxLat] = bbox(feature);
-                // construct a viewport instance from the current state
-                const vp = new WebMercatorViewport(viewport);
-                var { longitude, latitude } = vp.fitBounds(
-                    [
-                        [minLng, minLat],
-                        [maxLng, maxLat]
-                    ],
-                    {
-                        padding: 40
+                    // unselect any currently selected hex on both hex layers
+                    if (selectedStateIdTile !== null || selectedStateIdTile !== null) {
+                        map.setFeatureState(
+                            { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
+                            { selected: true }
+                        );
+                        map.setFeatureState(
+                            { source: 'uplink-channel', id: selectedStateIdChannel },
+                            { selected: true }
+                        );
                     }
-                );
+                    selectedStateIdTile = feature.id;
+                    map.setFeatureState(
+                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
+                        { selected: false }
+                    );
+                    setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
+                }
+                else if (feature.layer.id == "uplinkChannelLayer") {
+                    navigate("/uplinks/hex/" + feature.properties.id_string);
+                    // set hex data for info pane
+                    setBestRssi(feature.properties.best_rssi);
+                    setSnr(feature.properties.snr.toFixed(2));
+                    setHexId(feature.properties.id_string);
+                    getHex(feature.properties.id_string);
+                    setShowHexPane(true);
 
-                setViewport({
-                    ...viewport,
-                    longitude,
-                    latitude,
-                    transitionInterpolator: new LinearInterpolator({
-                        around: [event.offsetCenter.x, event.offsetCenter.y]
-                    }),
-                    transitionDuration: 700
-                });
-                setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000) 
-            }
+                    // unselect any currently selected hex on both hex layers
+                    if (selectedStateIdChannel !== null || selectedStateIdTile !== null) {
+                        map.setFeatureState(
+                            { source: 'uplink-channel', id: selectedStateIdChannel },
+                            { selected: true }
+                        );
+                        map.setFeatureState(
+                            { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
+                            { selected: true }
+                        );
+                    }
+                    selectedStateIdChannel = feature.id;
+                    map.setFeatureState(
+                        { source: 'uplink-channel', id: selectedStateIdChannel },
+                        { selected: false }
+                    );
+
+                    // calculate the bounding box of the feature
+                    const [minLng, minLat, maxLng, maxLat] = bbox(feature);
+                    // construct a viewport instance from the current state
+                    const vp = new WebMercatorViewport(viewport);
+                    var { longitude, latitude } = vp.fitBounds(
+                        [
+                            [minLng, minLat],
+                            [maxLng, maxLat]
+                        ],
+                        {
+                            padding: 40
+                        }
+                    );
+
+                    setViewport({
+                        ...viewport,
+                        longitude,
+                        latitude,
+                        transitionInterpolator: new LinearInterpolator({
+                            around: [event.offsetCenter.x, event.offsetCenter.y]
+                        }),
+                        transitionDuration: 700
+                    });
+                    setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
+                }
+            });
         }
     };
 
