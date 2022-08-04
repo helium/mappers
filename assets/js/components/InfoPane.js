@@ -7,6 +7,7 @@ import h3 from 'h3-js/dist/h3-js';
 function InfoPane(props) {
     const [showLegendPane, setShowLegendPane] = React.useState(false)
     const onLegendClick = () => setShowLegendPane(!showLegendPane)
+    const locale = navigator.language;
 
     function hotspotCount() {
         return props.uplinks.length
@@ -33,7 +34,7 @@ function InfoPane(props) {
 
     function uplinkDistance(uplinkLat, uplinkLng) {
         // hotspots are res8, find the parent res8 from the res9 selected hex  
-        let selectedHex = h3.h3ToParent(props.hexId, 8); 
+        let selectedHex = h3.h3ToParent(props.hexId, 8);
         // Create the res8 from provided coordinates
         let hotspotHex = h3.geoToH3(uplinkLat, uplinkLng, 8);
 
@@ -44,25 +45,31 @@ function InfoPane(props) {
                 unit: ""
             }
             return result
-        }
-        else { //compute the distance
+        } else { //compute the distance
             let point1 = [uplinkLat, uplinkLng];
             let point2 = h3.h3ToGeo(props.hexId);
-            let distMi = h3.pointDist(point1, point2, h3.UNITS.km)/1.609;
-            if (distMi < 1) {
-                let result = {
-                    number: distMi.toFixed(1),
-                    unit: "mi"
-                }
-                return result
+            let result = {};
+            let dist = 0;
+            let unit = "km";
+            if (locale == 'en-US') {
+                // 🇺🇸 freedom units
+                dist = h3.pointDist(point1, point2, h3.UNITS.km) / 1.609;
+                unit = "mi"
+            } else {
+                dist = h3.pointDist(point1, point2, h3.UNITS.km); // si
             }
-            else {
-                let result = {
-                    number: Math.round(distMi),
-                    unit: "mi"
+            if (dist < 1) {
+                result = {
+                    number: dist.toFixed(1),
+                    unit: unit
                 }
-                return result
+            } else {
+                result = {
+                    number: Math.round(dist),
+                    unit: unit
+                }
             }
+            return result
         }
     }
 
