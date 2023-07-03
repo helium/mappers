@@ -125,7 +125,7 @@ defmodule Mappers.Coverage do
       end
 
     nearby_uplinks =
-      Task.await(query_task, 20000)
+      Task.await(query_task, 60000)
       |> Enum.map(fn %{lat: uLat, lng: uLng} = x ->
         {h3_index_int, _} = Integer.parse(x.h3_id, 16)
         measurement_coords = :h3.to_geo(h3_index_int)
