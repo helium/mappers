@@ -18,7 +18,7 @@ function WelcomeModal(props) {
                     </button>
                     
                     <p className="modal-copy">We're getting the conversation started with this release. Your feedback is key in defining the features in the next evolution of this tool.</p>
-                    <p className="modal-copy">Visit <a href="https://docs.helium.com/use-the-network/coverage-mapping" target="_blank">Docs</a> to find a few ways to give input or jump into <a href="https://github.com/helium/mappers" target="_blank">GitHub</a> to file an issue or contribute.</p>
+                    <p className="modal-copy">Visit <a href="https://docs.helium.com/iot/coverage-mapping" target="_blank">Docs</a> to find a few ways to give input or jump into <a href="https://github.com/helium/mappers" target="_blank">GitHub</a> to file an issue or contribute.</p>
                 </div>
             }
         </div>
