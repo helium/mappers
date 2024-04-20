@@ -22,7 +22,7 @@ defmodule Mappers.Ingest.Validate do
               {:error,
                "Invalid Device Latitude or Longitude Values for Lat: #{device_lat} Lng: #{device_lng}"}
             else
-              if device_alt < -500 || !is_integer(device_alt) do
+              if device_alt < -500 || !is_number(device_alt) do
                 {:error, "Invalid Device Altitude Value for Alt: #{device_alt}"}
               else
                 if device_acu < 0 do
