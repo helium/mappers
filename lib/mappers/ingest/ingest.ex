@@ -78,6 +78,7 @@ defmodule Mappers.Ingest do
     end
   end
 
+  # ChirpStack: look for "object" key as indicator
   defp normalize_payload(%{"object" => object} = message) do
     spreading_factor = get_in(message, ["txInfo", "modulation", "lora", "spreadingFactor"])
     bandwidth = get_in(message, ["txInfo", "modulation", "lora", "bandwidth"])
@@ -85,7 +86,7 @@ defmodule Mappers.Ingest do
     tx_frequency = get_in(message, ["txInfo", "frequency"]) / 1_000_000
 
     normalized_message = %{
-      "app_eui" => "0000000000000000",
+      "app_eui" => "0000000000000000", # ChirpStack does not provide this field
       "dev_eui" => get_in(message, ["deviceInfo", "devEui"]),
       "id" => get_in(message, ["deviceInfo", "deviceProfileId"]),
       "fcnt" => message["fCnt"],
@@ -105,8 +106,8 @@ defmodule Mappers.Ingest do
       "id" => message["deduplicationId"]
     }
 
-    # Debug: Print the normalized fields
-    # IO.inspect(normalized_message, label: "Normalized Message Fields (New Payload)")
+    # Debug: Print the normalized ChirpStack fields
+    # IO.inspect(normalized_message, label: "Normalized ChirpStack Message Fields")
 
     {:ok, normalized_message}
   end
@@ -133,8 +134,8 @@ defmodule Mappers.Ingest do
       "hotspots" => message["hotspots"]
     }
 
-    # Debug: Print the normalized fields
-    # IO.inspect(normalized_message, label: "Normalized Message Fields (Old Payload)")
+    # Debug: Print the Console fields
+    # IO.inspect(normalized_message, label: "Console Message Fields")
 
     {:ok, normalized_message}
   end
