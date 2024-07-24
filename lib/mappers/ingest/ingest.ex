@@ -132,7 +132,17 @@ defmodule Mappers.Ingest do
   end
 
   defp normalize_hotspots(rxInfo, tx_frequency, spreading) do
-    Enum.map(rxInfo, fn info ->
+    Enum.filter_map(rxInfo, fn info ->
+      lat = get_in(info, ["metadata", "gateway_lat"])
+      long = get_in(info, ["metadata", "gateway_long"])
+
+      if is_nil(lat) or is_nil(long) do
+        IO.puts("Hotspot has no location; skipping.")
+        false
+      else
+        true
+      end
+    end, fn info ->
       %{
         "id" => get_in(info, ["metadata", "gateway_id"]),
         "name" => get_in(info, ["metadata", "gateway_name"]),
