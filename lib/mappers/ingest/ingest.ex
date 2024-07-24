@@ -20,9 +20,6 @@ defmodule Mappers.Ingest do
   def ingest_uplink(message) do
     case normalize_payload(message) do
       {:ok, normalized_message} ->
-        # Debug: Print the normalized message
-        # IO.inspect(normalized_message, label: "Normalized Message")
-
         # validate that message geo values actually make sense
         Ingest.Validate.validate_message(normalized_message)
         |> case do
@@ -106,9 +103,6 @@ defmodule Mappers.Ingest do
       "id" => message["deduplicationId"]
     }
 
-    # Debug: Print the normalized ChirpStack fields
-    # IO.inspect(normalized_message, label: "Normalized ChirpStack Message Fields")
-
     {:ok, normalized_message}
   end
 
@@ -133,9 +127,6 @@ defmodule Mappers.Ingest do
       },
       "hotspots" => message["hotspots"]
     }
-
-    # Debug: Print the Console fields
-    # IO.inspect(normalized_message, label: "Console Message Fields")
 
     {:ok, normalized_message}
   end
