@@ -152,7 +152,7 @@ defmodule Mappers.Ingest do
         "snr" => info["snr"],
         "frequency" => tx_frequency,
         "spreading" => spreading,
-        "reported_at" => parse_reported_at(info["gwTime"])
+        "reported_at" => parse_reported_at(info["time"])
       }
     end)
   end
