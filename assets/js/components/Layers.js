@@ -30,7 +30,7 @@ export const uplinkTileServerLayer = {
 };
 
 export const hotspotTileServerLayer = {
-    id: 'public.h3_res8',
+    id: 'hg.gateways-rewarded-r8.hexes',
     type: 'fill',
     paint: {
         'fill-color': '#ffffff',
