@@ -2,14 +2,14 @@ import * as React from 'react';
 import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, FlyToInterpolator, LinearInterpolator, WebMercatorViewport, GeolocateControl, LngLat } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
-import WelcomeModal from "../components/WelcomeModal"
+
 import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer } from './Layers.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
 import { geoToH3, h3ToGeo, h3ToGeoBoundary } from "h3-js";
 import socket from "../socket";
 import geojson2h3 from 'geojson2h3';
-import useLocalStorageState from 'use-local-storage-state';
+
 import '../../css/app.css';
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -34,8 +34,6 @@ function Map(props) {
     const [bestRssi, setBestRssi] = useState(null);
     const [snr, setSnr] = useState(null);
     const [showHexPane, setShowHexPane] = useState(false);
-    const [showWelcomeModal, setShowWelcomeModal] = useLocalStorageState('welcomeModalOpen_v1', true);
-    const onCloseWelcomeModalClick = () => setShowWelcomeModal(false);
     const routerParams = props.routerParams;
     const [initComplete, setInitComplete] = useState(false);
     const [lastPath, setLastPath] = useState(false);
@@ -352,7 +350,6 @@ function Map(props) {
 
             </MapGL>
             <InfoPane hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} />
-            <WelcomeModal showWelcomeModal={showWelcomeModal} onCloseWelcomeModalClick={onCloseWelcomeModalClick} />
         </div>
     );
 }
