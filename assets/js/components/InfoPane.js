@@ -100,9 +100,6 @@ function InfoPane(props) {
                         <button onClick={onLegendClick}>Legend</button>
                     </li>
                     <li className="nav-link">
-                        <a href="https://docs.helium.com/iot/coverage-mapping" target="_blank">Docs</a>
-                    </li>
-                    <li className="nav-link">
                         <a href="https://github.com/helium/mappers" target="_blank">GitHub</a>
                     </li>
                 </ul>
