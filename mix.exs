@@ -51,7 +51,7 @@ defmodule Mappers.MixProject do
       {:nimble_csv, "~> 1.0"},
       {:geocalc, "~> 0.5"},
       {:telemetry_metrics_prometheus_core, "~> 1.0.0"},
-      {:appsignal_phoenix, "~> 2.0.0"},
+      # {:appsignal_phoenix, "~> 2.0.0"},
       {:corsica, "~> 1.1.3"},
       {:math, "~> 0.6.0"},
       {:hammer, "~> 6.0"},
