@@ -5,7 +5,7 @@
       "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/hashnuke/elixir.tgz"
     },
     {
-      "url": "https://github.com/gjaldon/heroku-buildpack-phoenix-static.git"
+      "url": "https://github.com/gigalixir/gigalixir-buildpack-phoenix-static.git"
     }
   ]
 }
