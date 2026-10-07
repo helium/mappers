@@ -1,11 +1,11 @@
-
 {
+  "stack": "heroku-24",
   "buildpacks": [
     {
-      "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/hashnuke/elixir.tgz"
+      "url": "https://github.com/gigalixir/gigalixir-buildpack-elixir.git#v2.12.0"
     },
     {
-      "url": "https://github.com/gigalixir/gigalixir-buildpack-phoenix-static.git"
+      "url": "https://github.com/gigalixir/gigalixir-buildpack-phoenix-static.git#v1.12.0"
     }
   ]
 }
