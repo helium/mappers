@@ -1,1 +1,1 @@
-web: elixir --sname server -S mix phx.server --no-deps-check
+web: elixir --sname server -S mix do deps.loadpaths --no-deps-check + phx.server
