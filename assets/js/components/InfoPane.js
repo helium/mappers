@@ -9,12 +9,15 @@ function InfoPane(props) {
     const onLegendClick = () => setShowLegendPane(!showLegendPane)
     const locale = navigator.language;
 
+    // a hex can render from a cached tile after its uplinks are gone
+    const hasUplinks = props.uplinks && props.uplinks.length > 0
+
     function hotspotCount() {
         return props.uplinks.length
     }
 
     function recentTime() {
-        let sortedTimes = props.uplinks;
+        let sortedTimes = [...props.uplinks];
         sortedTimes.sort((a,b) => -a.timestamp.localeCompare(b.timestamp))
 
         let distTimeFull = formatDistanceToNowStrict(parseISO(sortedTimes[0].timestamp))
@@ -194,8 +197,8 @@ function InfoPane(props) {
                         <div className="big-stat">
                             <div className="stat-head type-smallcap">Hex Updated</div>
                             <div className="stat-body">
-                                {props.uplinks && recentTime().number}
-                                <span className="stat-unit"> {props.uplinks && recentTime().unit} Ago</span>
+                                {hasUplinks ? recentTime().number : "–"}
+                                {hasUplinks && <span className="stat-unit"> {recentTime().unit} Ago</span>}
                             </div>
                         </div>
 
@@ -211,8 +214,13 @@ function InfoPane(props) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {props.uplinks && props.uplinks.map(uplink => (
-                                    <tr key={uplink.id}>
+                                {props.uplinks && props.uplinks.length === 0 &&
+                                    <tr>
+                                        <td className="table-left" colSpan="4">No current data for this hex</td>
+                                    </tr>
+                                }
+                                {hasUplinks && props.uplinks.map(uplink => (
+                                    <tr key={uplink.uplink_heard_id}>
                                         <td className="table-left animal-cell">{deKebab(uplink.hotspot_name)}</td>
                                         <td className="table-right util-liga-mono tighten table-numeric">{uplink.rssi}<span className="table-unit"> dBm</span></td>
                                         <td className="table-right util-liga-mono tighten table-numeric">{uplink.snr.toFixed(2)}</td>
