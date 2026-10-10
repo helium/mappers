@@ -15,28 +15,8 @@ defmodule Mappers.H3 do
     # get current hex if it exist
     res9_temp = Repo.get(Res9, h3_res9_id_s)
 
-    # create list of rssi's with snr
-    rssi_snr_list =
-      Enum.reduce(message["hotspots"], [], fn hotspot, list ->
-        rssi_r = hotspot["rssi"]
-        snr_r = hotspot["snr"]
-
-        rssi =
-          cond do
-            is_float(rssi_r) -> rssi_r
-            is_integer(rssi_r) -> rssi_r * 1.0
-            is_binary(rssi_r) -> Float.parse(rssi_r) |> elem(0)
-          end
-
-        snr =
-          cond do
-            is_float(snr_r) -> snr_r
-            is_integer(snr_r) -> snr_r * 1.0
-            is_binary(snr_r) -> Float.parse(snr_r) |> elem(0)
-          end
-
-        [{rssi, snr} | list]
-      end)
+    # create list of rssi's with snr (Mappers.Ingest has already made both floats)
+    rssi_snr_list = Enum.reduce(message["hotspots"], [], &[{&1["rssi"], &1["snr"]} | &2])
 
     # find best rssi
     best_new_rssi_pair =

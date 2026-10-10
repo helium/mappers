@@ -2,51 +2,29 @@ defmodule Mappers.UplinksHeard do
   alias Mappers.Repo
   alias Mappers.UplinksHeards.UplinkHeard
 
-  @max_concurrency(3)
-
+  # The hotspots arrive validated (Mappers.Ingest.Validate), so the rows skip the changeset
+  # and go in with one statement, in the request process.
   def create(hotspots, uplink_id) do
-    uplinks_heard =
+    rows =
       Enum.map(hotspots, fn hotspot ->
-        %{}
-        |> Map.put(:hotspot_address, hotspot["id"])
-        |> Map.put(:hotspot_name, hotspot["name"])
-        |> Map.put(:latitude, hotspot["lat"])
-        |> Map.put(:longitude, hotspot["long"])
-        |> Map.put(:rssi, hotspot["rssi"])
-        |> Map.put(:snr, hotspot["snr"])
-        |> Map.put(
-          :timestamp,
-          round(hotspot["reported_at"] / 1000) |> DateTime.from_unix!()
-        )
-        |> Map.put(:uplink_id, uplink_id)
+        %{
+          id: Ecto.UUID.generate(),
+          hotspot_address: hotspot["id"],
+          hotspot_name: hotspot["name"],
+          latitude: hotspot["lat"],
+          longitude: hotspot["long"],
+          rssi: hotspot["rssi"],
+          snr: hotspot["snr"],
+          # stored to the second; the column type needs microsecond precision
+          timestamp: %{
+            DateTime.from_unix!(round(hotspot["reported_at"] / 1000))
+            | microsecond: {0, 6}
+          },
+          uplink_id: uplink_id
+        }
       end)
 
-    changeset_insert_results = insert_uplinks_heard(uplinks_heard)
-
-    changeset_results = Enum.map(changeset_insert_results, fn {_, {_, changeset}} ->
-      changeset
-    end)
-
-    results =
-      Enum.find(changeset_results, fn changeset ->
-        match?({:error, _}, changeset)
-      end)
-
-    if results == nil do
-      {:ok, changeset_results}
-    else
-      {:error, "Uplink Heard Insert Error"}
-    end
-  end
-
-  def insert_uplinks_heard(uplinks_heard) do
-    uplinks_heard
-    |> Task.async_stream(fn uplink_heard -> insert_uplink_heard(uplink_heard) end)
-  end
-
-  def insert_uplink_heard(uplink_heard) do
-    %UplinkHeard{}
-    |> UplinkHeard.changeset(uplink_heard)
-    |> Repo.insert()
+    {_count, uplinks_heard} = Repo.insert_all(UplinkHeard, rows, returning: true)
+    {:ok, uplinks_heard}
   end
 end
