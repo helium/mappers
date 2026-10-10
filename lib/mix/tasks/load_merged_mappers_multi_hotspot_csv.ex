@@ -160,8 +160,9 @@ defmodule Mix.Tasks.LoadMergedMappersMultiHotspotCsv do
 
           Ingest.ingest_uplink(message)
           |> case do
-            %{error: message} -> IO.puts("#{Enum.at(uplink, 5)} Error: #{message}")
-            _ -> IO.puts("Uplink Ingest Success : #{uplink_id}")
+            {:ok, _} -> IO.puts("Uplink Ingest Success : #{uplink_id}")
+            {:ignore, reason} -> IO.puts("#{Enum.at(uplink, 5)} Ignored: #{reason}")
+            {_, reason, detail} -> IO.puts("#{Enum.at(uplink, 5)} Error: #{reason} #{detail}")
           end
         end
       rescue

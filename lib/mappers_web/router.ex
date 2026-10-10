@@ -15,6 +15,13 @@ defmodule MappersWeb.Router do
     plug MappersWeb.Plug.RateLimit, ["api_actions", 60]
   end
 
+  # LNS servers post every device's uplinks (and every ChirpStack event) from one IP.
+  # No :accepts: the reply is always JSON, and a sender's Accept header shouldn't drop uplinks.
+  pipeline :ingest do
+    plug MappersWeb.Plug.IngestOutcome
+    plug MappersWeb.Plug.RateLimit, ["ingest_actions", 120]
+  end
+
   pipeline :allow_cors do
     plug Corsica, origins: "*"
   end
@@ -29,9 +36,14 @@ defmodule MappersWeb.Router do
 
   # Other scopes may use custom stacks.
   scope "/api/v1", MappersWeb do
-    pipe_through :api
+    pipe_through :ingest
 
     post "/ingest/uplink", API.V1.IngestUplinkController, :create
+  end
+
+  scope "/api/v1", MappersWeb do
+    pipe_through :api
+
     get "/uplinks/hex/:h3_index", API.V1.UplinkController, :get_uplinks
   end
 

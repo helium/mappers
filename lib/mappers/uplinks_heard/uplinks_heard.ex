@@ -2,8 +2,6 @@ defmodule Mappers.UplinksHeard do
   alias Mappers.Repo
   alias Mappers.UplinksHeards.UplinkHeard
 
-  @max_concurrency(3)
-
   def create(hotspots, uplink_id) do
     uplinks_heard =
       Enum.map(hotspots, fn hotspot ->
@@ -21,27 +19,19 @@ defmodule Mappers.UplinksHeard do
         |> Map.put(:uplink_id, uplink_id)
       end)
 
-    changeset_insert_results = insert_uplinks_heard(uplinks_heard)
+    insert_results = insert_uplinks_heard(uplinks_heard)
 
-    changeset_results = Enum.map(changeset_insert_results, fn {_, {_, changeset}} ->
-      changeset
-    end)
-
-    results =
-      Enum.find(changeset_results, fn changeset ->
-        match?({:error, _}, changeset)
-      end)
-
-    if results == nil do
-      {:ok, changeset_results}
-    else
+    if Enum.any?(insert_results, &match?({:error, _}, &1)) do
       {:error, "Uplink Heard Insert Error"}
+    else
+      {:ok, Enum.map(insert_results, fn {:ok, uplink_heard} -> uplink_heard end)}
     end
   end
 
+  # In the request process rather than in linked tasks, so a failed insert comes back as an
+  # error instead of killing the request before anything can log it.
   def insert_uplinks_heard(uplinks_heard) do
-    uplinks_heard
-    |> Task.async_stream(fn uplink_heard -> insert_uplink_heard(uplink_heard) end)
+    Enum.map(uplinks_heard, &insert_uplink_heard/1)
   end
 
   def insert_uplink_heard(uplink_heard) do
