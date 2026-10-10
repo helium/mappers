@@ -196,7 +196,7 @@ defmodule Mappers.Ingest do
       "altitude" => to_float(payload["altitude"]),
       "accuracy" => to_float(payload["accuracy"]),
       # trackers without a fix may still send their last known position
-      "fix_failed" => payload["fixFailed"] == true or payload["gnssFix"] == false
+      "fix_failed" => payload["fixFailed"] == true
     }
   end
 
