@@ -329,7 +329,7 @@ function Map(props) {
                     disabledLabel="Unable to locate"
                     className="geolocate-button"
                 />
-                <Source id="hotspot-tileserver" type="vector" url={"https://emt.heliumgeek.net/v1/hg.gateways-rewarded-r8.hexes.json"}>
+                <Source id="hotspot-tileserver" type="vector" url={"https://api-iot.heliumtools.org/v1/hg.gateways-rewarded-r8.hexes.json"}>
                     <Layer {...hotspotTileServerLayer} source-layer={"hg.gateways-rewarded-r8.hexes"} />
                 </Source>
                 <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver.helium.wtf/public.h3_res9.json"}>
