@@ -4,6 +4,18 @@ defmodule Mappers.IngestFixtures do
   types match what senders posted; every value is made up.
   """
 
+  @doc "POSTs a body as JSON to the ingest endpoint."
+  def post_uplink(conn, body, query \\ "") do
+    conn
+    |> Plug.Conn.put_req_header("content-type", "application/json")
+    |> Phoenix.ConnTest.dispatch(
+      MappersWeb.Endpoint,
+      :post,
+      "/api/v1/ingest/uplink" <> query,
+      Jason.encode!(body)
+    )
+  end
+
   @doc "A ChirpStack v4.6+ `up` event: rxInfo has gwTime/nsTime and no time."
   def chirpstack_up do
     %{

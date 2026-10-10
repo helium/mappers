@@ -26,7 +26,7 @@ defmodule Mappers.Ingest do
   """
   def ingest_uplink(body, event \\ nil) do
     case {event, format(body)} do
-      {event, _} when is_binary(event) and event != "up" ->
+      {event, _} when not is_nil(event) and event != "up" ->
         {:ignore, "not_uplink"}
 
       {"up", :chirpstack_event} ->
@@ -43,7 +43,7 @@ defmodule Mappers.Ingest do
         with {:ok, message} <- normalize_payload(format, body),
              {:ok, hotspots} <- Ingest.Validate.validate_message(message) do
           # store only the hotspots that passed validation
-          store(Map.put(message, "hotspots", hotspots), hotspots)
+          store(%{message | "hotspots" => hotspots})
         end
     end
   end
@@ -62,10 +62,10 @@ defmodule Mappers.Ingest do
   def format(%{"hotspots" => hotspots}) when is_list(hotspots), do: :console
   def format(_), do: :unknown
 
-  defp store(message, hotspots) do
+  defp store(message) do
     with {:ok, h3_res9} <- H3.create(message),
          {:ok, uplink} <- Uplinks.create(message),
-         {:ok, uplinks_heard} <- UplinksHeard.create(hotspots, uplink.id),
+         {:ok, uplinks_heard} <- UplinksHeard.create(message["hotspots"], uplink.id),
          {:ok, _} <- Links.create(h3_res9.id, uplink.id) do
       {:ok,
        %IngestUplinkResponse{
@@ -79,24 +79,21 @@ defmodule Mappers.Ingest do
   end
 
   defp normalize_payload(:chirpstack, message) do
-    lora = dig(message, ["txInfo", "modulation", "lora"])
+    spreading = spreading(dig(message, ["txInfo", "modulation", "lora"]))
     frequency_hz = to_float(dig(message, ["txInfo", "frequency"]))
 
     cond do
-      not (is_integer(dig(lora, ["spreadingFactor"])) and is_integer(dig(lora, ["bandwidth"]))) ->
+      is_nil(spreading) ->
         {:reject, "unsupported_modulation", "only LoRa uplinks can be mapped"}
 
       is_nil(frequency_hz) ->
         {:reject, "missing_field", "txInfo.frequency"}
 
       true ->
-        spreading = "SF#{lora["spreadingFactor"]}BW#{div(lora["bandwidth"], 1000)}"
-        tx_frequency = frequency_hz / 1_000_000
-        uplink_time = message["time"]
         dev_eui = dig(message, ["deviceInfo", "devEui"])
-
         # the network server's own receive times back up the event time
         ns_times = for info <- message["rxInfo"], is_map(info), do: info["nsTime"]
+        reported_at = pick_time([message["time"] | ns_times])
 
         {:ok,
          %{
@@ -105,28 +102,27 @@ defmodule Mappers.Ingest do
            "dev_eui" => dev_eui,
            "id" => dev_eui,
            "fcnt" => message["fCnt"],
-           "reported_at" => pick_time([uplink_time | ns_times]),
-           "frequency" => tx_frequency,
+           "reported_at" => reported_at,
+           "frequency" => frequency_hz / 1_000_000,
            "spreading" => spreading,
-           "decoded" => %{
-             "payload" => position(message["object"]),
-             "status" => "success"
-           },
+           "decoded" => %{"payload" => position(message["object"])},
            "decoder_error" => false,
-           "hotspots" =>
-             normalize_hotspots(message["rxInfo"], uplink_time, tx_frequency, spreading)
+           "hotspots" => normalize_hotspots(message["rxInfo"], reported_at)
          }}
     end
   end
 
   defp normalize_payload(:console, message) do
-    decoded = if is_map(message["decoded"]), do: message["decoded"], else: %{}
-    payload = if is_map(decoded["payload"]), do: decoded["payload"], else: %{}
+    payload = dig(message, ["decoded", "payload"])
+    reported_at = to_ms(message["reported_at"])
 
     hotspots =
       message["hotspots"]
       |> Enum.filter(&is_map/1)
-      |> Enum.map(&normalize_console_hotspot/1)
+      |> Enum.map(&normalize_console_hotspot(&1, reported_at))
+
+    # the uplink's frequency and spreading, from the first hotspot that reports them
+    radio = Enum.find(hotspots, %{}, &(is_float(&1["frequency"]) and is_binary(&1["spreading"])))
 
     {:ok,
      %{
@@ -134,21 +130,20 @@ defmodule Mappers.Ingest do
        "dev_eui" => message["dev_eui"],
        "id" => message["id"],
        "fcnt" => message["fcnt"],
-       "reported_at" => to_ms(message["reported_at"]),
-       "decoded" => %{
-         "payload" => position(payload),
-         "status" => decoded["status"]
-       },
+       "reported_at" => reported_at,
+       "frequency" => radio["frequency"],
+       "spreading" => radio["spreading"],
+       "decoded" => %{"payload" => position(payload)},
        "decoder_error" =>
-         decoded["status"] == "error" or not is_nil(decoded["error"]) or
-           not is_nil(payload["error"]),
+         dig(message, ["decoded", "status"]) == "error" or
+           not is_nil(dig(message, ["decoded", "error"])) or not is_nil(dig(payload, ["error"])),
        "hotspots" => hotspots
      }}
   end
 
   # One entry per gateway that heard the uplink. Gateways without an asserted location
   # (and non-Helium gateways) can't be mapped, so they are left out.
-  defp normalize_hotspots(rx_info, uplink_time, tx_frequency, spreading) do
+  defp normalize_hotspots(rx_info, reported_at) do
     Enum.flat_map(rx_info, fn info ->
       metadata = dig(info, ["metadata"])
       lat = to_float(dig(metadata, ["gateway_lat"]))
@@ -165,27 +160,33 @@ defmodule Mappers.Ingest do
             "long" => long,
             "rssi" => to_float(info["rssi"]),
             "snr" => to_snr(info["snr"]),
-            "frequency" => tx_frequency,
-            "spreading" => spreading,
-            # ChirpStack 4.6 renamed rxInfo time to gwTime and added nsTime
+            # ChirpStack 4.6 renamed rxInfo time to gwTime and added nsTime; a gateway with
+            # a wrong clock gets the uplink's time
             "reported_at" =>
-              pick_time([info["gwTime"], info["nsTime"], info["time"], uplink_time])
+              pick_time([info["gwTime"], info["nsTime"], info["time"], reported_at])
           }
         ]
       end
     end)
   end
 
-  defp normalize_console_hotspot(hotspot) do
+  defp normalize_console_hotspot(hotspot, reported_at) do
     Map.merge(hotspot, %{
       "lat" => to_float(hotspot["lat"]),
       "long" => to_float(hotspot["long"]),
       "rssi" => to_float(hotspot["rssi"]),
       "snr" => to_snr(hotspot["snr"]),
       "frequency" => to_float(hotspot["frequency"]),
-      "reported_at" => to_ms(hotspot["reported_at"])
+      # a hotspot with a missing or wrong clock gets the uplink's time
+      "reported_at" => pick_time([hotspot["reported_at"], reported_at])
     })
   end
+
+  defp spreading(%{"spreadingFactor" => sf, "bandwidth" => bw})
+       when is_integer(sf) and is_integer(bw),
+       do: "SF#{sf}BW#{div(bw, 1000)}"
+
+  defp spreading(_lora), do: nil
 
   defp position(payload) when is_map(payload) do
     %{
@@ -218,23 +219,23 @@ defmodule Mappers.Ingest do
 
   defp to_float(_), do: nil
 
+  # milliseconds from a ms number or an ISO 8601 string
   defp to_ms(value) when is_integer(value), do: value
   defp to_ms(value) when is_float(value), do: trunc(value)
-  defp to_ms(value), do: parse_reported_at(value)
 
-  defp parse_reported_at(timestamp) when is_binary(timestamp) do
-    case DateTime.from_iso8601(timestamp) do
+  defp to_ms(value) when is_binary(value) do
+    case DateTime.from_iso8601(value) do
       {:ok, datetime, _offset} -> DateTime.to_unix(datetime, :millisecond)
       _ -> nil
     end
   end
 
-  defp parse_reported_at(_), do: nil
+  defp to_ms(_), do: nil
 
-  # The first candidate that parses to a plausible time; else the first that parses at all,
-  # for validation to reject.
+  # The first candidate that is a plausible time; else the first readable one, for
+  # validation to reject.
   defp pick_time(candidates) do
-    times = candidates |> Enum.map(&parse_reported_at/1) |> Enum.reject(&is_nil/1)
+    times = candidates |> Enum.map(&to_ms/1) |> Enum.reject(&is_nil/1)
     Enum.find(times, &Ingest.Validate.plausible_time?/1) || List.first(times)
   end
 

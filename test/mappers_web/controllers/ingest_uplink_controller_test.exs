@@ -12,19 +12,21 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
 
   @path "/api/v1/ingest/uplink"
 
-  defp post_uplink(conn, body, query \\ "") do
-    conn
-    |> put_req_header("content-type", "application/json")
-    |> post(@path <> query, Jason.encode!(body))
-  end
-
   defp row_counts do
     for schema <- [Res9, Uplink, UplinkHeard, Link], into: %{} do
       {schema, Repo.aggregate(schema, :count)}
     end
   end
 
-  defp assert_nothing_written(before), do: assert(row_counts() == before)
+  defp assert_nothing_written, do: assert(Enum.all?(Map.values(row_counts()), &(&1 == 0)))
+
+  # posts the body, expects a 422 with this reason and no rows written; returns the reply
+  defp assert_rejected(body, reason, query \\ "") do
+    reply = json_response(post_uplink(build_conn(), body, query), 422)
+    assert %{"error" => ^reason} = reply
+    assert_nothing_written()
+    reply
+  end
 
   defp update_rx(body, index, fun), do: update_in(body, ["rxInfo", Access.at(index)], fun)
 
@@ -137,72 +139,49 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
       assert [%Res9{best_rssi: -95.0}] = Repo.all(Res9)
     end
 
-    test "a reported failed fix is rejected as no_fix", %{conn: conn} do
-      before = row_counts()
-      body = put_in(chirpstack_up(), ["object", "fixFailed"], true)
-
-      assert %{"error" => "no_fix"} = json_response(post_uplink(conn, body), 422)
-      assert_nothing_written(before)
+    test "a reported failed fix is rejected as no_fix" do
+      assert_rejected(put_in(chirpstack_up(), ["object", "fixFailed"], true), "no_fix")
     end
 
-    test "an empty decoded object is rejected as no_position", %{conn: conn} do
-      before = row_counts()
-      body = Map.put(chirpstack_up(), "object", %{})
-
-      assert %{"error" => "no_position"} = json_response(post_uplink(conn, body), 422)
-      assert_nothing_written(before)
+    test "an empty decoded object is rejected as no_position" do
+      assert_rejected(Map.put(chirpstack_up(), "object", %{}), "no_position")
     end
 
-    test "gateways without a location are rejected as no_hotspot_location", %{conn: conn} do
-      before = row_counts()
-
+    test "gateways without a location are rejected as no_hotspot_location" do
       body =
-        chirpstack_up()
-        |> update_rx(
-          0,
-          &update_in(&1, ["metadata"], fn m -> Map.drop(m, ["gateway_lat", "gateway_long"]) end)
-        )
-        |> update_rx(
-          1,
-          &update_in(&1, ["metadata"], fn m -> Map.drop(m, ["gateway_lat", "gateway_long"]) end)
+        update_in(
+          chirpstack_up(),
+          ["rxInfo", Access.all(), "metadata"],
+          &Map.drop(&1, ["gateway_lat", "gateway_long"])
         )
 
-      assert %{"error" => "no_hotspot_location"} = json_response(post_uplink(conn, body), 422)
-      assert_nothing_written(before)
+      assert_rejected(body, "no_hotspot_location")
     end
 
-    test "an uplink with no readable timestamp is rejected as no_timestamp", %{conn: conn} do
-      before = row_counts()
-
+    test "an uplink with no readable timestamp is rejected as no_timestamp" do
       body =
         chirpstack_up()
         |> Map.delete("time")
-        |> update_rx(0, &Map.drop(&1, ["gwTime", "nsTime"]))
-        |> update_rx(1, &Map.drop(&1, ["gwTime", "nsTime"]))
+        |> update_in(["rxInfo", Access.all()], &Map.drop(&1, ["gwTime", "nsTime"]))
 
-      assert %{"error" => "no_timestamp"} = json_response(post_uplink(conn, body), 422)
-      assert_nothing_written(before)
+      assert_rejected(body, "no_timestamp")
     end
 
-    test "an up event without rxInfo is rejected rather than ignored", %{conn: conn} do
+    test "an up event without rxInfo is rejected rather than ignored" do
       body = Map.drop(chirpstack_up(), ["rxInfo", "txInfo"])
-
-      assert %{"error" => "unsupported_payload"} =
-               json_response(post_uplink(conn, body, "?event=up"), 422)
+      assert_rejected(body, "unsupported_payload", "?event=up")
     end
 
-    test "non-LoRa uplinks are rejected as unsupported_modulation", %{conn: conn} do
+    test "non-LoRa uplinks are rejected as unsupported_modulation" do
       body =
         put_in(chirpstack_up(), ["txInfo", "modulation"], %{"fsk" => %{"datarate" => 50_000}})
 
-      assert %{"error" => "unsupported_modulation"} = json_response(post_uplink(conn, body), 422)
+      assert_rejected(body, "unsupported_modulation")
     end
   end
 
   describe "ChirpStack events that aren't uplinks" do
     test "are acknowledged with 204 and write nothing", %{conn: conn} do
-      before = row_counts()
-
       assert response(post_uplink(conn, chirpstack_log(), "?event=log"), 204) == ""
 
       assert response(
@@ -220,7 +199,7 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
                204
              )
 
-      assert_nothing_written(before)
+      assert_nothing_written()
     end
   end
 
@@ -244,13 +223,14 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
       assert Enum.sort(Enum.map(Repo.all(UplinkHeard), & &1.snr)) == [0.0, 6.5]
     end
 
-    test "a single hotspot without snr is stored", %{conn: conn} do
+    test "a single hotspot without snr is stored, and sets the hex's snr", %{conn: conn} do
       body =
         Map.update!(console_uplink(), "hotspots", fn [first | _] -> [Map.delete(first, "snr")] end)
 
       assert json_response(post_uplink(conn, body), 200)
-      assert [%UplinkHeard{snr: snr}] = Repo.all(UplinkHeard)
-      assert snr == 0.0
+      assert [%UplinkHeard{snr: heard_snr}] = Repo.all(UplinkHeard)
+      assert [%Res9{snr: hex_snr}] = Repo.all(Res9)
+      assert heard_snr == 0.0 and hex_snr == 0.0
     end
 
     test "integer device coordinates are stored", %{conn: conn} do
@@ -265,23 +245,21 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
       assert Repo.aggregate(Res9, :count) == 1
     end
 
-    test "decoder errors are rejected as decoder_error", %{conn: conn} do
-      at_decoded =
-        Map.put(console_uplink(), "decoded", %{
-          "status" => "error",
-          "error" => "example decode failure"
-        })
+    test "decoder errors are rejected as decoder_error" do
+      failure = "example decode failure"
 
-      at_payload =
-        put_in(console_uplink(), ["decoded", "payload"], %{"error" => "example decode failure"})
+      assert_rejected(
+        Map.put(console_uplink(), "decoded", %{"status" => "error", "error" => failure}),
+        "decoder_error"
+      )
 
-      assert %{"error" => "decoder_error"} = json_response(post_uplink(conn, at_decoded), 422)
-
-      assert %{"error" => "decoder_error"} =
-               json_response(post_uplink(build_conn(), at_payload), 422)
+      assert_rejected(
+        put_in(console_uplink(), ["decoded", "payload"], %{"error" => failure}),
+        "decoder_error"
+      )
     end
 
-    test "a payload without a position is rejected as no_position", %{conn: conn} do
+    test "a payload without a position is rejected as no_position" do
       sensor = %{
         "temperature" => 21.5,
         "level" => 0.62,
@@ -289,37 +267,24 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
         "alarmBattery" => false
       }
 
-      at_zero =
-        update_in(
-          console_uplink(),
-          ["decoded", "payload"],
-          &Map.merge(&1, %{"latitude" => 0, "longitude" => 0})
-        )
+      at_zero = %{"latitude" => 0, "longitude" => 0}
 
-      assert %{"error" => "no_position"} =
-               json_response(
-                 post_uplink(conn, put_in(console_uplink(), ["decoded", "payload"], sensor)),
-                 422
-               )
+      assert_rejected(put_in(console_uplink(), ["decoded", "payload"], sensor), "no_position")
 
-      assert %{"error" => "no_position"} = json_response(post_uplink(build_conn(), at_zero), 422)
+      assert_rejected(
+        update_in(console_uplink(), ["decoded", "payload"], &Map.merge(&1, at_zero)),
+        "no_position"
+      )
     end
 
-    test "a missing accuracy is rejected before anything is written", %{conn: conn} do
-      before = row_counts()
+    test "a missing accuracy is rejected before anything is written" do
       body = update_in(console_uplink(), ["decoded", "payload"], &Map.delete(&1, "accuracy"))
-
-      assert %{"error" => "invalid_accuracy"} = json_response(post_uplink(conn, body), 422)
-      assert_nothing_written(before)
+      assert_rejected(body, "invalid_accuracy")
     end
 
-    test "a timestamp from a wildly wrong clock is rejected", %{conn: conn} do
-      before = row_counts()
+    test "a timestamp from a wildly wrong clock is rejected" do
       year_2478 = 16_088_428_800_000
-      body = Map.put(console_uplink(), "reported_at", year_2478)
-
-      assert %{"error" => "invalid_timestamp"} = json_response(post_uplink(conn, body), 422)
-      assert_nothing_written(before)
+      assert_rejected(Map.put(console_uplink(), "reported_at", year_2478), "invalid_timestamp")
     end
 
     test "a hotspot with a wildly wrong clock gets the uplink's time", %{conn: conn} do
@@ -336,26 +301,14 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
              }
     end
 
-    test "fields that wouldn't fit their columns are rejected before anything is written", %{
-      conn: conn
-    } do
-      before = row_counts()
+    test "fields that wouldn't fit their columns are rejected before anything is written" do
       long_eui = Map.put(console_uplink(), "dev_eui", String.duplicate("A", 300))
       huge_fcnt = Map.put(console_uplink(), "fcnt", 2_147_483_648)
+      empty_ids = update_in(console_uplink(), ["hotspots", Access.all()], &Map.put(&1, "id", ""))
 
-      empty_ids =
-        Map.update!(console_uplink(), "hotspots", &Enum.map(&1, fn h -> Map.put(h, "id", "") end))
-
-      assert %{"error" => "invalid_field", "detail" => "dev_eui"} =
-               json_response(post_uplink(conn, long_eui), 422)
-
-      assert %{"error" => "invalid_field", "detail" => "fcnt"} =
-               json_response(post_uplink(build_conn(), huge_fcnt), 422)
-
-      assert %{"error" => "no_valid_hotspots"} =
-               json_response(post_uplink(build_conn(), empty_ids), 422)
-
-      assert_nothing_written(before)
+      assert %{"detail" => "dev_eui"} = assert_rejected(long_eui, "invalid_field")
+      assert %{"detail" => "fcnt"} = assert_rejected(huge_fcnt, "invalid_field")
+      assert_rejected(empty_ids, "no_valid_hotspots")
     end
 
     test "a second uplink in the same hex keeps the better RSSI", %{conn: conn} do

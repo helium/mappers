@@ -4,16 +4,7 @@ defmodule MappersWeb.Plug.RateLimit do
   def init(default), do: default
 
   def call(conn, [action, limit]) do
-    cf_ip = conn |> get_req_header("cf-connecting-ip") |> List.first()
-    regular_ip = conn |> get_req_header("x-forwarded-for") |> List.first()
-
-    ip_address =
-      case cf_ip do
-        nil -> regular_ip
-        _ -> cf_ip
-      end
-
-    case Hammer.check_rate("#{action}:#{ip_address}", 60_000, limit) do
+    case Hammer.check_rate("#{action}:#{client_ip(conn)}", 60_000, limit) do
       {:allow, _count} ->
         conn
 
@@ -21,6 +12,20 @@ defmodule MappersWeb.Plug.RateLimit do
         conn
         |> send_resp(:too_many_requests, "Too many requests")
         |> halt()
+    end
+  end
+
+  @doc "The client's IP as Cloudflare or the first X-Forwarded-For hop reports it, if any."
+  def client_ip(conn) do
+    case get_req_header(conn, "cf-connecting-ip") do
+      [ip | _] ->
+        ip
+
+      [] ->
+        case get_req_header(conn, "x-forwarded-for") do
+          [forwarded_for | _] -> forwarded_for |> String.split(",") |> hd() |> String.trim()
+          [] -> nil
+        end
     end
   end
 end

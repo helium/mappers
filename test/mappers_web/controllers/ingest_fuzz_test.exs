@@ -5,7 +5,6 @@ defmodule MappersWeb.API.V1.IngestFuzzTest do
 
   import Mappers.IngestFixtures
 
-  @path "/api/v1/ingest/uplink"
   @junk [
     nil,
     "",
@@ -43,20 +42,22 @@ defmodule MappersWeb.API.V1.IngestFuzzTest do
   test "mutated payloads never get a 500" do
     :rand.seed(:exsss, {String.to_integer(System.get_env("FUZZ_SEED", "20261009")), 1, 2})
 
-    bodies =
+    mutated =
       for _ <- 1..String.to_integer(System.get_env("FUZZ_RUNS", "400")) do
         base = Enum.random([chirpstack_up(), console_uplink()])
         Enum.reduce(1..Enum.random(1..3), base, fn _, body -> mutate(body) end)
       end
 
+    requests = mutated ++ [[], "text", 42, [chirpstack_up()]]
+
     failures =
-      (bodies ++ [[], "text", 42, [chirpstack_up()]])
+      requests
       |> Enum.with_index()
       |> Enum.map(fn {body, i} -> attempt(body, Enum.random(@queries), i) end)
       |> Enum.reject(&is_nil/1)
 
     assert failures == [],
-           "#{length(failures)} of #{length(bodies) + 4} requests failed:\n" <>
+           "#{length(failures)} of #{length(requests)} requests failed:\n" <>
              (failures
               |> Enum.uniq_by(&elem(&1, 0))
               |> Enum.map_join("\n", &inspect(&1, limit: 12)))
@@ -66,10 +67,9 @@ defmodule MappersWeb.API.V1.IngestFuzzTest do
   defp attempt(body, query, i) do
     conn =
       build_conn()
-      |> put_req_header("content-type", "application/json")
       # a sender per request, so the rate limit doesn't interfere
       |> put_req_header("cf-connecting-ip", "10.9.#{div(i, 250)}.#{rem(i, 250)}")
-      |> post(@path <> query, Jason.encode!(body))
+      |> post_uplink(body, query)
 
     if conn.status in [200, 204, 422], do: nil, else: {"#{conn.status} #{conn.resp_body}", body}
   rescue
@@ -82,13 +82,16 @@ defmodule MappersWeb.API.V1.IngestFuzzTest do
         body
 
       paths ->
-        path = Enum.random(paths)
+        path = paths |> Enum.random() |> Enum.map(&access/1)
 
         if :rand.uniform() < 0.3,
-          do: delete_at(body, path),
-          else: put_at(body, path, Enum.random(@junk))
+          do: body |> pop_in(path) |> elem(1),
+          else: put_in(body, path, Enum.random(@junk))
     end
   end
+
+  defp access(index) when is_integer(index), do: Access.at(index)
+  defp access(key), do: key
 
   defp paths(value, prefix) when is_map(value),
     do: [prefix | Enum.flat_map(value, fn {k, v} -> paths(v, prefix ++ [k]) end)]
@@ -101,21 +104,4 @@ defmodule MappersWeb.API.V1.IngestFuzzTest do
   end
 
   defp paths(_value, prefix), do: [prefix]
-
-  defp put_at(_value, [], new), do: new
-
-  defp put_at(map, [key | rest], new) when is_map(map),
-    do: Map.put(map, key, put_at(Map.get(map, key), rest, new))
-
-  defp put_at(list, [i | rest], new) when is_list(list),
-    do: List.update_at(list, i, &put_at(&1, rest, new))
-
-  defp delete_at(map, [key]) when is_map(map), do: Map.delete(map, key)
-  defp delete_at(list, [i]) when is_list(list), do: List.delete_at(list, i)
-
-  defp delete_at(map, [key | rest]) when is_map(map),
-    do: Map.update!(map, key, &delete_at(&1, rest))
-
-  defp delete_at(list, [i | rest]) when is_list(list),
-    do: List.update_at(list, i, &delete_at(&1, rest))
 end

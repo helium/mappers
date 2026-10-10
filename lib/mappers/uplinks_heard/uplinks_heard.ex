@@ -2,41 +2,29 @@ defmodule Mappers.UplinksHeard do
   alias Mappers.Repo
   alias Mappers.UplinksHeards.UplinkHeard
 
+  # The hotspots arrive validated (Mappers.Ingest.Validate), so the rows skip the changeset
+  # and go in with one statement, in the request process.
   def create(hotspots, uplink_id) do
-    uplinks_heard =
+    rows =
       Enum.map(hotspots, fn hotspot ->
-        %{}
-        |> Map.put(:hotspot_address, hotspot["id"])
-        |> Map.put(:hotspot_name, hotspot["name"])
-        |> Map.put(:latitude, hotspot["lat"])
-        |> Map.put(:longitude, hotspot["long"])
-        |> Map.put(:rssi, hotspot["rssi"])
-        |> Map.put(:snr, hotspot["snr"])
-        |> Map.put(
-          :timestamp,
-          round(hotspot["reported_at"] / 1000) |> DateTime.from_unix!()
-        )
-        |> Map.put(:uplink_id, uplink_id)
+        %{
+          id: Ecto.UUID.generate(),
+          hotspot_address: hotspot["id"],
+          hotspot_name: hotspot["name"],
+          latitude: hotspot["lat"],
+          longitude: hotspot["long"],
+          rssi: hotspot["rssi"],
+          snr: hotspot["snr"],
+          # stored to the second; the column type needs microsecond precision
+          timestamp: %{
+            DateTime.from_unix!(round(hotspot["reported_at"] / 1000))
+            | microsecond: {0, 6}
+          },
+          uplink_id: uplink_id
+        }
       end)
 
-    insert_results = insert_uplinks_heard(uplinks_heard)
-
-    if Enum.any?(insert_results, &match?({:error, _}, &1)) do
-      {:error, "Uplink Heard Insert Error"}
-    else
-      {:ok, Enum.map(insert_results, fn {:ok, uplink_heard} -> uplink_heard end)}
-    end
-  end
-
-  # In the request process rather than in linked tasks, so a failed insert comes back as an
-  # error instead of killing the request before anything can log it.
-  def insert_uplinks_heard(uplinks_heard) do
-    Enum.map(uplinks_heard, &insert_uplink_heard/1)
-  end
-
-  def insert_uplink_heard(uplink_heard) do
-    %UplinkHeard{}
-    |> UplinkHeard.changeset(uplink_heard)
-    |> Repo.insert()
+    {_count, uplinks_heard} = Repo.insert_all(UplinkHeard, rows, returning: true)
+    {:ok, uplinks_heard}
   end
 end
