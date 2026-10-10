@@ -16,9 +16,11 @@ defmodule MappersWeb.Router do
   end
 
   # LNS servers post every device's uplinks (and every ChirpStack event) from one IP.
-  # No :accepts: the reply is always JSON, and a sender's Accept header shouldn't drop uplinks.
+  # put_format rather than :accepts: replies (crash pages included) are always JSON, and a
+  # sender's Accept header shouldn't drop uplinks.
   pipeline :ingest do
     plug MappersWeb.Plug.IngestOutcome
+    plug :put_format, "json"
     plug MappersWeb.Plug.RateLimit, ["ingest_actions", 120]
   end
 

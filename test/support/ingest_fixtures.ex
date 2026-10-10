@@ -4,16 +4,36 @@ defmodule Mappers.IngestFixtures do
   types match what senders posted; every value is made up.
   """
 
-  @doc "POSTs a body as JSON to the ingest endpoint."
+  @doc """
+  POSTs a body as JSON to the ingest endpoint. Unless the conn already names a sender, it
+  gets one of its own, so tests don't share a rate-limit bucket.
+  """
   def post_uplink(conn, body, query \\ "") do
     conn
     |> Plug.Conn.put_req_header("content-type", "application/json")
+    |> ensure_sender()
     |> Phoenix.ConnTest.dispatch(
       MappersWeb.Endpoint,
       :post,
       "/api/v1/ingest/uplink" <> query,
       Jason.encode!(body)
     )
+  end
+
+  defp ensure_sender(conn) do
+    case Plug.Conn.get_req_header(conn, "cf-connecting-ip") do
+      [] ->
+        n = System.unique_integer([:positive])
+
+        Plug.Conn.put_req_header(
+          conn,
+          "cf-connecting-ip",
+          "10.#{rem(div(n, 65_536), 256)}.#{rem(div(n, 256), 256)}.#{rem(n, 256)}"
+        )
+
+      _ ->
+        conn
+    end
   end
 
   @doc "A ChirpStack v4.6+ `up` event: rxInfo has gwTime/nsTime and no time."

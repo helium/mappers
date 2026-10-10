@@ -64,9 +64,16 @@ defmodule Mappers.Ingest.Validate do
   defp invalid_fields(message) do
     fcnt = message["fcnt"]
 
-    Enum.reject(["dev_eui", "id", "app_eui", "spreading"], &text?(message[&1])) ++
-      if(is_integer(fcnt) and fcnt >= 0 and fcnt <= @max_int4, do: [], else: ["fcnt"]) ++
-      if is_float(message["frequency"]), do: [], else: ["frequency"]
+    checks = [
+      {"dev_eui", text?(message["dev_eui"])},
+      {"id", text?(message["id"])},
+      {"app_eui", text?(message["app_eui"])},
+      {"spreading", text?(message["spreading"])},
+      {"fcnt", is_integer(fcnt) and fcnt >= 0 and fcnt <= @max_int4},
+      {"frequency", is_float(message["frequency"])}
+    ]
+
+    for {field, false} <- checks, do: field
   end
 
   # a string that fits a varchar(255) column and that the insert's changeset won't treat

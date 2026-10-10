@@ -12,6 +12,10 @@ defmodule MappersWeb.Plug.RateLimit do
         conn
         |> send_resp(:too_many_requests, "Too many requests")
         |> halt()
+
+      # the limiter's backend failed; don't drop the request over it
+      {:error, _reason} ->
+        conn
     end
   end
 

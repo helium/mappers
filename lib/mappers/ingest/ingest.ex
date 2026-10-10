@@ -101,7 +101,8 @@ defmodule Mappers.Ingest do
            "app_eui" => "0000000000000000",
            "dev_eui" => dev_eui,
            "id" => dev_eui,
-           "fcnt" => message["fCnt"],
+           # protobuf JSON may leave out fields at their default, so a missing fCnt is 0
+           "fcnt" => message["fCnt"] || 0,
            "reported_at" => reported_at,
            "frequency" => frequency_hz / 1_000_000,
            "spreading" => spreading,

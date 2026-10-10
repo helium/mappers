@@ -167,6 +167,11 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
       assert_rejected(body, "no_timestamp")
     end
 
+    test "a missing fCnt (protobuf's default 0) is stored as 0", %{conn: conn} do
+      assert json_response(post_uplink(conn, Map.delete(chirpstack_up(), "fCnt")), 200)
+      assert [%Uplink{fcnt: 0}] = Repo.all(Uplink)
+    end
+
     test "an up event without rxInfo is rejected rather than ignored" do
       body = Map.drop(chirpstack_up(), ["rxInfo", "txInfo"])
       assert_rejected(body, "unsupported_payload", "?event=up")
@@ -404,7 +409,10 @@ defmodule MappersWeb.API.V1.IngestUplinkControllerTest do
 
       log =
         capture_log(fn ->
-          assert_raise Postgrex.Error, fn -> post_uplink(conn, chirpstack_up(), "?event=up") end
+          {500, headers, _body} =
+            assert_error_sent(500, fn -> post_uplink(conn, chirpstack_up(), "?event=up") end)
+
+          assert {"content-type", "application/json; charset=utf-8"} in headers
         end)
 
       assert length(Regex.scan(~r/ingest status=/, log)) == 1
