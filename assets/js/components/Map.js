@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, FlyToInterpolator, LinearInterpolator, WebMercatorViewport, GeolocateControl, LngLat } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
 
-import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer } from './Layers.js';
+import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer, selectedHotspotLayer } from './Layers.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
 import { geoToH3, h3ToGeo, h3ToGeoBoundary } from "h3-js";
@@ -19,6 +19,20 @@ const TILESERVER_URL = process.env.PUBLIC_TILESERVER_URL;
 var selectedStateIdTile = null;
 var selectedStateIdChannel = null;
 const channel = socket.channel("h3:new")
+const EMPTY_FILTERS = { start: '', end: '', hotspot: '' }
+const DAY_MS = 24 * 60 * 60 * 1000
+
+// Query string for the filtered tile source and hex API. The end date is
+// inclusive in the UI and exclusive in the API, so it moves forward a day.
+// Returns '' when no filter applies or the range is invalid.
+const toFilterQuery = filters => {
+    if (filters.start && filters.end && filters.start > filters.end) return ''
+    const params = new URLSearchParams()
+    if (filters.start) params.set('start', filters.start)
+    if (filters.end) params.set('end', new Date(Date.parse(filters.end + 'T00:00:00Z') + DAY_MS).toISOString().slice(0, 10))
+    if (filters.hotspot) params.set('hotspot', filters.hotspot)
+    return params.toString()
+}
 
 function Map(props) {
     const [viewport, setViewport] = useState({
@@ -40,6 +54,12 @@ function Map(props) {
     const [initComplete, setInitComplete] = useState(false);
     const [lastPath, setLastPath] = useState(false);
     const [showHexPaneCloseButton, setShowHexPaneCloseButton] = useState(false);
+    const [filters, setFilters] = useState(EMPTY_FILTERS);
+    const [selectedHotspot, setSelectedHotspot] = useState(null);
+    const filterQuery = toFilterQuery(filters);
+    const uplinkTiles = filterQuery
+        ? [TILESERVER_URL + "/rpc/public.h3_res9_filtered/{z}/{x}/{y}.pbf?" + filterQuery]
+        : [TILESERVER_URL + "/public.h3_res9/{z}/{x}/{y}.pbf"];
 
     let navigate = useNavigate();
     const location = useLocation();
@@ -109,6 +129,35 @@ function Map(props) {
         setShowHexPaneCloseButton(false);
     }
 
+    const onFiltersChange = nextFilters => {
+        // the open hex's stats came from the old tiles, so close it
+        if (showHexPane) onCloseHexPaneClick();
+        if (nextFilters.hotspot !== filters.hotspot) setSelectedHotspot(null);
+        setFilters(nextFilters);
+    }
+
+    const onHotspotSelect = hotspot => {
+        onFiltersChange({ ...filters, hotspot: hotspot.name });
+        setSelectedHotspot(hotspot);
+        setViewport({
+            ...viewport,
+            latitude: hotspot.lat,
+            longitude: hotspot.lng,
+            zoom: Math.min(viewport.zoom, 11.5),
+            transitionInterpolator: new FlyToInterpolator(),
+            transitionDuration: 1000
+        });
+    }
+
+    const selectedHotspotData = {
+        "type": "FeatureCollection",
+        "features": selectedHotspot ? [{
+            "type": "Feature",
+            "geometry": { "type": "Point", "coordinates": [selectedHotspot.lng, selectedHotspot.lat] },
+            "properties": { "name": selectedHotspot.name }
+        }] : []
+    }
+
     const clearSelectedHex = () => {
         const map = mapRef.current.getMap();
         // unselect any currently selected hex on both hex layers
@@ -143,7 +192,7 @@ function Map(props) {
     }
 
     const getHex = h3_index => {
-        get("uplinks/hex/" + h3_index)
+        get("uplinks/hex/" + h3_index + (filterQuery ? "?" + filterQuery : ""))
             .then(res => {
                 if (res.status == 429) {
                     alert("Too many requests, take a break");
@@ -334,11 +383,16 @@ function Map(props) {
                 <Source id="hotspot-tileserver" type="vector" url={"https://api-iot.heliumtools.org/v1/hg.gateways-rewarded-r8.hexes.json"}>
                     <Layer {...hotspotTileServerLayer} source-layer={"hg.gateways-rewarded-r8.hexes"} />
                 </Source>
-                <Source id="uplink-tileserver" type="vector" url={TILESERVER_URL + "/public.h3_res9.json"}>
+                {/* tiles rather than a TileJSON url: changing tiles swaps the source in place via setTiles */}
+                <Source id="uplink-tileserver" type="vector" tiles={uplinkTiles} maxzoom={22}>
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
+                {/* live hexes ignore filters, so hide them while one is applied */}
                 <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
-                    <Layer {...uplinkChannelLayer} />
+                    <Layer {...uplinkChannelLayer} layout={{ visibility: filterQuery ? 'none' : 'visible' }} />
+                </Source>
+                <Source id="selected-hotspot" type="geojson" data={selectedHotspotData}>
+                    <Layer {...selectedHotspotLayer} />
                 </Source>
                 <Source id="uplink-hotspots-hex" type="geojson" data={uplinkHotspotsData.hex}>
                     <Layer {...uplinkHotspotsHexLayer} />
@@ -351,7 +405,7 @@ function Map(props) {
                 </Source>
 
             </MapGL>
-            <InfoPane hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} />
+            <InfoPane filters={filters} onFiltersChange={onFiltersChange} onHotspotSelect={onHotspotSelect} hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} />
         </div>
     );
 }

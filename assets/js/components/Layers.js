@@ -100,3 +100,14 @@ export const uplinkChannelLayer = {
         ]
     }
 };
+
+export const selectedHotspotLayer = {
+    id: 'selectedHotspotLayer',
+    type: 'circle',
+    paint: {
+        'circle-color': '#ffffff',
+        'circle-radius': 7,
+        'circle-stroke-color': '#b67ffe',
+        'circle-stroke-width': 3
+    }
+};

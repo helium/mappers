@@ -61,3 +61,10 @@ function_sources:
     # function name
     function: function_source
 
+  public.h3_res9_filtered:
+    # h3_res9 with best_rssi/snr recomputed from uplinks matching the
+    # start, end, and hotspot query params. Created by the
+    # AddCoverageFilters migration.
+    id: public.h3_res9_filtered
+    schema: public
+    function: h3_res9_filtered

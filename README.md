@@ -88,6 +88,36 @@ Uplinks posted by a Helium Console HTTP integration are still accepted. The same
   - `unsupported_payload` — the body is neither a ChirpStack uplink nor a Console uplink
 - `500` — The uplink could not be stored
 
+### Uplinks in a hex
+
+```http
+GET https://mappers.helium.com/api/v1/uplinks/hex/:h3_index
+```
+
+Returns the best uplink per hotspot that heard a device in a resolution 9 H3 hex. Optional query parameters narrow it down:
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `start`   | Heard at or after, ISO 8601 date or datetime (UTC) | `2025-01-01` |
+| `end`     | Heard before (exclusive) | `2025-04-01` |
+| `hotspot` | Exact hotspot name | `happy-amber-moose` |
+
+### Hotspot search
+
+```http
+GET https://mappers.helium.com/api/v1/hotspots?q=happy amber
+```
+
+Returns up to 20 hotspots whose name starts with `q` (spaces count as dashes), with their location. `q` must be at least 2 characters.
+
+### Filtered coverage tiles
+
+The Martin function source `public.h3_res9_filtered` serves the same tiles as `public.h3_res9`, with `best_rssi` and `snr` recomputed from the uplinks that match the same `start`, `end`, and `hotspot` parameters:
+
+```
+/rpc/public.h3_res9_filtered/{z}/{x}/{y}.pbf?start=2025-01-01&hotspot=happy-amber-moose
+```
+
 ## Development and Contribution
 
 Any and all contributions from the community are encouraged.

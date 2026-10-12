@@ -47,6 +47,7 @@ defmodule MappersWeb.Router do
     pipe_through :api
 
     get "/uplinks/hex/:h3_index", API.V1.UplinkController, :get_uplinks
+    get "/hotspots", API.V1.HotspotController, :search
   end
 
   scope "/api/v1", MappersWeb do
