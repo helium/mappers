@@ -123,7 +123,14 @@ If the h3 native dependency fails to compile with `'stdio.h' file not found`, se
 export SDKROOT=$(xcrun --show-sdk-path)
 ```
 
-If webpack fails with `ERR_OSSL_EVP_UNSUPPORTED` (Node 17+), set:
+If the h3 native dependency fails with `Compatibility with CMake < 3.5 has been removed from CMake` (CMake 4+), set the policy minimum and recompile it:
+
+```bash
+export CMAKE_POLICY_VERSION_MINIMUM=3.5
+mix deps.compile h3 --force
+```
+
+`mix phx.server` sets this for its webpack watcher. If you run webpack yourself and it fails with `ERR_OSSL_EVP_UNSUPPORTED` (Node 17+), set:
 
 ```bash
 export NODE_OPTIONS=--openssl-legacy-provider
@@ -139,7 +146,13 @@ export NODE_OPTIONS=--openssl-legacy-provider
 
 Rename the file ".env" (delete ".sample" from the file name)
 
+The map uses the production Mapbox style by default, which other tokens can't read. Set `PUBLIC_MAPBOX_STYLE` in `.env` to a style your token can read, such as:
+
+`PUBLIC_MAPBOX_STYLE=mapbox://styles/mapbox/dark-v11`
+
 ### 4. Install Node.js dependencies with `cd assets && yarn`
+
+Run this after `mix deps.get`. The `phoenix` and `phoenix_html` packages install from `deps/`, so yarn fails with `refers to a non-existing file` if the Elixir deps aren't fetched yet.
 
 ### 5. Start development server:
 * Start Phoenix endpoint with `mix phx.server`
@@ -149,3 +162,26 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 To Reset Database
 
   * Run `mix ecto.reset`
+
+### Local tile server
+
+The map's coverage hexes are vector tiles served by [Martin](https://github.com/maplibre/martin) straight from the `h3_res9` table, not by Phoenix. By default the app uses the production tile server, so you see production coverage. To see your local database instead, run Martin from `docker-martin/`:
+
+```bash
+docker build --platform linux/amd64 -t mappers-martin docker-martin
+docker run -d --name mappers-martin --platform linux/amd64 -p 3500:3500 \
+  -e DATABASE_URL=postgres://postgres:postgres@host.docker.internal:5432/mappers_dev \
+  -e PORT=3500 -e POOL_SIZE=10 mappers-martin
+```
+
+Then set `PUBLIC_TILESERVER_URL=http://localhost:3500` in `.env` and restart `mix phx.server`. Keep `POOL_SIZE` low: the config's default of 150 connections is more than a local Postgres allows, and Martin hangs at startup without saying why.
+
+To Load Real Coverage Data
+
+  * Run `NODE_PATH=assets/node_modules node priv/repo/fetch_real_sample.js` to pull San Francisco coverage from mappers.helium.com into `priv/repo/real/sf.json`. The hex API allows 60 requests a minute, so this takes about 20 minutes, and rerunning resumes where it stopped. Set `BBOX` and `NAME` for another area (see the script header).
+  * Run `mix load_real_sample --reset` (or pass a path) to replay it through the ingest pipeline.
+  * The API returns only the best uplink per hotspot per hex, so date filters see less history than production has. Hotspot locations are rounded to their res8 hex before they're saved, and `priv/repo/real/` is gitignored: don't commit pulled data.
+
+To Seed Synthetic Coverage Data
+
+  * Run `mix seed_synthetic --reset` to fill the local database with fake hotspots and mapper drives around San Francisco, from mid-2021 to late 2026. It replays them through the real ingest pipeline. See `mix help seed_synthetic` for options.
