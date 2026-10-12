@@ -2,6 +2,7 @@ defmodule Mappers.Uplinks do
   import Ecto.Query
   alias Mappers.Repo
   alias Mappers.Uplinks.Uplink
+  alias Mappers.Uplinks.Filter
   alias Mappers.UplinksHeards.UplinkHeard
   alias Mappers.H3.Links.Link
 
@@ -26,7 +27,7 @@ defmodule Mappers.Uplinks do
     end
   end
 
-  def get_uplinks(h3_index) do
+  def get_uplinks(h3_index, filter \\ %Filter{}) do
     query =
       from u in Uplink,
       join: uh in UplinkHeard,
@@ -47,6 +48,47 @@ defmodule Mappers.Uplinks do
         timestamp: uh.timestamp
       }
 
-      Repo.all(query)
+      query
+      |> apply_filter(filter)
+      |> Repo.all()
   end
+
+  def search_hotspots(prefix, limit \\ 20) do
+    name_prefix =
+      prefix
+      |> String.trim()
+      |> String.downcase()
+      |> String.replace(~r/\s+/, "-")
+      |> String.replace(~r/[%_\\]/, "")
+
+    # checked after cleanup, since "%%" or "  " would otherwise match every hotspot
+    if String.length(name_prefix) < 2 do
+      []
+    else
+      Repo.all(
+        from uh in UplinkHeard,
+          where: like(uh.hotspot_name, ^"#{name_prefix}%"),
+          distinct: uh.hotspot_name,
+          order_by: [asc: uh.hotspot_name, desc: uh.timestamp],
+          limit: ^limit,
+          select: %{name: uh.hotspot_name, lat: uh.latitude, lng: uh.longitude}
+      )
+    end
+  end
+
+  defp apply_filter(query, %Filter{} = filter) do
+    query
+    |> filter_start(filter.start)
+    |> filter_end(filter.end)
+    |> filter_hotspot(filter.hotspot)
+  end
+
+  defp filter_start(query, nil), do: query
+  defp filter_start(query, start_at), do: where(query, [_u, uh], uh.timestamp >= ^start_at)
+
+  defp filter_end(query, nil), do: query
+  defp filter_end(query, end_at), do: where(query, [_u, uh], uh.timestamp < ^end_at)
+
+  defp filter_hotspot(query, nil), do: query
+  defp filter_hotspot(query, hotspot), do: where(query, [_u, uh], uh.hotspot_name == ^hotspot)
 end

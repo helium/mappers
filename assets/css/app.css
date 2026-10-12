@@ -123,6 +123,120 @@ body {
   opacity: 0;
 }
 /** end nav stuff **/
+
+/** filter pane **/
+.filter-pane {
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.filter-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+.filter-preset {
+  padding: 0.375rem 0.625rem;
+
+  background: rgba(255,255,255,0.1);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+
+  color: white;
+  font: inherit;
+  font-size: 0.8125rem;
+}
+.filter-preset:hover {
+  background: rgba(255,255,255,0.2);
+}
+.filter-preset:focus-visible {
+  border-color: #b67ffe;
+  outline: none;
+}
+.filter-preset.is-active {
+  background: rgba(182,127,254,0.25);
+  border-color: #b67ffe;
+}
+.filter-row {
+  display: flex;
+  gap: 0.75rem;
+}
+.filter-row .filter-field {
+  flex: 1;
+}
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+.filter-field input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+
+  background: rgba(255,255,255,0.1);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  outline: none;
+
+  color: white;
+  color-scheme: dark;
+  font: inherit;
+  font-size: 0.875rem;
+}
+.filter-field input:focus {
+  border-color: #b67ffe;
+}
+.filter-error {
+  color: #ff8a8a;
+  font-size: 0.8125rem;
+}
+.filter-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.filter-note {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+.filter-clear {
+  flex-shrink: 0;
+  padding: 0.375rem 0.75rem;
+
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  color: white;
+  font: inherit;
+  font-size: 0.8125rem;
+}
+.filter-clear:hover {
+  background: rgba(255,255,255,0.2);
+}
+.filter-dot {
+  color: #b67ffe;
+}
+.hotspot-link {
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.hotspot-link:hover {
+  color: #b67ffe;
+  text-decoration: underline;
+}
+/** end filter pane **/
   
   
 .legend {
@@ -159,6 +273,59 @@ body {
   width: 0.875rem;
   
   margin-right: 0.5rem;
+}
+.color-by {
+  gap: 0.25rem;
+}
+.color-by-option {
+  padding: 0.125rem 0.5rem;
+
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+
+  color: white;
+  font: inherit;
+  font-size: 0.8125rem;
+  opacity: 0.6;
+}
+.color-by-option:hover {
+  opacity: 1;
+}
+.color-by-option.is-active {
+  border-color: #b67ffe;
+  opacity: 1;
+}
+.legend-buckets {
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+.legend-buckets .legend-bucket {
+  padding: 0.125rem 0.375rem;
+
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+
+  color: white;
+  font: inherit;
+  transition: opacity 0.1s linear;
+}
+.legend-buckets.has-active .legend-bucket {
+  opacity: 0.45;
+}
+.legend-buckets .legend-bucket.is-active {
+  border-color: #b67ffe;
+  opacity: 1;
+}
+.legend-buckets .legend-bucket[aria-pressed="true"] {
+  background: rgba(182,127,254,0.25);
+}
+.legend-buckets .legend-bucket:focus-visible {
+  border-color: #b67ffe;
+  outline: none;
 }
 .legend-dBm-low         { fill: #28776a}
 .legend-dBm-medium      { fill: #2fa48b}
@@ -339,6 +506,20 @@ body {
   .info-pane {
     /*allows us to split the div to top/bottom*/
     display: contents;
+  }
+  .filter-pane {
+    position: fixed;
+    top: 3.5rem;
+    left: 0;
+    right: 0;
+
+    padding: 1rem;
+
+    background: rgba(22, 23, 29, 0.5);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+
+    z-index: 2;
   }
   .pane-nav {
     position: fixed;

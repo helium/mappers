@@ -51,8 +51,15 @@ module.exports = (env, options) => {
     plugins: [
       new MiniCssExtractPlugin({ filename: '../css/app.css' }),
       new CopyWebpackPlugin([{ from: 'static/', to: '../' }]),
-      new webpack.EnvironmentPlugin(['PUBLIC_MAPBOX_KEY'])
+      new webpack.EnvironmentPlugin({
+        PUBLIC_MAPBOX_KEY: undefined,
+        PUBLIC_MAPBOX_STYLE: 'mapbox://styles/petermain/ckmwdn50a1ebk17o3h5e6wwui',
+        PUBLIC_TILESERVER_URL: 'https://mappers-tileserver.helium.wtf'
+      })
     ]
-    .concat(devMode ? [new HardSourceWebpackPlugin()] : [])
+    // .env is in the cache hash because EnvironmentPlugin bakes its values into cached modules
+    .concat(devMode ? [new HardSourceWebpackPlugin({
+      environmentHash: { root: __dirname, directories: [], files: ['yarn.lock', '../.env'] }
+    })] : [])
   }
 };

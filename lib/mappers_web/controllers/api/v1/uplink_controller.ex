@@ -2,10 +2,15 @@ defmodule MappersWeb.API.V1.UplinkController do
   use MappersWeb, :controller
 
   alias Mappers.Uplinks
+  alias Mappers.Uplinks.Filter
 
-  def get_uplinks(conn, %{ "h3_index" => h3_index }) do
-    IO.puts(h3_index)
-    uplinks = Uplinks.get_uplinks(h3_index)
-    conn |> json(%{uplinks: uplinks})
+  def get_uplinks(conn, %{"h3_index" => h3_index} = params) do
+    case Filter.parse(params) do
+      {:ok, filter} ->
+        conn |> json(%{uplinks: Uplinks.get_uplinks(h3_index, filter)})
+
+      {:error, reason} ->
+        conn |> put_status(400) |> json(%{error: reason})
+    end
   end
 end
