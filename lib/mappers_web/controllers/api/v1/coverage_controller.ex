@@ -7,7 +7,7 @@ defmodule MappersWeb.API.V1.CoverageController do
     resp = Coverage.get_coverage_from_geo(coords)
 
     case resp do
-      %{error: error} -> Plug.Conn.put_status(conn, 400)
+      %{error: _} -> Plug.Conn.put_status(conn, 400)
       _ -> Plug.Conn.put_status(conn, 200)
     end
     |> json(resp)

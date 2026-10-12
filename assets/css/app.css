@@ -33,7 +33,7 @@ body {
 @media only screen and (max-width: 550px) {
   .geolocate-button {
     right: 16px;
-    top: 48px;
+    top: 72px;
     bottom: unset;
   }
 }
@@ -76,6 +76,7 @@ body {
 }
 .pane-nav {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
 
@@ -110,6 +111,28 @@ body {
 .nav-link a:hover {
   text-decoration: underline;
 }
+.latest-uplink {
+  flex-basis: 100%;
+
+  color: rgba(255,255,255,0.7);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.latest-uplink-link {
+  color: white;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(182,127,254,0.6);
+  text-underline-offset: 2px;
+}
+.latest-uplink-link:hover {
+  color: #b67ffe;
+}
+.latest-uplink-empty {
+  color: white;
+}
 
 .legend-transition-enter-active {
   transition: transform 0.2s ease-out, opacity 0.22s ease-out;
@@ -123,6 +146,120 @@ body {
   opacity: 0;
 }
 /** end nav stuff **/
+
+/** filter pane **/
+.filter-pane {
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.filter-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+.filter-preset {
+  padding: 0.375rem 0.625rem;
+
+  background: rgba(255,255,255,0.1);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+
+  color: white;
+  font: inherit;
+  font-size: 0.8125rem;
+}
+.filter-preset:hover {
+  background: rgba(255,255,255,0.2);
+}
+.filter-preset:focus-visible {
+  border-color: #b67ffe;
+  outline: none;
+}
+.filter-preset.is-active {
+  background: rgba(182,127,254,0.25);
+  border-color: #b67ffe;
+}
+.filter-row {
+  display: flex;
+  gap: 0.75rem;
+}
+.filter-row .filter-field {
+  flex: 1;
+}
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+.filter-field input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+
+  background: rgba(255,255,255,0.1);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  outline: none;
+
+  color: white;
+  color-scheme: dark;
+  font: inherit;
+  font-size: 0.875rem;
+}
+.filter-field input:focus {
+  border-color: #b67ffe;
+}
+.filter-error {
+  color: #ff8a8a;
+  font-size: 0.8125rem;
+}
+.filter-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.filter-note {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+.filter-clear {
+  flex-shrink: 0;
+  padding: 0.375rem 0.75rem;
+
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  color: white;
+  font: inherit;
+  font-size: 0.8125rem;
+}
+.filter-clear:hover {
+  background: rgba(255,255,255,0.2);
+}
+.filter-dot {
+  color: #b67ffe;
+}
+.hotspot-link {
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.hotspot-link:hover {
+  color: #b67ffe;
+  text-decoration: underline;
+}
+/** end filter pane **/
   
   
 .legend {
@@ -159,6 +296,59 @@ body {
   width: 0.875rem;
   
   margin-right: 0.5rem;
+}
+.color-by {
+  gap: 0.25rem;
+}
+.color-by-option {
+  padding: 0.125rem 0.5rem;
+
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+
+  color: white;
+  font: inherit;
+  font-size: 0.8125rem;
+  opacity: 0.6;
+}
+.color-by-option:hover {
+  opacity: 1;
+}
+.color-by-option.is-active {
+  border-color: #b67ffe;
+  opacity: 1;
+}
+.legend-buckets {
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+.legend-buckets .legend-bucket {
+  padding: 0.125rem 0.375rem;
+
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+
+  color: white;
+  font: inherit;
+  transition: opacity 0.1s linear;
+}
+.legend-buckets.has-active .legend-bucket {
+  opacity: 0.45;
+}
+.legend-buckets .legend-bucket.is-active {
+  border-color: #b67ffe;
+  opacity: 1;
+}
+.legend-buckets .legend-bucket[aria-pressed="true"] {
+  background: rgba(182,127,254,0.25);
+}
+.legend-buckets .legend-bucket:focus-visible {
+  border-color: #b67ffe;
+  outline: none;
 }
 .legend-dBm-low         { fill: #28776a}
 .legend-dBm-medium      { fill: #2fa48b}
@@ -321,6 +511,11 @@ body {
 }
 .has-km-toggle {
   cursor: pointer;
+  user-select: none;
+}
+th.has-km-toggle {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
 }
 /*end hotspots table*/
 /** end main stats stuff **/
@@ -333,12 +528,26 @@ body {
   }
   .legend {
     position: fixed;
-    top: 4rem;
+    top: 5rem;
     padding: 0 1rem;
   }
   .info-pane {
     /*allows us to split the div to top/bottom*/
     display: contents;
+  }
+  .filter-pane {
+    position: fixed;
+    top: 4.5rem;
+    left: 0;
+    right: 0;
+
+    padding: 1rem;
+
+    background: rgba(22, 23, 29, 0.5);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+
+    z-index: 2;
   }
   .pane-nav {
     position: fixed;

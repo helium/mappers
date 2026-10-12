@@ -40,3 +40,6 @@ node_modules/
 #misc
 .env
 .DS_Store
+
+# Real coverage pulled by priv/repo/fetch_real_sample.js. Local only, never commit.
+/priv/repo/real/
