@@ -50,13 +50,12 @@ ChirpStack posts every event type to the endpoint. Only uplinks (`up` events) ar
 
 The device profile's codec must decode each uplink into an `object` with these fields:
 
-| Field       | Type    | Description                               | Unit            | Example       |
-|-------------|---------|-------------------------------------------|-----------------|---------------|
-| `latitude`  | number  | Device latitude                           | Decimal Degrees | `37.795186`   |
-| `longitude` | number  | Device longitude                          | Decimal Degrees | `-122.393844` |
-| `altitude`  | number  | Device altitude                           | Meters          | `10`          |
-| `accuracy`  | number  | Device GPS accuracy                       | Meters          | `2.3`         |
-| `fixFailed` | boolean | Optional; `true` when there is no GPS fix |                 | `false`       |
+| Field       | Type   | Description         | Unit            | Example       |
+|-------------|--------|---------------------|-----------------|---------------|
+| `latitude`  | number | Device latitude     | Decimal Degrees | `37.795186`   |
+| `longitude` | number | Device longitude    | Decimal Degrees | `-122.393844` |
+| `altitude`  | number | Device altitude     | Meters          | `10`          |
+| `accuracy`  | number | Device GPS accuracy | Meters          | `2.3`         |
 
 ```json
 {
@@ -66,6 +65,8 @@ The device profile's codec must decode each uplink into an `object` with these f
   "accuracy": 2.3
 }
 ```
+
+A codec may also set `fixFailed: true` when the device has no GPS fix, so a stale last-known position isn't mapped.
 
 Hotspot locations come from the gateway metadata that Helium Packet Router adds to each `rxInfo` entry, so only uplinks heard by Helium Hotspots with an asserted location are mapped. Hotspots more than 500 km from the device are left out.
 
