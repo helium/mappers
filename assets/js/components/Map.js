@@ -14,6 +14,8 @@ import '../../css/app.css';
 import { useNavigate, useLocation } from "react-router-dom";
 
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
+const MAPBOX_STYLE = process.env.PUBLIC_MAPBOX_STYLE;
+const TILESERVER_URL = process.env.PUBLIC_TILESERVER_URL;
 var selectedStateIdTile = null;
 var selectedStateIdChannel = null;
 const channel = socket.channel("h3:new")
@@ -316,7 +318,7 @@ function Map(props) {
                 {...viewport}
                 width="100vw"
                 height="100vh"
-                mapStyle="mapbox://styles/petermain/ckmwdn50a1ebk17o3h5e6wwui"
+                mapStyle={MAPBOX_STYLE}
                 onClick={onClick}
                 onViewportChange={setViewport}
                 ref={mapRef}
@@ -332,7 +334,7 @@ function Map(props) {
                 <Source id="hotspot-tileserver" type="vector" url={"https://api-iot.heliumtools.org/v1/hg.gateways-rewarded-r8.hexes.json"}>
                     <Layer {...hotspotTileServerLayer} source-layer={"hg.gateways-rewarded-r8.hexes"} />
                 </Source>
-                <Source id="uplink-tileserver" type="vector" url={"https://mappers-tileserver.helium.wtf/public.h3_res9.json"}>
+                <Source id="uplink-tileserver" type="vector" url={TILESERVER_URL + "/public.h3_res9.json"}>
                     <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
                 </Source>
                 <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
