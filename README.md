@@ -32,40 +32,61 @@ The Mappers API accepts HTTP requests for submitting coverage data. No authentic
 
 ### Ingest Uplink
 
-Submit a geo-tagged device uplink.
+Submit geo-tagged uplinks from a mapper device.
 
 ```http
 POST https://mappers.helium.com/api/v1/ingest/uplink
 Content-Type: application/json
 ```
 
-The request body should include a `decoded.payload` object with the following required fields:
+#### Submitting from ChirpStack
 
-| Parameter   | Type  | Description              | Unit            | Example        |
-|-------------|-------|--------------------------|-----------------|----------------|
-| `latitude`  | float | Device latitude          | Decimal Degrees | `37.795186`    |
-| `longitude` | float | Device longitude         | Decimal Degrees | `-122.393844`  |
-| `altitude`  | int   | Device altitude          | Meters          | `10`           |
-| `accuracy`  | float | Device GPS accuracy      | Meters          | `2.3`          |
+Add an HTTP integration to a ChirpStack v4 application that holds your mapper devices:
 
-Example payload:
+- **Event endpoint URL:** `https://mappers.helium.com/api/v1/ingest/uplink`
+- **Payload encoding:** JSON (Protobuf is not supported)
+
+ChirpStack posts every event type to the endpoint. Only uplinks (`up` events) are mapped; other events are acknowledged and ignored. Keep mapper devices in their own application, since uplinks without a position are rejected.
+
+The device profile's codec must decode each uplink into an `object` with these fields:
+
+| Field       | Type   | Description         | Unit            | Example       |
+|-------------|--------|---------------------|-----------------|---------------|
+| `latitude`  | number | Device latitude     | Decimal Degrees | `37.795186`   |
+| `longitude` | number | Device longitude    | Decimal Degrees | `-122.393844` |
+| `altitude`  | number | Device altitude     | Meters          | `10`          |
+| `accuracy`  | number | Device GPS accuracy | Meters          | `2.3`         |
 
 ```json
 {
-  "decoded": {
-    "payload": {
-      "latitude": 37.795186,
-      "longitude": -122.393844,
-      "altitude": 10,
-      "accuracy": 2.3
-    }
-  }
+  "latitude": 37.795186,
+  "longitude": -122.393844,
+  "altitude": 10,
+  "accuracy": 2.3
 }
 ```
 
-**Responses:**
-- `200` — Submission successful
-- `400` — Required parameters missing or invalid
+A codec may also set `fixFailed: true` when the device has no GPS fix, so a stale last-known position isn't mapped.
+
+Hotspot locations come from the gateway metadata that Helium Packet Router adds to each `rxInfo` entry, so only uplinks heard by Helium Hotspots with an asserted location are mapped. Hotspots more than 500 km from the device are left out.
+
+#### Helium Console format
+
+Uplinks posted by a Helium Console HTTP integration are still accepted. The same fields go in `decoded.payload`.
+
+#### Responses
+
+- `200` — Uplink stored
+- `204` — A ChirpStack event that isn't an uplink; nothing stored
+- `415` — The body isn't sent as `application/json`
+- `422` — The uplink can't be mapped. The body names the reason, e.g. `{"error": "no_position", "detail": "..."}`. Common reasons:
+  - `no_position` — no numeric `latitude`/`longitude`, or either is 0
+  - `no_fix` — the device reported `fixFailed: true`
+  - `decoder_error` — the payload decoder reported an error
+  - `invalid_altitude` / `invalid_accuracy` — missing or out of range
+  - `no_hotspot_location` / `no_valid_hotspots` — none of the Hotspots that heard the uplink could be mapped (e.g. no location, or more than 500 km away)
+  - `unsupported_payload` — the body is neither a ChirpStack uplink nor a Console uplink
+- `500` — The uplink could not be stored
 
 ## Development and Contribution
 
