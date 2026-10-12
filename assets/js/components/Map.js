@@ -16,8 +16,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 const MAPBOX_TOKEN = process.env.PUBLIC_MAPBOX_KEY;
 const MAPBOX_STYLE = process.env.PUBLIC_MAPBOX_STYLE;
 const TILESERVER_URL = process.env.PUBLIC_TILESERVER_URL;
-var selectedStateIdTile = null;
-var selectedStateIdChannel = null;
+const TILE_LAYER = 'public.h3_res9'
+const CHANNEL_LAYER = 'uplinkChannelLayer'
+// only coverage hexes take clicks, so the hotspot overlays drawn for a
+// selected hex never shadow the hexes beneath them
+const HEX_LAYERS = [TILE_LAYER, CHANNEL_LAYER]
+// h3 index string of the selected hex; both hex sources key features by it
+var selectedHexId = null;
 const channel = socket.channel("h3:new")
 const EMPTY_FILTERS = { start: '', end: '', hotspot: '' }
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -88,6 +93,8 @@ function Map(props) {
         : [TILESERVER_URL + "/public.h3_res9/{z}/{x}/{y}.pbf"];
 
     let navigate = useNavigate();
+    const routeHexIdRef = React.useRef();
+    routeHexIdRef.current = routerParams.hexId;
     const location = useLocation();
 
     React.useEffect(() => {
@@ -95,8 +102,9 @@ function Map(props) {
             setLastPath(location.pathname);
             let features = []
             channel.on("new_h3", payload => {
-                var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id': payload.body.id, 'id_string': payload.body.id_string, 'best_rssi': payload.body.best_rssi, 'snr': payload.body.snr, 'last_heard': payload.body.last_heard })
-                new_feature.id = payload.body.id
+                // payload.body.id is the h3 index as an integer past
+                // Number.MAX_SAFE_INTEGER, so features are keyed by id_string
+                var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id_string': payload.body.id_string, 'best_rssi': payload.body.best_rssi, 'snr': payload.body.snr, 'last_heard': payload.body.last_heard })
                 features.push(new_feature)
                 const featureCollection =
                 {
@@ -189,33 +197,37 @@ function Map(props) {
         }] : []
     }
 
-    const clearSelectedHex = () => {
-        const map = mapRef.current.getMap();
-        // unselect any currently selected hex on both hex layers
-        if (selectedStateIdTile !== null || selectedStateIdTile !== null) {
-            map.setFeatureState(
-                { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
-                { selected: true }
-            );
-            map.setFeatureState(
-                { source: 'uplink-channel', id: selectedStateIdChannel },
-                { selected: true }
-            );
-        }
+    // a live hex can also be in the tiles, so mark it in both sources
+    const setHexSelected = (map, id, selected) => {
+        map.setFeatureState(
+            { source: 'uplink-tileserver', sourceLayer: TILE_LAYER, id: id },
+            { selected: selected }
+        );
+        map.setFeatureState(
+            { source: 'uplink-channel', id: id },
+            { selected: selected }
+        );
     }
 
-    const simulateUplinkHexClick = event => {
+    const clearSelectedHex = () => {
+        if (selectedHexId === null) return;
+        setHexSelected(mapRef.current.getMap(), selectedHexId, false);
+        selectedHexId = null;
+    }
+
+    const simulateUplinkHexClick = () => {
+        // runs from a timer, so read the route as it is now, not as it was when
+        // the timer was set; selecting a hex navigates to its route, which lands
+        // here again
+        const hexId = routeHexIdRef.current;
+        if (!hexId || hexId === selectedHexId) return;
         const map = mapRef.current.getMap();
 
         if (map.areTilesLoaded()) {
-            var features = map.querySourceFeatures('uplink-tileserver', { sourceLayer: 'public.h3_res9' })
-            features.forEach(function (feature_i) {
-                if (feature_i.properties.id == routerParams.hexId) {
-                    feature_i.layer = { id: "public.h3_res9", layout: {}, source: "uplink-tileserver", sourceLayer: "public.h3_res9", type: "fill" }
-                    var event = { features: [feature_i] }
-                    onClick(event)
-                }
-            });
+            // a hex that crosses a tile edge comes back once per tile
+            const feature = map.querySourceFeatures('uplink-tileserver', { sourceLayer: TILE_LAYER })
+                .find(f => f.id === hexId)
+            if (feature) selectHex(feature);
         }
         else {
             setTimeout(() => { simulateUplinkHexClick() }, 500)
@@ -234,6 +246,8 @@ function Map(props) {
             })
             .then(res => res.json())
             .then(uplinks => {
+                // a quick second click or a close can land before this response
+                if (selectedHexId !== h3_index) return;
                 var hotspot_line_features = [];
                 var hotspot_circle_features = [];
                 var hotspot_hex_features = [];
@@ -304,92 +318,63 @@ function Map(props) {
             })
     }
 
-    const onClick = event => {
-        const features = event.features;
+    const selectHex = feature => {
         const map = mapRef.current.getMap();
+        const id = feature.id;
+
+        clearSelectedHex();
+        selectedHexId = id;
+        setHexSelected(map, id, true);
+
+        navigate("/uplinks/hex/" + id);
+        // set hex data for info pane
         setShowHexPaneCloseButton(false);
-        if (features) {
-            features.forEach(feature => {
-                if (feature.layer.id == "public.h3_res9") {
-                    navigate("/uplinks/hex/" + feature.properties.id);
-                    // set hex data for info pane
-                    setBestRssi(feature.properties.best_rssi);
-                    setSnr(feature.properties.snr.toFixed(2));
-                    setHexId(feature.properties.id);
-                    getHex(feature.properties.id);
-                    setShowHexPane(true);
+        setBestRssi(feature.properties.best_rssi);
+        setSnr(feature.properties.snr.toFixed(2));
+        setHexId(id);
+        getHex(id);
+        setShowHexPane(true);
+        setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
+    }
 
-                    // unselect any currently selected hex on both hex layers
-                    if (selectedStateIdTile !== null || selectedStateIdTile !== null) {
-                        map.setFeatureState(
-                            { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
-                            { selected: true }
-                        );
-                        map.setFeatureState(
-                            { source: 'uplink-channel', id: selectedStateIdChannel },
-                            { selected: true }
-                        );
-                    }
-                    selectedStateIdTile = feature.id;
-                    map.setFeatureState(
-                        { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
-                        { selected: false }
-                    );
-                    setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
-                }
-                else if (feature.layer.id == "uplinkChannelLayer") {
-                    navigate("/uplinks/hex/" + feature.properties.id_string);
-                    // set hex data for info pane
-                    setBestRssi(feature.properties.best_rssi);
-                    setSnr(feature.properties.snr.toFixed(2));
-                    setHexId(feature.properties.id_string);
-                    getHex(feature.properties.id_string);
-                    setShowHexPane(true);
+    const centerOnFeature = (feature, event) => {
+        // calculate the bounding box of the feature
+        const [minLng, minLat, maxLng, maxLat] = bbox(feature);
+        // construct a viewport instance from the current state
+        const vp = new WebMercatorViewport(viewport);
+        var { longitude, latitude } = vp.fitBounds(
+            [
+                [minLng, minLat],
+                [maxLng, maxLat]
+            ],
+            {
+                padding: 40
+            }
+        );
 
-                    // unselect any currently selected hex on both hex layers
-                    if (selectedStateIdChannel !== null || selectedStateIdTile !== null) {
-                        map.setFeatureState(
-                            { source: 'uplink-channel', id: selectedStateIdChannel },
-                            { selected: true }
-                        );
-                        map.setFeatureState(
-                            { source: 'uplink-tileserver', sourceLayer: 'public.h3_res9', id: selectedStateIdTile },
-                            { selected: true }
-                        );
-                    }
-                    selectedStateIdChannel = feature.id;
-                    map.setFeatureState(
-                        { source: 'uplink-channel', id: selectedStateIdChannel },
-                        { selected: false }
-                    );
+        setViewport({
+            ...viewport,
+            longitude,
+            latitude,
+            transitionInterpolator: new LinearInterpolator({
+                around: [event.offsetCenter.x, event.offsetCenter.y]
+            }),
+            transitionDuration: 700
+        });
+    }
 
-                    // calculate the bounding box of the feature
-                    const [minLng, minLat, maxLng, maxLat] = bbox(feature);
-                    // construct a viewport instance from the current state
-                    const vp = new WebMercatorViewport(viewport);
-                    var { longitude, latitude } = vp.fitBounds(
-                        [
-                            [minLng, minLat],
-                            [maxLng, maxLat]
-                        ],
-                        {
-                            padding: 40
-                        }
-                    );
+    const onClick = event => {
+        // topmost hex under the click; interactiveLayerIds filters the rest
+        const feature = event.features && event.features[0];
+        if (!feature) return;
 
-                    setViewport({
-                        ...viewport,
-                        longitude,
-                        latitude,
-                        transitionInterpolator: new LinearInterpolator({
-                            around: [event.offsetCenter.x, event.offsetCenter.y]
-                        }),
-                        transitionDuration: 700
-                    });
-                    setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
-                }
-            });
+        if (feature.id === selectedHexId) {
+            onCloseHexPaneClick();
+            return;
         }
+
+        selectHex(feature);
+        if (feature.layer.id === CHANNEL_LAYER) centerOnFeature(feature, event);
     };
 
     return (
@@ -400,6 +385,7 @@ function Map(props) {
                 height="100vh"
                 mapStyle={MAPBOX_STYLE}
                 onClick={onClick}
+                interactiveLayerIds={HEX_LAYERS}
                 onViewportChange={setViewport}
                 ref={mapRef}
                 mapboxApiAccessToken={MAPBOX_TOKEN}
@@ -415,11 +401,14 @@ function Map(props) {
                     <Layer {...hotspotTileServerLayer} source-layer={"hg.gateways-rewarded-r8.hexes"} />
                 </Source>
                 {/* tiles rather than a TileJSON url: changing tiles swaps the source in place via setTiles */}
-                <Source id="uplink-tileserver" type="vector" tiles={uplinkTiles} maxzoom={22}>
-                    <Layer {...uplinkTileServerLayer(colorBy, nowSeconds, activeBucket)} source-layer={"public.h3_res9"} />
+                <Source id="uplink-tileserver" type="vector" tiles={uplinkTiles} maxzoom={22} promoteId="id">
+                    <Layer {...uplinkTileServerLayer(colorBy, nowSeconds, activeBucket)} source-layer={TILE_LAYER} />
                 </Source>
-                {/* live hexes ignore filters, so hide them while one is applied */}
-                <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
+                {/* live hexes ignore filters, so hide them while one is applied.
+                    tolerance 0: geojson-vt otherwise drops polygons smaller than
+                    its simplification tolerance, which hides res 9 hexes at zoom 6
+                    and below while the tiles still draw them */}
+                <Source id="uplink-channel" type="geojson" data={uplinkChannelData} promoteId="id_string" tolerance={0}>
                     <Layer {...uplinkChannelLayer(colorBy, nowSeconds, activeBucket)} layout={{ visibility: filterQuery ? 'none' : 'visible' }} />
                 </Source>
                 <Source id="selected-hotspot" type="geojson" data={selectedHotspotData}>

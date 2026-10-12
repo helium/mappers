@@ -488,6 +488,11 @@ body {
 }
 .has-km-toggle {
   cursor: pointer;
+  user-select: none;
+}
+th.has-km-toggle {
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
 }
 /*end hotspots table*/
 /** end main stats stuff **/

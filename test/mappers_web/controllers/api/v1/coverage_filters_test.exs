@@ -29,6 +29,28 @@ defmodule MappersWeb.API.V1.CoverageFiltersTest do
       assert names(conn) == ["happy-amber-moose"]
     end
 
+    test "lists hotspots strongest RSSI first", %{conn: conn} do
+      ingest("2025-07-01T10:00:00Z", "brisk-alder-heron", -110)
+
+      assert ordered(get(conn, "/api/v1/uplinks/hex/#{@hex}")) ==
+               [{"quiet-cedar-otter", -90.0}, {"happy-amber-moose", -100.0}, {"brisk-alder-heron", -110.0}]
+    end
+
+    test "returns one row per hotspot with its best RSSI", %{conn: conn} do
+      ingest("2023-05-01T10:00:00Z", "happy-amber-moose", -80)
+      ingest("2025-08-01T10:00:00Z", "happy-amber-moose", -115)
+
+      assert ordered(get(conn, "/api/v1/uplinks/hex/#{@hex}")) ==
+               [{"happy-amber-moose", -80.0}, {"quiet-cedar-otter", -90.0}]
+    end
+
+    test "picks the best RSSI within the filtered time range", %{conn: conn} do
+      ingest("2023-05-01T10:00:00Z", "happy-amber-moose", -80)
+
+      conn = get(conn, "/api/v1/uplinks/hex/#{@hex}?start=2024-01-01")
+      assert ordered(conn) == [{"quiet-cedar-otter", -90.0}, {"happy-amber-moose", -100.0}]
+    end
+
     test "rejects a bad date", %{conn: conn} do
       conn = get(conn, "/api/v1/uplinks/hex/#{@hex}?start=nope")
       assert %{"error" => "Invalid start" <> _} = json_response(conn, 400)
@@ -61,6 +83,13 @@ defmodule MappersWeb.API.V1.CoverageFiltersTest do
     |> Map.fetch!("uplinks")
     |> Enum.map(& &1["hotspot_name"])
     |> Enum.sort()
+  end
+
+  defp ordered(conn) do
+    conn
+    |> json_response(200)
+    |> Map.fetch!("uplinks")
+    |> Enum.map(&{&1["hotspot_name"], &1["rssi"]})
   end
 
   defp ingest(timestamp, hotspot, rssi) do

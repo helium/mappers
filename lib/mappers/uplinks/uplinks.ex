@@ -28,29 +28,36 @@ defmodule Mappers.Uplinks do
   end
 
   def get_uplinks(h3_index, filter \\ %Filter{}) do
-    query =
-      from u in Uplink,
-      join: uh in UplinkHeard,
-      on: u.id == uh.uplink_id,
-      join: h3 in Link,
-      on: h3.uplink_id == u.id,
-      where: h3.h3_res9_id == ^h3_index,
-      distinct: [uh.hotspot_name],
-      order_by: [desc: uh.rssi],
-      limit: 1500,
-      select: %{
-        uplink_heard_id: uh.id,
-        hotspot_name: uh.hotspot_name,
-        rssi: uh.rssi,
-        snr: uh.snr,
-        lat: uh.latitude,
-        lng: uh.longitude,
-        timestamp: uh.timestamp
-      }
-
-      query
+    # DISTINCT ON forces hotspot_name to lead the ORDER BY, so pick each
+    # hotspot's best uplink in a subquery and sort by signal outside it.
+    best_per_hotspot =
+      from(u in Uplink,
+        join: uh in UplinkHeard,
+        on: u.id == uh.uplink_id,
+        join: h3 in Link,
+        on: h3.uplink_id == u.id,
+        where: h3.h3_res9_id == ^h3_index,
+        distinct: [uh.hotspot_name],
+        order_by: [desc: uh.rssi, desc: uh.timestamp],
+        select: %{
+          uplink_heard_id: uh.id,
+          hotspot_name: uh.hotspot_name,
+          rssi: uh.rssi,
+          snr: uh.snr,
+          lat: uh.latitude,
+          lng: uh.longitude,
+          timestamp: uh.timestamp
+        }
+      )
       |> apply_filter(filter)
-      |> Repo.all()
+
+    query =
+      from b in subquery(best_per_hotspot),
+      order_by: [desc: b.rssi, desc: b.snr, asc: b.hotspot_name],
+      limit: 1500,
+      select: b
+
+    Repo.all(query)
   end
 
   def search_hotspots(prefix, limit \\ 20) do

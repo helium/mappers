@@ -9,12 +9,44 @@ import LegendPane from './LegendPane'
 const PANEL_FILTER = 'filter'
 const PANEL_LEGEND = 'legend'
 
+const DISTANCE_UNIT_KEY = 'distanceUnit'
+const KM_PER_MILE = 1.609
+
+// storage can throw (private mode, blocked site data), so fall back to the locale default
+function loadDistanceUnit() {
+    try {
+        const stored = window.localStorage.getItem(DISTANCE_UNIT_KEY)
+        if (stored == 'mi' || stored == 'km') {
+            return stored
+        }
+    } catch (e) {}
+    return navigator.language == 'en-US' ? 'mi' : 'km'
+}
+
+function saveDistanceUnit(unit) {
+    try {
+        window.localStorage.setItem(DISTANCE_UNIT_KEY, unit)
+    } catch (e) {}
+}
+
 function InfoPane(props) {
     // one nav panel at a time; clicking the open one closes it
     const [activePanel, setActivePanel] = React.useState(null)
     const togglePanel = panel => setActivePanel(activePanel === panel ? null : panel)
     const filterActive = props.filters.start || props.filters.end || props.filters.hotspot
-    const locale = navigator.language;
+    const [distanceUnit, setDistanceUnit] = React.useState(loadDistanceUnit)
+    const toggleDistanceUnit = () => {
+        const next = distanceUnit == 'mi' ? 'km' : 'mi'
+        setDistanceUnit(next)
+        saveDistanceUnit(next)
+    }
+    const onDistanceUnitKeyDown = (e) => {
+        if (e.key == 'Enter' || e.key == ' ') {
+            e.preventDefault()
+            toggleDistanceUnit()
+        }
+    }
+    const distanceToggleTitle = `Distance between hotspot and surveyed hex. Click to show ${distanceUnit == 'mi' ? 'kilometers' : 'miles'}`
 
     // a hex can render from a cached tile after its uplinks are gone
     const hasUplinks = props.uplinks && props.uplinks.length > 0
@@ -59,14 +91,10 @@ function InfoPane(props) {
             let point1 = [uplinkLat, uplinkLng];
             let point2 = h3.h3ToGeo(props.hexId);
             let result = {};
-            let dist = 0;
-            let unit = "km";
-            if (locale == 'en-US') {
-                // 🇺🇸 freedom units
-                dist = h3.pointDist(point1, point2, h3.UNITS.km) / 1.609;
-                unit = "mi"
-            } else {
-                dist = h3.pointDist(point1, point2, h3.UNITS.km); // si
+            let unit = distanceUnit;
+            let dist = h3.pointDist(point1, point2, h3.UNITS.km);
+            if (unit == 'mi') {
+                dist = dist / KM_PER_MILE;
             }
             if (dist < 1) {
                 result = {
@@ -185,7 +213,16 @@ function InfoPane(props) {
                                     <th className="table-left" title="Helium hotspot that heard the mapping device">Hotspots</th>
                                     <th className="table-right" title="Received Signal Strength Indicator - an estimated measure of power recieved">RSSI</th>
                                     <th className="table-right" title="Signal to noise ratio">SNR</th>
-                                    <th className="table-right" title="Distance between hotspot and surveyed hex">Dist</th>
+                                    <th
+                                        className="table-right has-km-toggle"
+                                        title={distanceToggleTitle}
+                                        role="button"
+                                        tabIndex="0"
+                                        onClick={toggleDistanceUnit}
+                                        onKeyDown={onDistanceUnitKeyDown}
+                                    >
+                                        Dist
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -194,7 +231,9 @@ function InfoPane(props) {
                                         <td className="table-left" colSpan="4">{filterActive ? "No uplinks match the filter for this hex" : "No current data for this hex"}</td>
                                     </tr>
                                 }
-                                {hasUplinks && props.uplinks.map(uplink => (
+                                {hasUplinks && props.uplinks.map(uplink => {
+                                    const distance = uplinkDistance(uplink.lat, uplink.lng)
+                                    return (
                                     <tr key={uplink.uplink_heard_id}>
                                         <td className="table-left animal-cell">
                                             <button
@@ -210,9 +249,10 @@ function InfoPane(props) {
                                         </td>
                                         <td className="table-right util-liga-mono tighten table-numeric">{uplink.rssi}<span className="table-unit"> dBm</span></td>
                                         <td className="table-right util-liga-mono tighten table-numeric">{uplink.snr.toFixed(2)}</td>
-                                        <td className="table-right util-liga-mono tighten table-numeric">{uplinkDistance(uplink.lat, uplink.lng).number}<span className="table-unit"> {uplinkDistance(uplink.lat, uplink.lng).unit}</span></td>
+                                        <td className="table-right util-liga-mono tighten table-numeric">{distance.number}<span className="table-unit"> {distance.unit}</span></td>
                                     </tr>
-                                ))}
+                                    )
+                                })}
                             </tbody>
                         </table>
                     </div>

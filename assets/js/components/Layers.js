@@ -75,17 +75,17 @@ const hexPaint = fillColor => ({
     'fill-color': [
         'case',
         ['boolean',
-            ['feature-state', 'selected'], true],
-        fillColor,
-        '#b67ffe'
+            ['feature-state', 'selected'], false],
+        '#b67ffe',
+        fillColor
     ],
     'fill-opacity': 0.9,
     'fill-outline-color': [
         'case',
         ['boolean',
-            ['feature-state', 'selected'], true],
-        'rgba(38,251,202,0.45)',
-        '#ffffff'
+            ['feature-state', 'selected'], false],
+        '#ffffff',
+        'rgba(38,251,202,0.45)'
     ]
 });
 
