@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure your database
 config :mappers, Mappers.Repo,
@@ -16,7 +16,7 @@ config :mappers, Mappers.Repo,
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :mappers, MappersWeb.Endpoint,
-  http: [port: 4000],
+  http: [port: String.to_integer(System.get_env("PORT") || "4000")],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
@@ -26,7 +26,9 @@ config :mappers, MappersWeb.Endpoint,
       "--mode",
       "development",
       "--watch-stdin",
-      cd: Path.expand("../assets", __DIR__)
+      cd: Path.expand("../assets", __DIR__),
+      # webpack 4 hashes with md4, which Node 17+ only allows with the legacy OpenSSL provider
+      env: [{"NODE_OPTIONS", "--openssl-legacy-provider"}]
     ]
   ]
 

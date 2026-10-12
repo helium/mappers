@@ -15,6 +15,8 @@ defmodule Mappers.H3 do
     # get current hex if it exist
     res9_temp = Repo.get(Res9, h3_res9_id_s)
 
+    last_heard = last_heard(message)
+
     # create list of rssi's with snr (Mappers.Ingest has already made both floats)
     rssi_snr_list = Enum.reduce(message["hotspots"], [], &[{&1["rssi"], &1["snr"]} | &2])
 
@@ -47,9 +49,13 @@ defmodule Mappers.H3 do
           res9_temp.snr
         end
 
+      # unlike best_rssi, last_heard moves forward on every uplink
+      last_heard = max(last_heard, res9_temp.last_heard || 0)
+
       res9_temp
       |> Ecto.Changeset.change(%{best_rssi: best_rssi})
       |> Ecto.Changeset.change(%{snr: snr})
+      |> Ecto.Changeset.change(%{last_heard: last_heard})
       |> Repo.update()
       |> case do
         {:ok, changeset} -> {:ok, changeset}
@@ -76,6 +82,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
                 |> Map.put(:snr, snr)
+                |> Map.put(:last_heard, last_heard)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -106,6 +113,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
                 |> Map.put(:snr, snr)
+                |> Map.put(:last_heard, last_heard)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -137,6 +145,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
                 |> Map.put(:snr, snr)
+                |> Map.put(:last_heard, last_heard)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -169,6 +178,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
                 |> Map.put(:snr, snr)
+                |> Map.put(:last_heard, last_heard)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -202,6 +212,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
                 |> Map.put(:snr, snr)
+                |> Map.put(:last_heard, last_heard)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -236,6 +247,7 @@ defmodule Mappers.H3 do
                 |> Map.put(:state, "mapped")
                 |> Map.put(:best_rssi, rssi)
                 |> Map.put(:snr, snr)
+                |> Map.put(:last_heard, last_heard)
                 |> Map.put(:geom, %Geo.Polygon{
                   coordinates: [
                     [
@@ -266,11 +278,29 @@ defmodule Mappers.H3 do
 
         # broadcast new hex on channel
         MappersWeb.Endpoint.broadcast!("h3:new", "new_h3", %{
-          body: %{id: h3_res9_id, id_string: h3_res9_id_s, best_rssi: rssi, snr: snr}
+          body: %{
+            id: h3_res9_id,
+            id_string: h3_res9_id_s,
+            best_rssi: rssi,
+            snr: snr,
+            last_heard: last_heard
+          }
         })
 
         result
       end
+    end
+  end
+
+  # Epoch seconds from reported_at, which is in ms. Fall back to now when it is
+  # missing, and never trust a time in the future, since a bad gateway clock
+  # would pin the hex as fresh.
+  defp last_heard(message) do
+    now = System.os_time(:second)
+
+    case message["reported_at"] do
+      ms when is_integer(ms) -> min(div(ms, 1000), now)
+      _ -> now
     end
   end
 end

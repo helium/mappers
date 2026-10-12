@@ -1,6 +1,5 @@
 defmodule Mix.Tasks.H3PopulateFixPoly do
   use Mix.Task
-  import Ecto.Repo
 
   def getChildrenAtRes(h3_index, target_res, acc) do
     if :h3.is_valid(h3_index) do
@@ -80,7 +79,7 @@ defmodule Mix.Tasks.H3PopulateFixPoly do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:avg_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-110..-70))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -134,7 +133,7 @@ defmodule Mix.Tasks.H3PopulateFixPoly do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:avg_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-110..-70))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -189,7 +188,7 @@ defmodule Mix.Tasks.H3PopulateFixPoly do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:avg_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-110..-70))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -245,7 +244,7 @@ defmodule Mix.Tasks.H3PopulateFixPoly do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:avg_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-110..-70))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -302,7 +301,7 @@ defmodule Mix.Tasks.H3PopulateFixPoly do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:avg_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-110..-70))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [
@@ -360,7 +359,7 @@ defmodule Mix.Tasks.H3PopulateFixPoly do
             %{}
             |> Map.put(:id, Kernel.inspect(hex))
             |> Map.put(:state, "unmapped")
-            |> Map.put(:avg_rssi, Enum.random(-70..-110))
+            |> Map.put(:avg_rssi, Enum.random(-110..-70))
             |> Map.put(:geom, %Geo.Polygon{
               coordinates: [
                 [

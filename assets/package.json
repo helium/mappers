@@ -14,7 +14,7 @@
     "geojson": "^0.5.0",
     "geojson2h3": "^1.1.1",
     "h3-js": "^3.7.2",
-    "mapbox-gl": "^2.2.0",
+    "mapbox-gl": "2.15.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "react": "^17.0.2",
@@ -38,5 +38,8 @@
     "terser-webpack-plugin": "^2.3.2",
     "webpack": "4.41.5",
     "webpack-cli": "^3.3.2"
+  },
+  "resolutions": {
+    "mapbox-gl": "2.15.0"
   }
 }
