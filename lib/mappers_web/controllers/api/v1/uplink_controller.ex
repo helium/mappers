@@ -13,4 +13,14 @@ defmodule MappersWeb.API.V1.UplinkController do
         conn |> put_status(400) |> json(%{error: reason})
     end
   end
+
+  def get_latest(conn, params) do
+    case Filter.parse(params) do
+      {:ok, filter} ->
+        conn |> json(%{latest: Uplinks.get_latest_uplink(filter)})
+
+      {:error, reason} ->
+        conn |> put_status(400) |> json(%{error: reason})
+    end
+  end
 end

@@ -33,7 +33,7 @@ body {
 @media only screen and (max-width: 550px) {
   .geolocate-button {
     right: 16px;
-    top: 48px;
+    top: 72px;
     bottom: unset;
   }
 }
@@ -76,6 +76,7 @@ body {
 }
 .pane-nav {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
 
@@ -109,6 +110,28 @@ body {
 }
 .nav-link a:hover {
   text-decoration: underline;
+}
+.latest-uplink {
+  flex-basis: 100%;
+
+  color: rgba(255,255,255,0.7);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.latest-uplink-link {
+  color: white;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(182,127,254,0.6);
+  text-underline-offset: 2px;
+}
+.latest-uplink-link:hover {
+  color: #b67ffe;
+}
+.latest-uplink-empty {
+  color: white;
 }
 
 .legend-transition-enter-active {
@@ -505,7 +528,7 @@ th.has-km-toggle {
   }
   .legend {
     position: fixed;
-    top: 4rem;
+    top: 5rem;
     padding: 0 1rem;
   }
   .info-pane {
@@ -514,7 +537,7 @@ th.has-km-toggle {
   }
   .filter-pane {
     position: fixed;
-    top: 3.5rem;
+    top: 4.5rem;
     left: 0;
     right: 0;
 

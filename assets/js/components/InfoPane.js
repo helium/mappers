@@ -111,6 +111,31 @@ function InfoPane(props) {
         }
     }
 
+    // e.g. "Oct 9, 2026, 3:04 PM PDT" in the viewer's zone
+    const latestUplinkFormat = {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
+    }
+
+    function latestUplinkValue() {
+        const latest = props.latestUplink
+        if (latest === undefined) return <span className="latest-uplink-empty">–</span>
+        if (latest === null) return <span className="latest-uplink-empty">{filterActive ? "none match the filter" : "none yet"}</span>
+
+        const heardAt = parseISO(latest.timestamp)
+        const onClick = event => {
+            // let modified clicks open the hex link in a new tab
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+            event.preventDefault()
+            props.onLatestUplinkClick()
+        }
+        return (
+            <a className="latest-uplink-link" href={"/uplinks/hex/" + latest.h3_id} title={heardAt.toISOString()} onClick={onClick}>
+                {heardAt.toLocaleString(undefined, latestUplinkFormat)}
+            </a>
+        )
+    }
+
     function deKebab(string){
         return string
         .split('-')
@@ -146,6 +171,9 @@ function InfoPane(props) {
                         <a href="https://github.com/helium/mappers" target="_blank">GitHub</a>
                     </li>
                 </ul>
+                <div className="latest-uplink">
+                    Most recent uplink on map: {latestUplinkValue()}
+                </div>
             </div>
             { activePanel === PANEL_FILTER &&
                 <FilterPane colorBy={props.colorBy} filters={props.filters} onFiltersChange={props.onFiltersChange} onHotspotSelect={props.onHotspotSelect} />
@@ -176,7 +204,7 @@ function InfoPane(props) {
                         <div className="big-stat">
                             <div className="stat-head type-smallcap">Best RSSI</div>
                             <div className="stat-body">
-                                {props.bestRssi}
+                                {props.bestRssi != null ? props.bestRssi : "–"}
                                 <span className="stat-unit"> dBm</span>
                             </div>
                         </div>
@@ -184,7 +212,7 @@ function InfoPane(props) {
                         <div className="big-stat">
                             <div className="stat-head type-smallcap">SNR</div>
                             <div className="stat-body">
-                                {props.snr}
+                                {props.snr != null ? props.snr : "–"}
                                 <span className="stat-unit"></span>
                             </div>
                         </div>

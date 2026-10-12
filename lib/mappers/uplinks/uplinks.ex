@@ -33,6 +33,7 @@ defmodule Mappers.Uplinks do
     best_per_hotspot =
       from(u in Uplink,
         join: uh in UplinkHeard,
+        as: :heard,
         on: u.id == uh.uplink_id,
         join: h3 in Link,
         on: h3.uplink_id == u.id,
@@ -58,6 +59,29 @@ defmodule Mappers.Uplinks do
       select: b
 
     Repo.all(query)
+  end
+
+  # The most recently heard uplink, or nil. Rows with no timestamp are
+  # skipped because DESC sorts NULLs first; the filter keeps the backward
+  # scan on uplinks_heard_timestamp_index.
+  def get_latest_uplink(filter \\ %Filter{}) do
+    query =
+      from uh in UplinkHeard,
+      as: :heard,
+      join: h3 in Link,
+      on: h3.uplink_id == uh.uplink_id,
+      where: not is_nil(uh.timestamp),
+      order_by: [desc: uh.timestamp],
+      limit: 1,
+      select: %{
+        h3_id: h3.h3_res9_id,
+        timestamp: uh.timestamp,
+        hotspot_name: uh.hotspot_name
+      }
+
+    query
+    |> apply_filter(filter)
+    |> Repo.one()
   end
 
   def search_hotspots(prefix, limit \\ 20) do
@@ -91,11 +115,11 @@ defmodule Mappers.Uplinks do
   end
 
   defp filter_start(query, nil), do: query
-  defp filter_start(query, start_at), do: where(query, [_u, uh], uh.timestamp >= ^start_at)
+  defp filter_start(query, start_at), do: where(query, [heard: uh], uh.timestamp >= ^start_at)
 
   defp filter_end(query, nil), do: query
-  defp filter_end(query, end_at), do: where(query, [_u, uh], uh.timestamp < ^end_at)
+  defp filter_end(query, end_at), do: where(query, [heard: uh], uh.timestamp < ^end_at)
 
   defp filter_hotspot(query, nil), do: query
-  defp filter_hotspot(query, hotspot), do: where(query, [_u, uh], uh.hotspot_name == ^hotspot)
+  defp filter_hotspot(query, hotspot), do: where(query, [heard: uh], uh.hotspot_name == ^hotspot)
 end

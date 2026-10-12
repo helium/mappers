@@ -47,6 +47,11 @@ const saveColorBy = colorBy => {
     }
 }
 
+// the API allows 60 requests a minute per IP, shared with hex lookups and
+// hotspot search
+const LATEST_REFRESH_MS = 60 * 1000
+const LATEST_ZOOM = 15
+
 // Query string for the filtered tile source and hex API. The end date is
 // inclusive in the UI and exclusive in the API, so it moves forward a day.
 // Returns '' when no filter applies or the range is invalid.
@@ -86,6 +91,9 @@ function Map(props) {
     const [legendBucket, setLegendBucket] = useState(null);
     // ages are measured from page load, which is close enough for day-scale stops
     const [nowSeconds] = useState(() => Math.floor(Date.now() / 1000));
+    // undefined until the first response for the current filters, null when none match
+    const [latestUplink, setLatestUplink] = useState(undefined);
+    const latestRequestRef = useRef(0);
     const filterQuery = toFilterQuery(filters);
     const activeBucket = legendBucket && legendBucket.colorBy === colorBy ? legendBucket : null;
     const uplinkTiles = filterQuery
@@ -138,6 +146,30 @@ function Map(props) {
         }
 
     }, [location,])
+
+    const fetchLatestUplink = () => {
+        const request = ++latestRequestRef.current;
+        get("uplinks/latest" + (filterQuery ? "?" + filterQuery : ""))
+            .then(res => {
+                if (!res.ok) throw new Error("Latest uplink request failed: " + res.status)
+                return res.json()
+            })
+            .then(body => {
+                if (request === latestRequestRef.current) setLatestUplink(body.latest)
+            })
+            // keep the last good value; the next refresh tries again
+            .catch(err => console.warn(err))
+    }
+
+    // reruns when the filters change, so the interval always fetches with the current ones
+    React.useEffect(() => {
+        setLatestUplink(undefined);
+        fetchLatestUplink();
+        const interval = setInterval(() => {
+            if (!document.hidden) fetchLatestUplink();
+        }, LATEST_REFRESH_MS);
+        return () => clearInterval(interval);
+    }, [filterQuery])
 
     const onCloseHexPaneClick = () => {
         setShowHexPane(false);
@@ -234,7 +266,24 @@ function Map(props) {
         }
     }
 
-    const getHex = h3_index => {
+    const onLatestUplinkClick = () => {
+        if (!latestUplink) return;
+        const id = latestUplink.h3_id;
+        const [latitude, longitude] = h3ToGeo(id);
+        setViewport({
+            ...viewport,
+            latitude,
+            longitude,
+            zoom: LATEST_ZOOM,
+            transitionInterpolator: new FlyToInterpolator(),
+            transitionDuration: 'auto'
+        });
+        // the hex may not be drawn until the flight lands, so its stats come
+        // from the hex API; feature state applies once its tile loads
+        selectHex({ id: id, properties: null });
+    }
+
+    const getHex = (h3_index, fillStats) => {
         get("uplinks/hex/" + h3_index + (filterQuery ? "?" + filterQuery : ""))
             .then(res => {
                 if (res.status == 429) {
@@ -252,6 +301,12 @@ function Map(props) {
                 var hotspot_circle_features = [];
                 var hotspot_hex_features = [];
                 setUplinks(uplinks.uplinks)
+                // the hex API lists the strongest uplink first
+                if (fillStats && uplinks.uplinks.length > 0) {
+                    const best = uplinks.uplinks[0]
+                    setBestRssi(best.rssi)
+                    setSnr(best.snr.toFixed(2))
+                }
                 const uplink_coords = h3ToGeo(h3_index)
                 uplinks.uplinks.map((h, i) => {
                     const hotspot_h3_index = geoToH3(h.lat, h.lng, 8)
@@ -329,10 +384,12 @@ function Map(props) {
         navigate("/uplinks/hex/" + id);
         // set hex data for info pane
         setShowHexPaneCloseButton(false);
-        setBestRssi(feature.properties.best_rssi);
-        setSnr(feature.properties.snr.toFixed(2));
+        // a hex selected without a rendered feature gets its stats from getHex
+        const stats = feature.properties;
+        setBestRssi(stats ? stats.best_rssi : null);
+        setSnr(stats ? stats.snr.toFixed(2) : null);
         setHexId(id);
-        getHex(id);
+        getHex(id, !stats);
         setShowHexPane(true);
         setTimeout(() => { setShowHexPaneCloseButton(true); }, 1000)
     }
@@ -425,7 +482,7 @@ function Map(props) {
                 </Source>
 
             </MapGL>
-            <InfoPane colorBy={colorBy} onColorByChange={onColorByChange} onLegendBucketChange={setLegendBucket} filters={filters} onFiltersChange={onFiltersChange} onHotspotSelect={onHotspotSelect} hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} />
+            <InfoPane colorBy={colorBy} onColorByChange={onColorByChange} onLegendBucketChange={setLegendBucket} filters={filters} onFiltersChange={onFiltersChange} onHotspotSelect={onHotspotSelect} hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} latestUplink={latestUplink} onLatestUplinkClick={onLatestUplinkClick} />
         </div>
     );
 }
