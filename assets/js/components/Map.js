@@ -220,6 +220,29 @@ function Map(props) {
         });
     }
 
+    const onPlaceSelect = place => {
+        const [lng, lat] = place.center
+        // a street address or point of interest needs a closer look than a city
+        const pointZoom = place.place_type.some(t => t === 'address' || t === 'poi') ? 16 : 12
+        let target = { longitude: lng, latitude: lat, zoom: pointZoom }
+        if (place.bbox) {
+            const [minLng, minLat, maxLng, maxLat] = place.bbox
+            try {
+                const vp = new WebMercatorViewport({ ...viewport, width: window.innerWidth, height: window.innerHeight })
+                const fit = vp.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 40, maxZoom: 16 })
+                target = { longitude: fit.longitude, latitude: fit.latitude, zoom: fit.zoom }
+            } catch (err) {
+                // fitBounds throws when the padding does not fit the window; the center is good enough
+            }
+        }
+        setViewport({
+            ...viewport,
+            ...target,
+            transitionInterpolator: new FlyToInterpolator(),
+            transitionDuration: 1500
+        });
+    }
+
     const selectedHotspotData = {
         "type": "FeatureCollection",
         "features": selectedHotspot ? [{
@@ -482,7 +505,7 @@ function Map(props) {
                 </Source>
 
             </MapGL>
-            <InfoPane colorBy={colorBy} onColorByChange={onColorByChange} onLegendBucketChange={setLegendBucket} filters={filters} onFiltersChange={onFiltersChange} onHotspotSelect={onHotspotSelect} hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} latestUplink={latestUplink} onLatestUplinkClick={onLatestUplinkClick} />
+            <InfoPane mapCenter={{ latitude: viewport.latitude, longitude: viewport.longitude }} onPlaceSelect={onPlaceSelect} colorBy={colorBy} onColorByChange={onColorByChange} onLegendBucketChange={setLegendBucket} filters={filters} onFiltersChange={onFiltersChange} onHotspotSelect={onHotspotSelect} hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} latestUplink={latestUplink} onLatestUplinkClick={onLatestUplinkClick} />
         </div>
     );
 }

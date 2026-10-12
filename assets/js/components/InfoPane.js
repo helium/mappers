@@ -5,9 +5,11 @@ import parseISO from 'date-fns/parseISO'
 import h3 from 'h3-js/dist/h3-js';
 import FilterPane from './FilterPane'
 import LegendPane from './LegendPane'
+import LocationSearch from './LocationSearch'
 
 const PANEL_FILTER = 'filter'
 const PANEL_LEGEND = 'legend'
+const PANEL_SEARCH = 'search'
 
 const DISTANCE_UNIT_KEY = 'distanceUnit'
 const KM_PER_MILE = 1.609
@@ -160,6 +162,9 @@ function InfoPane(props) {
                 </svg>
                 <ul className="nav-links">
                     <li className="nav-link">
+                        <button onClick={() => togglePanel(PANEL_SEARCH)} aria-expanded={activePanel === PANEL_SEARCH}>Search</button>
+                    </li>
+                    <li className="nav-link">
                         <button onClick={() => togglePanel(PANEL_FILTER)} aria-expanded={activePanel === PANEL_FILTER}>
                             Filter{filterActive && <span className="filter-dot" title="Filter active"> •</span>}
                         </button>
@@ -175,6 +180,9 @@ function InfoPane(props) {
                     Most recent uplink on map: {latestUplinkValue()}
                 </div>
             </div>
+            { activePanel === PANEL_SEARCH &&
+                <LocationSearch center={props.mapCenter} onPlaceSelect={props.onPlaceSelect} />
+            }
             { activePanel === PANEL_FILTER &&
                 <FilterPane colorBy={props.colorBy} filters={props.filters} onFiltersChange={props.onFiltersChange} onHotspotSelect={props.onHotspotSelect} />
             }

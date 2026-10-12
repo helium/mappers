@@ -260,6 +260,55 @@ body {
   text-decoration: underline;
 }
 /** end filter pane **/
+
+/** location search **/
+.location-search-box {
+  position: relative;
+}
+.location-results {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  z-index: 3;
+
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+
+  background: rgba(22, 23, 29, 0.95);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.location-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  padding: 0.5rem 0.625rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.location-result.active {
+  background: rgba(182, 127, 254, 0.25);
+}
+.location-result-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.location-result-context {
+  font-size: 0.75rem;
+  opacity: 0.6;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.location-status:empty {
+  display: none;
+}
+/** end location search **/
   
   
 .legend {
@@ -548,6 +597,10 @@ th.has-km-toggle {
     -webkit-backdrop-filter: saturate(180%) blur(10px);
 
     z-index: 2;
+  }
+  .filter-field input {
+    /* iOS zooms the page into inputs smaller than 16px */
+    font-size: 16px;
   }
   .pane-nav {
     position: fixed;
