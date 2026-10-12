@@ -1,5 +1,6 @@
 import React from 'react'
 import { get } from '../data/Rest'
+import { COLOR_BY_LAST_HEARD } from './Layers'
 
 const SEARCH_DELAY_MS = 300
 
@@ -33,7 +34,7 @@ const fetchHotspots = query =>
         .then(body => body.hotspots)
 
 function FilterPane(props) {
-    const { filters, onFiltersChange, onHotspotSelect } = props
+    const { colorBy, filters, onFiltersChange, onHotspotSelect } = props
     const [hotspotQuery, setHotspotQuery] = React.useState(filters.hotspot)
     const [suggestions, setSuggestions] = React.useState([])
     const [searchError, setSearchError] = React.useState(null)
@@ -161,7 +162,9 @@ function FilterPane(props) {
                 <div className="filter-error">{rangeError || enterError || searchError}</div>
             }
             <div className="filter-footer">
-                <span className="filter-note">Dates are UTC. Hexes are colored by the best RSSI heard within the filter.</span>
+                <span className="filter-note">
+                    Dates are UTC. Hexes are colored by {colorBy === COLOR_BY_LAST_HEARD ? 'the latest uplink' : 'the best RSSI'} heard within the filter.
+                </span>
                 {isActive &&
                     <button className="filter-clear" onClick={() => onFiltersChange({ start: '', end: '', hotspot: '' })}>
                         Clear

@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import MapGL, { Source, Layer, FlyToInterpolator, LinearInterpolator, WebMercatorViewport, GeolocateControl, LngLat } from 'react-map-gl';
 import InfoPane from "../components/InfoPane"
 
-import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer, selectedHotspotLayer } from './Layers.js';
+import { uplinkTileServerLayer, hotspotTileServerLayer, uplinkHotspotsLineLayer, uplinkHotspotsCircleLayer, uplinkHotspotsHexLayer, uplinkChannelLayer, selectedHotspotLayer, COLOR_BY_SIGNAL, COLOR_BY_LAST_HEARD } from './Layers.js';
 import bbox from '@turf/bbox';
 import { get } from '../data/Rest'
 import { geoToH3, h3ToGeo, h3ToGeoBoundary } from "h3-js";
@@ -21,6 +21,26 @@ var selectedStateIdChannel = null;
 const channel = socket.channel("h3:new")
 const EMPTY_FILTERS = { start: '', end: '', hotspot: '' }
 const DAY_MS = 24 * 60 * 60 * 1000
+const COLOR_BY_KEY = 'mappers.colorBy'
+
+// localStorage can be missing or throw (private mode, blocked storage), and the
+// choice is only a convenience, so fall back to signal.
+const loadColorBy = () => {
+    try {
+        const saved = window.localStorage.getItem(COLOR_BY_KEY)
+        return saved === COLOR_BY_LAST_HEARD ? COLOR_BY_LAST_HEARD : COLOR_BY_SIGNAL
+    } catch (err) {
+        return COLOR_BY_SIGNAL
+    }
+}
+
+const saveColorBy = colorBy => {
+    try {
+        window.localStorage.setItem(COLOR_BY_KEY, colorBy)
+    } catch (err) {
+        console.warn('Unable to save color mode', err)
+    }
+}
 
 // Query string for the filtered tile source and hex API. The end date is
 // inclusive in the UI and exclusive in the API, so it moves forward a day.
@@ -56,7 +76,13 @@ function Map(props) {
     const [showHexPaneCloseButton, setShowHexPaneCloseButton] = useState(false);
     const [filters, setFilters] = useState(EMPTY_FILTERS);
     const [selectedHotspot, setSelectedHotspot] = useState(null);
+    const [colorBy, setColorBy] = useState(loadColorBy);
+    // the legend bucket being hovered, focused, or tapped, which narrows the hex layers
+    const [legendBucket, setLegendBucket] = useState(null);
+    // ages are measured from page load, which is close enough for day-scale stops
+    const [nowSeconds] = useState(() => Math.floor(Date.now() / 1000));
     const filterQuery = toFilterQuery(filters);
+    const activeBucket = legendBucket && legendBucket.colorBy === colorBy ? legendBucket : null;
     const uplinkTiles = filterQuery
         ? [TILESERVER_URL + "/rpc/public.h3_res9_filtered/{z}/{x}/{y}.pbf?" + filterQuery]
         : [TILESERVER_URL + "/public.h3_res9/{z}/{x}/{y}.pbf"];
@@ -69,7 +95,7 @@ function Map(props) {
             setLastPath(location.pathname);
             let features = []
             channel.on("new_h3", payload => {
-                var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id': payload.body.id, 'id_string': payload.body.id_string, 'best_rssi': payload.body.best_rssi, 'snr': payload.body.snr })
+                var new_feature = geojson2h3.h3ToFeature(payload.body.id_string, { 'id': payload.body.id, 'id_string': payload.body.id_string, 'best_rssi': payload.body.best_rssi, 'snr': payload.body.snr, 'last_heard': payload.body.last_heard })
                 new_feature.id = payload.body.id
                 features.push(new_feature)
                 const featureCollection =
@@ -134,6 +160,11 @@ function Map(props) {
         if (showHexPane) onCloseHexPaneClick();
         if (nextFilters.hotspot !== filters.hotspot) setSelectedHotspot(null);
         setFilters(nextFilters);
+    }
+
+    const onColorByChange = nextColorBy => {
+        setColorBy(nextColorBy);
+        saveColorBy(nextColorBy);
     }
 
     const onHotspotSelect = hotspot => {
@@ -385,11 +416,11 @@ function Map(props) {
                 </Source>
                 {/* tiles rather than a TileJSON url: changing tiles swaps the source in place via setTiles */}
                 <Source id="uplink-tileserver" type="vector" tiles={uplinkTiles} maxzoom={22}>
-                    <Layer {...uplinkTileServerLayer} source-layer={"public.h3_res9"} />
+                    <Layer {...uplinkTileServerLayer(colorBy, nowSeconds, activeBucket)} source-layer={"public.h3_res9"} />
                 </Source>
                 {/* live hexes ignore filters, so hide them while one is applied */}
                 <Source id="uplink-channel" type="geojson" data={uplinkChannelData}>
-                    <Layer {...uplinkChannelLayer} layout={{ visibility: filterQuery ? 'none' : 'visible' }} />
+                    <Layer {...uplinkChannelLayer(colorBy, nowSeconds, activeBucket)} layout={{ visibility: filterQuery ? 'none' : 'visible' }} />
                 </Source>
                 <Source id="selected-hotspot" type="geojson" data={selectedHotspotData}>
                     <Layer {...selectedHotspotLayer} />
@@ -405,7 +436,7 @@ function Map(props) {
                 </Source>
 
             </MapGL>
-            <InfoPane filters={filters} onFiltersChange={onFiltersChange} onHotspotSelect={onHotspotSelect} hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} />
+            <InfoPane colorBy={colorBy} onColorByChange={onColorByChange} onLegendBucketChange={setLegendBucket} filters={filters} onFiltersChange={onFiltersChange} onHotspotSelect={onHotspotSelect} hexId={hexId} bestRssi={bestRssi} snr={snr} uplinks={uplinks} showHexPane={showHexPane} onCloseHexPaneClick={onCloseHexPaneClick} showHexPaneCloseButton={showHexPaneCloseButton} />
         </div>
     );
 }

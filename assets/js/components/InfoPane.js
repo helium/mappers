@@ -4,6 +4,7 @@ import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
 import parseISO from 'date-fns/parseISO'
 import h3 from 'h3-js/dist/h3-js';
 import FilterPane from './FilterPane'
+import LegendPane from './LegendPane'
 
 const PANEL_FILTER = 'filter'
 const PANEL_LEGEND = 'legend'
@@ -119,50 +120,10 @@ function InfoPane(props) {
                 </ul>
             </div>
             { activePanel === PANEL_FILTER &&
-                <FilterPane filters={props.filters} onFiltersChange={props.onFiltersChange} onHotspotSelect={props.onHotspotSelect} />
+                <FilterPane colorBy={props.colorBy} filters={props.filters} onFiltersChange={props.onFiltersChange} onHotspotSelect={props.onHotspotSelect} />
             }
             { activePanel === PANEL_LEGEND &&
-                <div className="legend">
-                    <div className="legend-line">
-                        <span className="legend-item type-smallcap">RSSI</span>
-                        <div className="legend-item">
-                            <svg className="legend-icon legend-dBm-low" width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 0L13.0622 3.5V10.5L7 14L0.937822 10.5V3.5L7 0Z" />
-                            </svg>
-                            <span>-120<span className="stat-unit"> dBm</span></span>
-                        </div>
-                        <div className="legend-item">
-                            <svg className="legend-icon legend-dBm-medium" width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 0L13.0622 3.5V10.5L7 14L0.937822 10.5V3.5L7 0Z" />
-                            </svg>
-                            <span>-100<span className="stat-unit"> dBm</span></span>
-                        </div>
-                        <div className="legend-item">
-                            <svg className="legend-icon legend-dBm-high" width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 0L13.0622 3.5V10.5L7 14L0.937822 10.5V3.5L7 0Z" />
-                            </svg>
-                            <span>-80<span className="stat-unit"> dBm</span></span>
-                        </div>
-                    </div>
-
-                    <div className="legend-line">
-                        <div className="legend-item">
-                            <svg className="legend-icon legend-mapper-witness" width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 0L13.0622 3.5V10.5L7 14L0.937822 10.5V3.5L7 0Z" />
-                            </svg>
-                            <span>Mapper Witness</span>
-                        </div>
-                    </div>
-
-                    <div className="legend-line">
-                        <div className="legend-item">
-                            <svg className="legend-icon legend-hotspot" width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 0L13.0622 3.5V10.5L7 14L0.937822 10.5V3.5L7 0Z" />
-                            </svg>
-                            <span>Hotspot</span>
-                        </div>
-                    </div>
-                </div>
+                <LegendPane colorBy={props.colorBy} onColorByChange={props.onColorByChange} onBucketChange={props.onLegendBucketChange} />
             }
             { props.showHexPane &&
                 <div className="main-stats">
